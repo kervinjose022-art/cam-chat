@@ -13,6 +13,7 @@
         .info-box { background: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: left; }
         .status { color: #4caf50; font-weight: bold; }
         .token-count { font-size: 24px; color: #ffeb3b; font-weight: bold; }
+        .error-log { color: #ff5252; font-size: 12px; margin-top: 10px; background: #000; padding: 5px; display: none; border-radius: 3px; text-align: left; overflow-x: auto; }
     </style>
 </head>
 <body>
@@ -24,7 +25,8 @@
         <div class="info-box">
             <h3>🔴 Estado del Servidor: <span class="status">En Línea</span></h3>
             <p><strong>Base de Datos:</strong> Cloud Firestore Activa</p>
-            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">Cargando...</span> Tokens</p>
+            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">Buscando Saldo...</span> Tokens</p>
+            <div id="error-box" class="error-log"></div>
         </div>
 
         <div class="info-box">
@@ -34,78 +36,77 @@
         </div>
     </div>
 
-    <!-- SDK de Firebase -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://gstatic.com";
+        import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc, increment } from "https://gstatic.com";
 
-        // Tus llaves reales de CamChat extraídas de la imagen
         const firebaseConfig = {
             apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
-            authDomain: "://firebaseapp.com",
-            databaseURL: "https://firebaseio.com",
+            authDomain: "camchat-900d6.firebaseapp.com",
             projectId: "camchat-900d6",
             storageBucket: "://appspot.com",
             messagingSenderId: "434447301379",
             appId: "1:434447301379:web:a5571e06a1c69530cb0736"
         };
 
-        // Inicializar Firebase y Firestore
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Como creamos un ID automático en Firestore, usaremos el registro existente de tu base de datos
-        // Nota: Al conectar el login real esto se vuelve dinámico. Por ahora usaremos una referencia directa.
-        const usuarioRef = doc(db, "usuarios", "ID_DE_TU_DOCUMENTO"); 
-        
-        // TIP: Para pruebas rápidas, buscaremos el primer documento disponible de la colección 'usuarios'
-        // Escuchar balance a tiempo real de la base de datos
-        // NOTA: Como en tu pantalla el documento tiene un ID aleatorio, vamos a apuntar al usuario de prueba de forma dinámica en tu consola.
-        // Para que funcione de inmediato sin configurar IDs largos, crearemos un acceso directo:
-        const HardcodedUserRef = doc(db, "usuarios", "prueba_user");
-
-        // Creamos/actualizamos un usuario fijo para pruebas rápidas
-        async function inicializarUsuarioPrueba() {
-            try {
-                await updateDoc(HardcodedUserRef, { nombre: "Admin_Carlos", tokens_balance: increment(0) });
-            } catch {
-                // Si no existe el ID fijo 'prueba_user', puedes interactuar directamente desde consola.
-                console.log("Configurando flujo de tiempo real...");
-            }
+        function mostrarError(err) {
+            const box = document.getElementById("error-box");
+            box.style.display = "block";
+            box.innerText = "Error Técnico: " + err;
         }
-        inicializarUsuarioPrueba();
 
-        // Escuchar cambios en caliente
-        onSnapshot(HardcodedUserRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const datos = docSnap.data();
-                document.getElementById("balance-view").innerText = datos.tokens_balance || 0;
-            } else {
-                document.getElementById("balance-view").innerText = "Creando registro...";
-                updateDoc(HardcodedUserRef, { nombre: "Admin_Carlos", tokens_balance: 1000, rol: "admin", esta_online: true });
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            let usuarioRef = null;
+
+            async function inicializarConexion() {
+                try {
+                    const querySnapshot = await getDocs(collection(db, "usuarios"));
+                    if (!querySnapshot.empty) {
+                        const primerDoc = querySnapshot.docs[0];
+                        usuarioRef = doc(db, "usuarios", primerDoc.id);
+                        
+                        onSnapshot(usuarioRef, (docSnap) => {
+                            if (docSnap.exists()) {
+                                document.getElementById("balance-view").innerText = docSnap.data().tokens_balance ?? 0;
+                            } else {
+                                document.getElementById("balance-view").innerText = "Doc no existe";
+                            }
+                        }, (error) => {
+                            mostrarError("onSnapshot falló: " + error.message);
+                        });
+                    } else {
+                        document.getElementById("balance-view").innerText = "Crea un usuario";
+                    }
+                } catch (e) {
+                    mostrarError("Error leyendo colección: " + e.message);
+                    document.getElementById("balance-view").innerText = "Error BD";
+                }
             }
-        });
 
-        // Botón Enviar Regalo (Resta tokens en vivo en Firestore)
-        document.getElementById("btn-regalo").addEventListener("click", async () => {
-            try {
-                await updateDoc(HardcodedUserRef, {
-                    tokens_balance: increment(-50)
-                });
-                alert("¡Regalo enviado! Se descontaron 50 tokens de tu base de datos en tiempo real.");
-            } catch (error) {
-                alert("Error al conectar con Firestore. Asegúrate de estar usando el usuario correcto.");
-            }
-        });
+            inicializarConexion();
 
-        // Botón Recargar (Suma tokens en vivo en Firestore)
-        document.getElementById("btn-recarga").addEventListener("click", async () => {
-            await updateDoc(HardcodedUserRef, {
-                tokens_balance: increment(500)
+            document.getElementById("btn-regalo").addEventListener("click", async () => {
+                if (usuarioRef) {
+                    try {
+                        await updateDoc(usuarioRef, { tokens_balance: increment(-50) });
+                    } catch(e) { alert("Error al restar: " + e.message); }
+                } else { alert("Servidor desconectado"); }
             });
-            alert("¡Pago procesado! Se abonaron 500 tokens a tu cuenta en Firestore.");
-        });
 
+            document.getElementById("btn-recarga").addEventListener("click", async () => {
+                if (usuarioRef) {
+                    try {
+                        await updateDoc(usuarioRef, { tokens_balance: increment(500) });
+                    } catch(e) { alert("Error al sumar: " + e.message); }
+                } else { alert("Servidor desconectado"); }
+            });
+
+        } catch (globalError) {
+            mostrarError("Error inicialización Firebase: " + globalError.message);
+        }
     </script>
 </body>
 </html>
+
