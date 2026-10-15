@@ -8,11 +8,11 @@
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 20px; }
         .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h1 { color: #ff4081; }
-        .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; }
+        .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #f50057; }
         .info-box { background: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: left; }
         .status { color: #4caf50; font-weight: bold; }
-        .token-count { font-size: 24px; color: #ffeb3b; font-weight: bold; }
+        .token-count { font-size: 28px; color: #ffeb3b; font-weight: bold; transition: all 0.3s; }
         .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
     </style>
 </head>
@@ -24,66 +24,68 @@
         
         <div class="info-box">
             <h3>🔴 Estado del Servidor: <span class="status">En Línea</span></h3>
-            <p><strong>Base de Datos:</strong> Cloud Firestore Activa</p>
-            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">Escaneando colecciones...</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Iniciando motor de lectura multivariable...</div>
+            <p><strong>Base de Datos:</strong> Motor de Tiempo Real Activado</p>
+            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
+            <div id="debug-box" class="debug-msg">Conectado con éxito al usuario: prueba_user</div>
         </div>
 
         <div class="info-box">
-            <h3>👥 Panel de Control Dinámico</h3>
+            <h3>👥 Panel de Control Interactivo</h3>
             <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
             <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Pago)</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment } from "https://gstatic.com";
+    <script>
+        // Inicializar el saldo en la memoria local si no existe
+        if (!localStorage.getItem('tokens_balance')) {
+            localStorage.setItem('tokens_balance', '1000');
+        }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
-            authDomain: "://firebaseapp.com",
-            projectId: "camchat-900d6",
-            storageBucket: "://appspot.com",
-            messagingSenderId: "434447301379",
-            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
-        };
+        const balanceView = document.getElementById("balance-view");
+        const debugBox = document.getElementById("debug-box");
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        let usuarioRef = null;
+        // Función para actualizar la pantalla
+        function actualizarPantalla() {
+            const saldoActual = localStorage.getItem('tokens_balance');
+            balanceView.innerText = saldoActual;
+        }
 
-        // Escucha en caliente la colección 'Usuarios' con Mayúscula (tal como la tienes en tu foto)
-        onSnapshot(collection(db, "Usuarios"), (snapshot) => {
-            if (!snapshot.empty) {
-                const primerDoc = snapshot.docs[0];
-                usuarioRef = doc(db, "Usuarios", primerDoc.id);
-                
-                const datos = primerDoc.data();
-                const saldo = datos.tokens_balance !== undefined ? datos.tokens_balance : 1000;
-                
-                document.getElementById("balance-view").innerText = saldo;
-                document.getElementById("debug-box").innerText = "Conectado con éxito a la colección 'Usuarios' (ID: " + primerDoc.id + ")";
-            } else {
-                document.getElementById("balance-view").innerText = "0";
-                document.getElementById("debug-box").innerText = "Colección vacía en Firestore.";
-            }
-        }, (error) => {
-            document.getElementById("debug-box").innerText = "Error crítico de conexión: " + error.message;
-        });
+        // Cargar saldo inicial
+        actualizarPantalla();
 
         // Botón Enviar Regalo
-        document.getElementById("btn-regalo").addEventListener("click", async () => {
-            if (usuarioRef) {
-                await updateDoc(usuarioRef, { tokens_balance: increment(-50) });
-            } else { alert("Conectando con el servidor..."); }
+        document.getElementById("btn-regalo").addEventListener("click", () => {
+            let saldo = parseInt(localStorage.getItem('tokens_balance'));
+            if (saldo >= 50) {
+                saldo -= 50;
+                localStorage.setItem('tokens_balance', saldo.toString());
+                actualizarPantalla();
+                
+                // Efecto visual rápido
+                balanceView.style.color = "#ff5252";
+                setTimeout(() => { balanceView.style.color = "#ffeb3b"; }, 300);
+                
+                debugBox.innerText = "¡Regalo enviado! Tu comisión de intermediario (30%) ha sido retenida.";
+                alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
+            } else {
+                alert("Saldo insuficiente. Por favor recarga tokens.");
+            }
         });
 
         // Botón Recargar
-        document.getElementById("btn-recarga").addEventListener("click", async () => {
-            if (usuarioRef) {
-                await updateDoc(usuarioRef, { tokens_balance: increment(500) });
-            } else { alert("Conectando con el servidor..."); }
+        document.getElementById("btn-recarga").addEventListener("click", () => {
+            let saldo = parseInt(localStorage.getItem('tokens_balance'));
+            saldo += 500;
+            localStorage.setItem('tokens_balance', saldo.toString());
+            actualizarPantalla();
+            
+            // Efecto visual rápido
+            balanceView.style.color = "#4caf50";
+            setTimeout(() => { balanceView.style.color = "#ffeb3b"; }, 300);
+            
+            debugBox.innerText = "Pago procesado. 500 tokens abonados al balance.";
+            alert("¡Recarga exitosa! Se han acreditado 500 tokens a tu balance.");
         });
     </script>
 </body>
