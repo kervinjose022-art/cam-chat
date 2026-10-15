@@ -25,8 +25,8 @@
         <div class="info-box">
             <h3>🔴 Estado del Servidor: <span class="status">En Línea</span></h3>
             <p><strong>Base de Datos:</strong> Cloud Firestore Activa</p>
-            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">Escaneando base de datos...</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Iniciando motor de lectura...</div>
+            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">Escaneando colecciones...</span> Tokens</p>
+            <div id="debug-box" class="debug-msg">Iniciando motor de lectura multivariable...</div>
         </div>
 
         <div class="info-box">
@@ -53,39 +53,37 @@
         const db = getFirestore(app);
         let usuarioRef = null;
 
-        // Escanear la colección completa en tiempo real de forma dinámica
-        onSnapshot(collection(db, "usuarios"), (snapshot) => {
+        // Escucha en caliente la colección 'Usuarios' con Mayúscula (tal como la tienes en tu foto)
+        onSnapshot(collection(db, "Usuarios"), (snapshot) => {
             if (!snapshot.empty) {
-                // Captura el primer usuario que tenga en la lista (no importa el ID que tenga)
                 const primerDoc = snapshot.docs[0];
-                usuarioRef = doc(db, "usuarios", primerDoc.id);
+                usuarioRef = doc(db, "Usuarios", primerDoc.id);
                 
                 const datos = primerDoc.data();
-                // Buscar cualquier variación del campo de tokens guardado
-                const saldo = datos.tokens_balance !== undefined ? datos.tokens_balance : 0;
+                const saldo = datos.tokens_balance !== undefined ? datos.tokens_balance : 1000;
                 
                 document.getElementById("balance-view").innerText = saldo;
-                document.getElementById("debug-box").innerText = "Conectado dinámicamente al ID: " + primerDoc.id;
+                document.getElementById("debug-box").innerText = "Conectado con éxito a la colección 'Usuarios' (ID: " + primerDoc.id + ")";
             } else {
                 document.getElementById("balance-view").innerText = "0";
-                document.getElementById("debug-box").innerText = "Colección vacía. Crea un documento en Firestore.";
+                document.getElementById("debug-box").innerText = "Colección vacía en Firestore.";
             }
         }, (error) => {
-            document.getElementById("debug-box").innerText = "Error de red: " + error.message;
+            document.getElementById("debug-box").innerText = "Error crítico de conexión: " + error.message;
         });
 
         // Botón Enviar Regalo
         document.getElementById("btn-regalo").addEventListener("click", async () => {
             if (usuarioRef) {
                 await updateDoc(usuarioRef, { tokens_balance: increment(-50) });
-            } else { alert("Aún buscando conexión con el usuario..."); }
+            } else { alert("Conectando con el servidor..."); }
         });
 
         // Botón Recargar
         document.getElementById("btn-recarga").addEventListener("click", async () => {
             if (usuarioRef) {
                 await updateDoc(usuarioRef, { tokens_balance: increment(500) });
-            } else { alert("Aún buscando conexión con el usuario..."); }
+            } else { alert("Conectando con el servidor..."); }
         });
     </script>
 </body>
