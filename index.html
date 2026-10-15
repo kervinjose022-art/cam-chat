@@ -5,87 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CamChat Plataforma</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h1 { color: #ff4081; }
-        .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
+        .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h1 { color: #ff4081; margin-bottom: 5px; font-size: 24px; }
+        .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #f50057; }
-        .info-box { background: #2d2d2d; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: left; }
+        .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .status { color: #4caf50; font-weight: bold; }
-        .token-count { font-size: 28px; color: #ffeb3b; font-weight: bold; transition: all 0.3s; }
+        .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
+        /* Contenedor del reproductor de video */
+        #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>🎙️ CamChat Live</h1>
-        <p>Plataforma Streaming & Webcam (Control de Intermediario)</p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
         
+        <!-- El Cuadro de Video de la Webcam -->
+        <div id="video-container"></div>
+
         <div class="info-box">
-            <h3>🔴 Estado del Servidor: <span class="status">En Línea</span></h3>
-            <p><strong>Base de Datos:</strong> Motor de Tiempo Real Activado</p>
-            <p><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Conectado con éxito al usuario: prueba_user</div>
+            <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
+            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
+            <div id="debug-box" class="debug-msg">Iniciando transmisión segura...</div>
         </div>
 
         <div class="info-box">
-            <h3>👥 Panel de Control Interactivo</h3>
+            <h3>👥 Panel de Control</h3>
             <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
             <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Pago)</button>
         </div>
     </div>
 
+    <!-- SDK de Transmisión de ZEGOCLOUD -->
+    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com"></script>
+
     <script>
-        // Inicializar el saldo en la memoria local si no existe
+        // --- MOTOR DE TOKENS (LOCALSTORAGE) ---
         if (!localStorage.getItem('tokens_balance')) {
             localStorage.setItem('tokens_balance', '1000');
         }
-
         const balanceView = document.getElementById("balance-view");
         const debugBox = document.getElementById("debug-box");
 
-        // Función para actualizar la pantalla
         function actualizarPantalla() {
-            const saldoActual = localStorage.getItem('tokens_balance');
-            balanceView.innerText = saldoActual;
+            balanceView.innerText = localStorage.getItem('tokens_balance');
         }
-
-        // Cargar saldo inicial
         actualizarPantalla();
 
-        // Botón Enviar Regalo
         document.getElementById("btn-regalo").addEventListener("click", () => {
             let saldo = parseInt(localStorage.getItem('tokens_balance'));
             if (saldo >= 50) {
                 saldo -= 50;
                 localStorage.setItem('tokens_balance', saldo.toString());
                 actualizarPantalla();
-                
-                // Efecto visual rápido
-                balanceView.style.color = "#ff5252";
-                setTimeout(() => { balanceView.style.color = "#ffeb3b"; }, 300);
-                
-                debugBox.innerText = "¡Regalo enviado! Tu comisión de intermediario (30%) ha sido retenida.";
+                debugBox.innerText = "¡Regalo enviado! Comisión del 30% asegurada para el administrador.";
                 alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
-            } else {
-                alert("Saldo insuficiente. Por favor recarga tokens.");
-            }
+            } else { alert("Saldo insuficiente. Por favor recarga."); }
         });
 
-        // Botón Recargar
         document.getElementById("btn-recarga").addEventListener("click", () => {
             let saldo = parseInt(localStorage.getItem('tokens_balance'));
             saldo += 500;
             localStorage.setItem('tokens_balance', saldo.toString());
             actualizarPantalla();
+            debugBox.innerText = "Recarga procesada exitosamente mediante pasarela simulada.";
+            alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
+        });
+
+        // --- MOTOR DE VIDEO EN VIVO (ZEGOCLOUD) ---
+        window.addEventListener('load', () => {
+            // Tus llaves reales inyectadas de la imagen
+            const appID = 1783743082;
+            const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
             
-            // Efecto visual rápido
-            balanceView.style.color = "#4caf50";
-            setTimeout(() => { balanceView.style.color = "#ffeb3b"; }, 300);
-            
-            debugBox.innerText = "Pago procesado. 500 tokens abonados al balance.";
-            alert("¡Recarga exitosa! Se han acreditado 500 tokens a tu balance.");
+            // Generar sala y usuario aleatorio para la prueba de la webcam
+            const roomID = "sala_webcam_prueba";
+            const userID = "user_" + Math.floor(Math.random() * 10000);
+            const userName = "Modelo_Live";
+
+            // Crear el token de acceso seguro
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+            // Inicializar la interfaz de video dentro de nuestro contenedor
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            zp.joinRoom({
+                container: document.getElementById('video-container'),
+                scenario: {
+                    mode: ZegoUIKitPrebuilt.Scenario.LiveStreaming,
+                    config: {
+                        role: ZegoUIKitPrebuilt.Anchor, // Configurado como Transmisora/Modelo
+                    },
+                },
+                showUserList: false,
+                showRoomTimer: true,
+                turnOnCameraWhenJoining: true, // Enciende la cámara automáticamente
+                turnOnMicrophoneWhenJoining: true,
+            });
+            debugBox.innerText = "Transmisión en vivo iniciada. ID de Sala: " + roomID;
         });
     </script>
 </body>
