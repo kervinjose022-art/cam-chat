@@ -150,7 +150,7 @@
             document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
             document.getElementById("balance-view").innerText = "0";
 
-            // Inyectar de fondo el JSON directo a tu Firebase real mediante canal HTTP nativo (Anti-bloqueos)
+            // Inyectar el JSON directo a tu Firebase real mediante canal HTTP nativo (Anti-bloqueos)
             const payload = {
                 fields: {
-        
+                    nombre: { stringValue: nom + " " + ape },
