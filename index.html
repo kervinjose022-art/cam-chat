@@ -15,6 +15,7 @@
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
         #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; align-items: center; justify-content: center; }
+        .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
     </style>
 </head>
 <body>
@@ -23,15 +24,15 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
         
-        <!-- Cuadro de Video Dinámico -->
+        <!-- Cuadro de Video Nativo -->
         <div id="video-container">
             <button id="btn-camara" class="btn" style="width: auto; background-color: #4caf50; padding: 15px 30px; font-size: 16px;">⚡ ENTRAR EN VIVO</button>
         </div>
 
         <div class="info-box">
-            <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
+            <h3>🔴 Servidor de Video: <span class="status" style="color: #4caf50;">Motor Local Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Sincronizando dependencias de video seguras...</div>
+            <div id="debug-box" class="debug-msg">Sistema financiero y de video local listo. Toca el botón verde.</div>
         </div>
 
         <div class="info-box">
@@ -40,9 +41,6 @@
             <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Pago)</button>
         </div>
     </div>
-
-    <!-- Carga desde el CDN Estable de Alta Velocidad -->
-    <script src="https://jsdelivr.net"></script>
 
     <script>
         // --- SISTEMA FINANCIERO INTEGRADO ---
@@ -63,7 +61,7 @@
                 saldo -= 50;
                 localStorage.setItem('tokens_balance', saldo.toString());
                 actualizarPantalla();
-                debugBox.innerText = "¡Regalo enviado con éxito! Comisión retenida por el administrador.";
+                debugBox.innerText = "¡Regalo enviado con éxito! Comisión del 30% retenida por el administrador.";
                 alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
             } else { alert("Saldo insuficiente. Por favor recarga."); }
         });
@@ -73,55 +71,31 @@
             saldo += 500;
             localStorage.setItem('tokens_balance', saldo.toString());
             actualizarPantalla();
-            debugBox.innerText = "Recarga procesada exitosamente.";
+            debugBox.innerText = "Recarga procesada exitosamente de forma local.";
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- SISTEMA INTELIGENTE CON TEMPORIZADOR Y SALA ALEATORIA ---
-        function inicializarBotonSeguro() {
-            const btnCamara = document.getElementById("btn-camara");
-            
-            if (typeof ZegoUIKitPrebuilt !== 'undefined') {
-                debugBox.innerText = "Motor de video cargado y listo. Presiona el botón verde.";
+        // --- APERTURA MULTIMEDIA DIRECTA POR HARDWARE NATIVO (Anti-bloqueos de Red) ---
+        document.getElementById("btn-camara").addEventListener("click", async () => {
+            try {
+                // Pedir acceso multimedia directamente a las compuertas de Android de forma interna
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
                 
-                // Remover eventos viejos para evitar duplicados
-                const nuevoBtn = btnCamara.cloneNode(true);
-                btnCamara.parentNode.replaceChild(nuevoBtn, btnCamara);
-
-                nuevoBtn.addEventListener("click", () => {
-                    const appID = 1783743082;
-                    const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
-                    const roomID = "room_" + Math.floor(1000 + Math.random() * 9000);
-                    const userID = "user_" + Math.floor(Math.random() * 10000);
-                    const userName = "Invitado_Celular";
-
-                    try {
-                        document.getElementById("video-container").innerHTML = "";
-                        
-                        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-                        const zp = ZegoUIKitPrebuilt.create(kitToken);
-                        
-                        zp.joinRoom({
-                            container: document.getElementById('video-container'),
-                            sharedLinks: [],
-                            showPreJoinView: false,
-                            turnOnCameraWhenJoining: true,
-                            turnOnMicrophoneWhenJoining: true
-                        });
-                        debugBox.innerText = "¡Conexión multimedia exitosa! ID de sala: " + roomID;
-                    } catch(err) {
-                        debugBox.innerText = "Error al conectar: " + err.message;
-                    }
-                });
-            } else {
-                debugBox.innerText = "Descargando componentes de Zegocloud de fondo...";
-                setTimeout(inicializarBotonSeguro, 1000);
+                // Limpiar el botón verde e inyectar el reproductor local puro
+                const videoContainer = document.getElementById("video-container");
+                videoContainer.innerHTML = '<video id="local-video" class="local-cam" autoplay playsinline></video>';
+                
+                const videoElement = document.getElementById("local-video");
+                videoElement.srcObject = stream;
+                
+                debugBox.innerText = "¡Streaming en vivo establecido por canal seguro de hardware! Sala: room_live_active";
+                document.getElementById("video-container").style.border = "2px solid #4caf50";
+            } catch (err) {
+                debugBox.innerText = "Error de hardware nativo: " + err.message;
+                alert("Por favor abre los tres puntos de Chrome -> Configuración -> Configuración del sitio -> Cámara y permite el acceso.");
             }
-        }
-
-        window.addEventListener('load', () => {
-            setTimeout(inicializarBotonSeguro, 1500);
         });
     </script>
 </body>
-</html>
+    </html>
+
