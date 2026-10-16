@@ -34,6 +34,9 @@
     </style>
 </head>
 <body>
+    <!-- CONSOLA MÓVIL PORTÁTIL (ERUDA) -->
+    <script src="https://jsdelivr.net"></script>
+    <script>eruda.init();</script>
 
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO OPTIMIZADO -->
@@ -85,7 +88,7 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱init_a</div>
+                    <div class="model-thumb">👱🏻‍♀️</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
@@ -123,7 +126,7 @@
     <script src="https://gstatic.com"></script>
 
     <script>
-        // CONFIGURACIÓN DE TU PROYECTO CAMCHAT CONECTADA CON ÉXITO
+        // CONFIGURACIÓN DE TU PROYECTO CONECTADO
         const firebaseConfig = {
             apiKey: "AIzaSyDLVDVzc6w9S68BvL7H_b_95vF9yvIsGgo",
             authDomain: "://firebaseapp.com",
@@ -140,7 +143,7 @@
         const db = firebase.firestore();
         auth.useDeviceLanguage();
 
-        // Variables operativas globales
+        // Variables de estado
         let cargando = false;
         let tiempoRestante = 600;
         let intervaloCronometro = null;
@@ -154,8 +157,4 @@
             const corr = document.getElementById("reg-correo").value.trim();
 
             if (!nom || !ape || !corr) {
-                alert("Por favor hermano, llena todos los campos para continuar.");
-                return;
-            }
-
-            cargando = true;
+        
