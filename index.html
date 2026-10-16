@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Plataforma VIP</title>
+    <title>CamChat Plataforma VIP & Panel</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -17,18 +17,22 @@
         .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .plan-card { background: #2d2d2d; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer; transition: 0.3s; text-align: center; }
         .plan-card:hover { border-color: #ff4081; background: #3d3d3d; }
-        .plan-card h4 { margin: 0 0 5px 0; color: #ffeb3b; }
         
-        #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
+        #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
         .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .hidden { display: none !important; }
         .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
-        .admin-badge { background-color: #ff1212 !important; border: 1px dashed white; }
+        
+        /* Estilos de la Tabla de Monitoreo de Usuarios */
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; text-align: left; }
+        .admin-table th, .admin-table td { padding: 8px; border: 1px solid #444; }
+        .admin-table th { background-color: #ff4081; color: white; }
+        .admin-section { border: 2px dashed #ff4081; background: #1a0d13; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: REGISTRO SIN ETIQUETA FORM (Evita recargas de Chrome) -->
+    <!-- PANTALLA 1: REGISTRO SIN INTERFERENCIAS -->
     <div class="container" id="screen-register">
         <h1>🔐 Registro de Usuario</h1>
         <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
@@ -37,49 +41,38 @@
         <input type="text" id="reg-apellido" placeholder="Apellido">
         <input type="email" id="reg-correo" placeholder="Correo Electrónico">
         
-        <!-- El botón ahora ejecuta la función por evento click puro sin interferencias -->
-        <button class="btn" style="background-color: #4caf50;" onclick="registrarUsuarioDirecto();">🎁 REGISTRARSE GRATIS</button>
+        <button class="btn" style="background-color: #4caf50;" onclick="entrarComoUsuario();">🎁 REGISTRARSE GRATIS</button>
     </div>
 
-    <!-- PANTALLA 2: CONTROL DE MANDO Y APP PRINCIPAL -->
+    <!-- PANTALLA 2: INTERFAZ DE TRANSMISIÓN -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <!-- Cuadro de Video Multimedia -->
         <div id="video-container">
             <div id="video-locked-view">
                 <h3 style="color: #ff5252; margin: 0;">🔒 Transmisión Bloqueada</h3>
-                <p style="font-size: 13px; color: #ccc;">Debes activar un Plan VIP para desbloquear los 10 minutos de show en vivo.</p>
+                <p style="font-size: 13px; color: #ccc;">Activa un Plan VIP para desbloquear los 10 minutos de show.</p>
                 <button class="btn" style="background-color: #ffeb3b; color: #000;" onclick="mostrarPasarela();">💳 ACTIVAR MI PLAN VIP AQUÍ</button>
             </div>
-            <div id="video-active-view" class="hidden" style="width:100%; height:100%;">
-                <!-- Inyección nativa de la cámara -->
-            </div>
+            <div id="video-active-view" class="hidden" style="width:100%; height:100%;"></div>
         </div>
 
-        <!-- BOTÓN DE CERRAR SESIÓN DEL ADMINISTRADOR -->
-        <button id="btn-admin-logout" class="btn hidden admin-badge" onclick="cerrarSesionAdmin();">⚙️ PANEL CREADOR: CERRAR CONTROL DE MANDO</button>
-
-        <!-- PASARELA CRIPTO BINANCE BEP-20 -->
+        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
         <div class="info-box hidden" id="box-pasarela">
             <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
-            <p style="font-size: 13px; margin: 5px 0;">1. Selecciona el rango que deseas adquirir:</p>
-            
             <div class="plan-grid">
-                <div class="plan-card" onclick="seleccionarPlan('Plata', 10)"><h4>🥈 Plata</h4><p style="margin:0;font-size:12px;">$10 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Oro', 20)"><h4>🥇 Oro</h4><p style="margin:0;font-size:12px;">$20 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Rubí', 40)"><h4>🔻 Rubí</h4><p style="margin:0;font-size:12px;">$40 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Diamante', 120)"><h4>💎 Diamante</h4><p style="margin:0;font-size:12px;">$120 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Platino', 420)"><h4>👑 Platino</h4><p style="margin:0;font-size:12px;">$420 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Corona MVP', 1000)"><h4>🏆 Corona</h4><p style="margin:0;font-size:12px;">$1000 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Plata', 10)"><h4>🥈 Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Oro', 20)"><h4>🥇 Oro</h4><p style="margin:0;font-size:11px;">$20 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Rubí', 40)"><h4>🔻 Rubí</h4><p style="margin:0;font-size:11px;">$40 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Diamante', 120)"><h4>💎 Diamante</h4><p style="margin:0;font-size:11px;">$120 USD</p></div>
             </div>
 
-            <div id="payment-details" class="hidden" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
-                <p style="font-size: 13px; margin: 5px 0;">2. Envía exactamente <strong id="plan-cost" style="color: #ffeb3b;"></strong> USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
+            <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
+                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
                 <div class="crypto-box" id="wallet-address">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #3f51b5; padding: 8px; font-size: 13px;" onclick="copiarWallet()">📋 Copiar Dirección de Depósito</button>
-                <button class="btn" style="background-color: #4caf50;" onclick="notificarPago()">Avisar Pago al Administrador</button>
+                <button class="btn" style="background-color: #3f51b5; padding: 6px; font-size: 12px;" onclick="copiarWallet()">📋 Copiar Dirección</button>
+                <button class="btn" style="background-color: #4caf50;" onclick="notificarPago()">Avisar Pago Directo</button>
             </div>
         </div>
 
@@ -87,7 +80,6 @@
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
             <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Espectador Gratis</span></p>
-            <div id="debug-box" style="font-size: 11px; font-style: italic; color: #888; margin-top: 5px;"></div>
         </div>
 
         <div class="info-box">
@@ -97,57 +89,77 @@
         </div>
     </div>
 
-    <script>
-        let usuarioActual = { nombre: "", apellido: "", correo: "", rango: "Espectador Gratis" };
-        let planSeleccionado = "";
-        const balanceView = document.getElementById("balance-view");
-        const debugBox = document.getElementById("debug-box");
-
-        // --- SISTEMA CORREGIDO DE APERTURA DIRECTA ---
-        function registrarUsuarioDirecto() {
-            const nombreVal = document.getElementById("reg-nombre").value;
-            const apellidoVal = document.getElementById("reg-apellido").value;
-            const correoVal = document.getElementById("reg-correo").value.trim().toLowerCase();
-
-            if (!nombreVal || !apellidoVal || !correoVal) {
-                alert("Por favor rellena todos los campos para poder avanzar.");
-                return;
-            }
-
-            usuarioActual.nombre = nombreVal;
-            usuarioActual.apellido = apellidoVal;
-            usuarioActual.correo = correoVal;
-
-            // DETECTOR INTEGRADO: Si es tu correo de mando, rompe el bloqueo de inmediato
-            if (correoVal === "kervinjose022@gmail.com") {
-                usuarioActual.rango = "👑 CREADOR MVP";
-                localStorage.setItem('tokens_balance', '99999');
-                
-                document.getElementById("screen-register").classList.add("hidden");
-                document.getElementById("screen-app").classList.remove("hidden");
-                document.getElementById("btn-admin-logout").classList.remove("hidden");
-                document.getElementById("video-locked-view").classList.add("hidden");
-                document.getElementById("video-active-view").classList.remove("hidden");
-                
-                document.getElementById("user-display").innerText = usuarioActual.nombre + " (ADMIN)";
-                document.getElementById("rango-view").innerText = usuarioActual.rango;
-                document.getElementById("rango-view").style.color = "#ff4081";
-                debugBox.innerText = "Consola de Mando Principal conectada con éxito.";
-                
-                localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
-                actualizarPantalla();
-                activarCamaraNativa();
-                return;
-            }
-
-            // Clientes comunes
-            usuarioActual.rango = "Espectador Gratis";
-            localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
-            if (!localStorage.getItem('tokens_balance')) {
-                localStorage.setItem('tokens_balance', '0');
-            }
-
-            document.getElementById("screen-register").classList.add("hidden");
-            document.getElementById("screen-app").classList.remove("hidden");
+    <!-- PANTALLA CONTABLE: PANEL DE CONTROL COMPLETO DEL PROPIETARIO (VISIBLE PARA TI) -->
+    <div class="container admin-section" id="screen-admin-panel">
+        <h2 style="color: #ff4081; margin: 5px 0;">📊 Panel de Control: Gestión de Servidor</h2>
+        <p style="color: #aaa; font-size: 12px; margin: 0 0 10px 0;">Base de Datos de Usuarios Registrados y Control de Monedas Lanzadas</p>
         
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Correo Electrónico</th>
+                    <th>Rango / Nivel</th>
+                    <th>Fichas Activas</th>
+                </tr>
+            </thead>
+            <tbody id="admin-table-body">
+                <!-- Los registros cargan dinámicamente aquí -->
+            </tbody>
+        </table>
+        <button class="btn" style="background-color: #555; padding: 8px; font-size: 12px; margin-top: 10px;" onclick="limpiarBaseDeDatos();">🔄 Reiniciar Simulador de Base de Datos</button>
+    </div>
+
+    <script>
+        // Simulador de Base de Datos Centralizada en la memoria
+        let baseDeDatosUsuarios = [
+            { nombre: "Carlos", apellido: "Mendoza", correo: "carlos@gmail.com", rango: "VIP Oro", tokens: 450 },
+            { nombre: "María", apellido: "Gómez", correo: "maria.g@hotmail.com", rango: "VIP Plata", tokens: 150 },
+            { nombre: "Kervin (Admin)", apellido: "Pérez", correo: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", tokens: 99999 }
+        ];
+
+        if (!localStorage.getItem('db_usuarios')) {
+            localStorage.setItem('db_usuarios', JSON.stringify(baseDeDatosUsuarios));
+        }
+
+        function renderizarPanelAdmin() {
+            const lista = JSON.parse(localStorage.getItem('db_usuarios'));
+            const tbody = document.getElementById("admin-table-body");
+            tbody.innerHTML = "";
+            
+            lista.forEach(user => {
+                let row = `<tr>
+                    <td><strong>${user.nombre} ${user.apellido}</strong></td>
+                    <td>${user.correo}</td>
+                    <td><span style="color:${user.rango.includes('👑') ? '#ff4081' : '#ffeb3b'}">${user.rango}</span></td>
+                    <td style="color:#ffeb3b; font-weight:bold;">${user.tokens}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        renderizarPanelAdmin();
+
+        function entrarComoUsuario() {
+            const nom = document.getElementById("reg-nombre").value;
+            const ape = document.getElementById("reg-apellido").value;
+            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
+
+            if(!nom || !ape || !corr) { alert("Completa los campos."); return; }
+
+            let lista = JSON.parse(localStorage.getItem('db_usuarios'));
+            let usuarioExistente = lista.find(u => u.correo === corr);
+
+            if(!usuarioExistente) {
+                usuarioExistente = {
+                    nombre: nom,
+                    apellido: ape,
+                    correo: corr,
+                    rango: corr === "kervinjose022@gmail.com" ? "👑 CREADOR MVP" : "Espectador Gratis",
+                    tokens: corr === "kervinjose022@gmail.com" ? 99999 : 0
+                };
+                lista.push(usuarioExistente);
+                localStorage.setItem('db_usuarios', JSON.stringify(lista));
+            }
+
+            localStorage.setItem('sesion_actual', JSON.stringify(usuarioExistente));
         
