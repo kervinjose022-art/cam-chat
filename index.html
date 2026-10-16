@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Show Freemium</title>
+    <title>CamChat Live - Show Freemium & Login</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -24,26 +24,38 @@
         .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
         
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
+        .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: REGISTRO CON SALTO LOCAL INMEDIATO -->
-    <div class="container" id="screen-register">
-        <h1>🔐 Registro de Espectador</h1>
-        <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows en vivo</p>
-        
-        <input type="text" id="reg-nombre" placeholder="Nombre">
-        <input type="text" id="reg-apellido" placeholder="Apellido">
-        <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-        
-        <button class="btn" onclick="forzarSaltoInstantaneo();">🎁 ACCEDER AL SHOW GRATIS</button>
+    <!-- CAJA DE ACCESO COMPUESTA (REGISTRO / LOGIN) -->
+    <div class="container" id="screen-auth">
+        <!-- BLOQUE A: FORMULARIO DE REGISTRO -->
+        <div id="box-register">
+            <h1>🔐 Registro de Espectador</h1>
+            <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
+            <input type="text" id="reg-nombre" placeholder="Nombre">
+            <input type="text" id="reg-apellido" placeholder="Apellido">
+            <input type="email" id="reg-correo" placeholder="Correo Electrónico">
+            <button class="btn" onclick="ejecutarRegistroMaestro();">🎁 ACCEDER AL SHOW GRATIS</button>
+            <span class="link-toggle" onclick="conmutarVistaAuth(true)">¿Ya tienes cuenta? Inicia Sesión</span>
+        </div>
+
+        <!-- BLOQUE B: FORMULARIO DE INICIO DE SESIÓN (OCULTO POR DEFECTO) -->
+        <div id="box-login" class="hidden">
+            <h1>🔓 Iniciar Sesión</h1>
+            <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico para ingresar a tu cuenta VIP</p>
+            <input type="email" id="login-correo" placeholder="Introduce tu Correo Registrado">
+            <button class="btn" style="background-color: #3f51b5;" onclick="ejecutarLoginMaestro();">⚡ ENTRAR A MI CUENTA</button>
+            <span class="link-toggle" onclick="conmutarVistaAuth(false)">¿No tienes cuenta? Regístrate Gratis</span>
+        </div>
     </div>
 
-    <!-- PANTALLA 2: APLICACIÓN DESBLOQUEADA -->
+    <!-- PANTALLA 2: APLICACIÓN CENTRAL DESBLOQUEADA -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Espectador: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
         <div id="video-container">
             <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
@@ -68,20 +80,21 @@
             <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
                 <p style="font-size: 12px;">Envía USDT a tu dirección de Binance Red BEP-20:</p>
                 <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #3f51b5;" onclick="alert('Notificación enviada con éxito.');">Avisar Pago Directo</button>
+                <button class="btn" style="background-color: #3f51b5;" onclick="simularPagoExitoso();">Avisar Pago Directo</button>
             </div>
         </div>
 
         <div class="info-box">
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Prueba Gratuita</span></p>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
         </div>
 
         <div class="info-box">
             <h3>👥 Panel de Control de Tokens</h3>
-            <button class="btn" id="btn-regalo" onclick="restarFichas();">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
+            <button class="btn" id="btn-regalo" style="background-color: #ff4081;" onclick="restarFichas();">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
             <button class="btn" style="background-color: #3f51b5;" onclick="sumarFichas();">💳 Recargar 500 Tokens</button>
+            <button class="btn" style="background-color: #555; margin-top:15px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión de la Cuenta</button>
         </div>
     </div>
 
@@ -89,64 +102,61 @@
         let saldoLocal = 0;
         let tiempoRestante = 600; // 10 minutos
         let localStream = null;
+        let intervaloCronometro = null;
+        let esUsuarioVIP = false;
 
-        // FUNCIÓN DEFINITIVA: ROMPE EL BLOQUEO AL INSTANTE
-        function forzarSaltoInstantaneo() {
+        // Cambiar entre la vista de Registro e Inicio de sesión en pantalla
+        function conmutarVistaAuth(mostrarLogin) {
+            if (mostrarLogin) {
+                document.getElementById("box-register").classList.add("hidden");
+                document.getElementById("box-login").classList.remove("hidden");
+            } else {
+                document.getElementById("box-login").classList.add("hidden");
+                document.getElementById("box-register").classList.remove("hidden");
+            }
+        }
+
+        // CONTROLADOR A: REGISTRO DE NUEVOS USUARIOS
+        function ejecutarRegistroMaestro() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
-            const corr = document.getElementById("reg-correo").value.trim();
+            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) {
-                alert("Por favor, rellena todos los campos.");
+            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
+
+            // Guardar localmente en este simulador de sistema
+            let perfilesGuardados = JSON.parse(localStorage.getItem('sim_db_usuarios') || "[]");
+            
+            if (perfilesGuardados.some(u => u.correo === corr)) {
+                alert("Este correo ya existe. Por favor usa la opción de 'Iniciar Sesión'.");
+                conmutarVistaAuth(true);
                 return;
             }
 
-            // SALTO DE PANTALLA EN EL ACTO (Cero retrasos de servidores)
-            document.getElementById("screen-register").style.display = "none";
-            document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = nom + " " + ape;
+            let nuevoUsuario = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
+            perfilesGuardados.push(nuevoUsuario);
+            localStorage.setItem('sim_db_usuarios', JSON.stringify(perfilesGuardados));
+            localStorage.setItem('active_session', corr);
 
-            // Encender la cámara de una vez
-            activarCamaraHardware();
-
-            // Iniciar cuenta regresiva local
-            const intervalo = setInterval(() => {
-                tiempoRestante--;
-                let minutos = Math.floor(tiempoRestante / 60);
-                let segundos = tiempoRestante % 60;
-                segundos = segundos < 10 ? "0" + segundos : segundos;
-                
-                document.getElementById("cronometro-view").innerText = "⏱️ Tiempo Libre: " + minutos + ":" + segundos;
-
-                if (tiempoRestante <= 0) {
-                    clearInterval(intervalo);
-                    if (localStream) {
-                        localStream.getTracks().forEach(track => track.stop());
-                    }
-                    document.getElementById("video-active-view").classList.add("hidden");
-                    document.getElementById("video-container").style.border = "2px solid #ff5252";
-                    document.getElementById("video-locked-view").classList.remove("hidden");
-                    mostrarPasarela();
-                }
-            }, 1000);
+            arrancarInterfazPlataforma(nuevoUsuario, false);
         }
 
-        async function activarCamaraHardware() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-                localStream = stream;
-                document.getElementById("video-active-view").innerHTML = '<video id="local-video" class="local-cam" autoplay playsinline></video>';
-                document.getElementById("local-video").srcObject = stream;
-            } catch (e) {
-                console.log("Esperando interacción.");
+        // CONTROLADOR B: INICIO DE SESIÓN PARA USUARIOS YA REGISTRADOS
+        function ejecutarLoginMaestro() {
+            const corr = document.getElementById("login-correo").value.trim().toLowerCase();
+
+            if (!corr) { alert("Por favor introduce tu correo electrónico."); return; }
+
+            let perfilesGuardados = JSON.parse(localStorage.getItem('sim_db_usuarios') || "[]");
+            let usuarioEncontrado = perfilesGuardados.find(u => u.correo === corr);
+
+            // Si el correo ingresado no existe en la base de datos
+            if (!usuarioEncontrado) {
+                alert("El correo electrónico no se encuentra registrado. Por favor crea una cuenta gratis.");
+                conmutarVistaAuth(false);
+                return;
             }
-        }
 
-        function mostrarPasarela() { document.getElementById("box-pasarela").classList.remove("hidden"); }
-        function seleccionarPlan() { document.getElementById("payment-details").classList.remove("hidden"); }
+            localStorage.setItem('active_session', corr);
+
         
-        function restarFichas() { if(saldoLocal >= 50) { saldoLocal -= 50; document.getElementById("balance-view").innerText = saldoLocal; } }
-        function sumarFichas() { saldoLocal += 500; document.getElementById("balance-view").innerText = saldoLocal; }
-    </script>
-</body>
-</html>
