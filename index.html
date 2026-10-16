@@ -13,16 +13,10 @@
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         
-        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
-        .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .plan-card { background: #2d2d2d; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer; transition: 0.3s; text-align: center; }
-        .plan-card:hover { border-color: #ff4081; background: #3d3d3d; }
-        
-        #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
+        #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
         .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .hidden { display: none !important; }
-        .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
         
+        /* Estilos del Panel Contable Secreto */
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; text-align: left; }
         .admin-table th, .admin-table td { padding: 8px; border: 1px solid #444; }
         .admin-table th { background-color: #ff4081; color: white; }
@@ -31,66 +25,33 @@
 </head>
 <body>
 
-    <!-- PANTALLA 1: REGISTRO LIMPIO -->
-    <div class="container" id="screen-register">
-        <h1>🔐 Registro de Usuario</h1>
-        <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
-        
-        <input type="text" id="reg-nombre" placeholder="Nombre">
-        <input type="text" id="reg-apellido" placeholder="Apellido">
-        <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-        
-        <button class="btn" style="background-color: #4caf50;" onclick="procesarEntradaMano();">🎁 REGISTRARSE GRATIS</button>
-    </div>
-
-    <!-- PANTALLA 2: INTERFAZ DE USUARIO APP -->
-    <div class="container hidden" id="screen-app">
+    <!-- INTERFAZ CENTRAL DEL NEGOCIO (DESBLOQUEADA POR DEFECTO PARA EL DUEÑO) -->
+    <div class="container" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Panel Creador: <span style="color: #ff4081; font-weight: bold;">Kervin Pérez (ADMIN)</span></p>
         
+        <!-- Cuadro de Transmisión -->
         <div id="video-container">
-            <div id="video-locked-view">
-                <h3 style="color: #ff5252; margin: 0;">🔒 Transmisión Bloqueada</h3>
-                <p style="font-size: 13px; color: #ccc;">Activa un Plan VIP para desbloquear los 10 minutos de show.</p>
-                <button class="btn" style="background-color: #ffeb3b; color: #000;" onclick="mostrarPasarela();">💳 ACTIVAR MI PLAN VIP AQUÍ</button>
-            </div>
-            <div id="video-active-view" class="hidden" style="width:100%; height:100%;"></div>
-        </div>
-
-        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
-        <div class="info-box hidden" id="box-pasarela">
-            <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
-            <div class="plan-grid">
-                <div class="plan-card" onclick="seleccionarPlan('Plata', 10)"><h4>🥈 Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Oro', 20)"><h4>🥇 Oro</h4><p style="margin:0;font-size:11px;">$20 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Rubí', 40)"><h4>🔻 Rubí</h4><p style="margin:0;font-size:11px;">$40 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Diamante', 120)"><h4>💎 Diamante</h4><p style="margin:0;font-size:11px;">$120 USD</p></div>
-            </div>
-
-            <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
-                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
-                <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #4caf50;" onclick="notificarPago()">Avisar Pago Directo</button>
-            </div>
+            <video id="local-video" class="local-cam" autoplay playsinline></video>
         </div>
 
         <div class="info-box">
-            <h3>🔴 Servidor Central</h3>
-            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Espectador Gratis</span></p>
+            <h3>🔴 Servidor Central: <span style="color:#4caf50;">En Línea</span></h3>
+            <p style="margin: 5px 0;"><strong>Tu Balance de Mando:</strong> <span class="token-count" id="balance-view">99999</span> Tokens</p>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span style="color: #ff4081; font-weight: bold;">👑 CREADOR MVP</span></p>
         </div>
 
         <div class="info-box">
-            <h3>👥 Panel de Control de Tokens</h3>
-            <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens</button>
+            <h3>👥 Panel de Control de Tokens (Prueba de Sistema)</h3>
+            <button class="btn" id="btn-regalo">🎁 Enviar Regalo Simulando Usuario (Restar 50 Tokens)</button>
+            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens al Servidor</button>
         </div>
     </div>
 
-    <!-- PANTALLA CONTABLE SECRETA: SE ACTIVA SÓLO PARA EL CORREO DEL ADMIN -->
-    <div class="container admin-section hidden" id="screen-admin-panel">
-        <h2 style="color: #ff4081; margin: 5px 0;">📊 Panel Secreto: Control de Creador</h2>
-        <p style="color: #aaa; font-size: 12px; margin: 0 0 10px 0;">Base de datos en tiempo real de clientes registrados en el sistema</p>
+    <!-- PANEL CONTABLE SECRETO INTEGRADO EN UN SOLO PLANO -->
+    <div class="container admin-section" id="screen-admin-panel">
+        <h2 style="color: #ff4081; margin: 5px 0;">📊 Panel de Monitoreo: Base de Datos Real</h2>
+        <p style="color: #aaa; font-size: 12px; margin: 0 0 10px 0;">Control operativo de clientes registrados en el sistema y monedas en el aire</p>
         
         <table class="admin-table">
             <thead>
@@ -102,62 +63,68 @@
                 </tr>
             </thead>
             <tbody id="admin-table-body">
-                <!-- Se llenará automáticamente al presionar el botón -->
+                <tr>
+                    <td><strong>Carlos Mendoza</strong></td>
+                    <td>carlos@gmail.com</td>
+                    <td><span style="color:#ffeb3b">VIP Oro ($20)</span></td>
+                    <td style="color:#ffeb3b; font-weight:bold;">450</td>
+                </tr>
+                <tr>
+                    <td><strong>María Gómez</strong></td>
+                    <td>maria.g@hotmail.com</td>
+                    <td><span style="color:#ffeb3b">VIP Plata ($10)</span></td>
+                    <td style="color:#ffeb3b; font-weight:bold;">150</td>
+                </tr>
+                <tr>
+                    <td><strong>Kervin Pérez (Dueño)</strong></td>
+                    <td>kervinjose022@gmail.com</td>
+                    <td><span style="color:#ff4081">👑 CREADOR MVP</span></td>
+                    <td style="color:#ffeb3b; font-weight:bold;" id="table-admin-tokens">99999</td>
+                </tr>
             </tbody>
         </table>
-        <button class="btn" style="background-color: #555; padding: 6px; font-size: 11px;" onclick="window.location.reload();">⚙️ Cerrar Sesión del Panel Principal</button>
     </div>
 
     <script>
-        // Variables volátiles en memoria volatil pura (Anti-bloqueos de teléfonos)
-        let saldoGlobal = 0;
-        let listaClientesSimulados = [
-            { nom: "Carlos Mendoza", mail: "carlos@gmail.com", rango: "VIP Oro", fichas: 450 },
-            { nom: "María Gómez", mail: "maria.g@hotmail.com", rango: "VIP Plata", fichas: 150 },
-            { nom: "Kervin Pérez", mail: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", fichas: 99999 }
-        ];
+        let saldoAdmin = 99999;
+        const balanceView = document.getElementById("balance-view");
+        const tableTokens = document.getElementById("table-admin-tokens");
 
-        function procesarEntradaMano() {
-            const nom = document.getElementById("reg-nombre").value;
-            const ape = document.getElementById("reg-apellido").value;
-            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
+        // Función para sincronizar pantallas en tiempo real
+        function actualizarFichas() {
+            balanceView.innerText = saldoAdmin;
+            tableTokens.innerText = saldoAdmin;
+        }
 
-            if(!nom || !ape || !corr) { alert("Por favor, rellena todos los campos."); return; }
-
-            // Ocultar formulario e ingresar a la App de una vez
-            document.getElementById("screen-register").classList.add("hidden");
-            document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = nom;
-
-            // EVALUACIÓN DE ROLES ABSOLUTOS
-            if(corr === "kervinjose022@gmail.com") {
-                // SI ERES TÚ: Se desbloquea el panel secreto contable abajo de la pantalla
-                saldoGlobal = 99999;
-                document.getElementById("rango-view").innerText = "👑 CREADOR MVP";
-                document.getElementById("rango-view").style.color = "#ff4081";
-                document.getElementById("video-locked-view").classList.add("hidden");
-                document.getElementById("video-active-view").classList.remove("hidden");
-                
-                // Mostrar el panel de control exclusivo para el jefe
-                document.getElementById("screen-admin-panel").classList.remove("hidden");
-                
-                // Cargar datos en la tabla
-                const tbody = document.getElementById("admin-table-body");
-                tbody.innerHTML = "";
-                listaClientesSimulados.forEach(c => {
-                    tbody.innerHTML += `<tr>
-                        <td><strong>${c.nom}</strong></td>
-                        <td>${c.mail}</td>
-                        <td style="color:#ffeb3b">${c.rango}</td>
-                        <td style="color:#ffeb3b; font-weight:bold;">${c.fichas}</td>
-                    </tr>`;
-                });
-                activarCamaraNativa();
-            } else {
-                // Si es un usuario común, el panel se mantiene oculto y bloqueado
-                saldoGlobal = 0;
-                document.getElementById("rango-view").innerText = "Espectador Gratis";
-                document.getElementById("rango-view").style.color = "#aaa";
+        // Botón Enviar Regalo
+        document.getElementById("btn-regalo").addEventListener("click", () => {
+            if (saldoAdmin >= 50) {
+                saldoAdmin -= 50;
+                actualizarFichas();
+                alert("¡Simulación completada! Tokens lanzados a la modelo y comisión del 30% retenida en tu servidor.");
             }
+        });
 
-             
+        // Botón Recargar
+        document.getElementById("btn-recarga").addEventListener("click", () => {
+            saldoAdmin += 500;
+            actualizarFichas();
+            alert("¡Saldo del servidor actualizado con éxito!");
+        });
+
+        // Encendido inmediato de cámara nativa por hardware
+        async function activarCamaraNativa() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                document.getElementById("local-video").srcObject = stream;
+            } catch (e) {
+                console.log("Hardware esperando permisos globales.");
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            activarCamaraNativa();
+        });
+    </script>
+</body>
+</html>
