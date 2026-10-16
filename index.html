@@ -114,43 +114,49 @@
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
             <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango Operativo:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
+            <button class="btn" style="background-color: #e91e63; font-size: 13px; padding: 8px; margin-top: 8px;" onclick="cerrarSesion();">🚪 Cerrar Sesión</button>
         </div>
-        <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
+    <!-- SDK COMPATIBLE DE FIREBASE (HTML PURO) -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+
     <script>
-        let tiempoRestante = 600; 
+        // CONFIGURACIÓN DE TU PROYECTO FIREBASE
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase globalmente
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Variables operativas globales
+        let cargando = false;
+        let tiempoRestante = 600;
         let intervaloCronometro = null;
-        let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
 
-        const firestoreApiUrl = "https://googleapis.com";
+        // 1. REGISTRO DE USUARIOS CORREGIDO (Evita congelamiento de pantalla)
+        async function procesarAccesoDirecto(tipoUsuario) {
+            if (cargando) return;
 
-        function cambiarVistaFormularios(verLogin) {
-            if (verLogin) {
-                document.getElementById("box-register").style.display = "none";
-                document.getElementById("box-login").style.display = "block";
-                document.getElementById("box-login").classList.remove("hidden");
-            } else {
-                document.getElementById("box-login").style.display = "none";
-                document.getElementById("box-register").style.display = "block";
-            }
-        }
+            const nom = document.getElementById("reg-nombre").value.trim();
+            const ape = document.getElementById("reg-apellido").value.trim();
+            const corr = document.getElementById("reg-correo").value.trim();
 
-        function procesarAccesoDirecto(rolAsignado) {
-            const nom = document.getElementById("reg-nombre").value;
-            const ape = document.getElementById("reg-apellido").value;
-            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
-
-            if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
-
-            if (corr === "kervinjose022@gmail.com") {
-                datosUsuarioLocal = { nombre: nom + " (Admin)", correo: corr, rango: "👑 CREADOR MVP", tokens: 99999 };
-                desbloquearInterfazApp();
+            // CONDICIÓN REPARADA: Valida correctamente que no falte ningún dato obligatorio
+            if (!nom || !ape || !corr) {
+                alert("Por favor hermano, llena todos los campos para continuar.");
                 return;
             }
 
-            datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: rolAsignado, tokens: 0 };
-            desbloquearInterfazApp();
-
-            let historial = JSON.parse(localStorage.getItem('backup_db_system') || "[]");
+            cargando = true;
         
