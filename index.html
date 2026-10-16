@@ -13,7 +13,6 @@
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         
-        /* Estilos de los Formularios y Ventanas */
         input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
         .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .plan-card { background: #2d2d2d; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer; transition: 0.3s; text-align: center; }
@@ -24,11 +23,12 @@
         .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .hidden { display: none !important; }
         .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
+        .admin-badge { background-color: #ff1212 !important; border: 1px dashed white; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: FORMULARIO DE REGISTRO GRATIS -->
+    <!-- PANTALLA 1: FORMULARIO DE REGISTRO GRATIS (CAMUFLAJEADO) -->
     <div class="container" id="screen-register">
         <h1>🔐 Registro de Usuario</h1>
         <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
@@ -46,7 +46,7 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <!-- Contenedor Bloqueado de la Webcam -->
+        <!-- Contenedor Bloqueado/Activo de la Webcam -->
         <div id="video-container">
             <div id="video-locked-view">
                 <h3 style="color: #ff5252; margin: 0;">🔒 Transmisión Bloqueada</h3>
@@ -54,11 +54,14 @@
                 <button class="btn" style="background-color: #ffeb3b; color: #000;" onclick="mostrarPasarela();">💳 ACTIVAR MI PLAN VIP AQUÍ</button>
             </div>
             <div id="video-active-view" class="hidden" style="width:100%; height:100%;">
-                <!-- Aquí se inyectará la cámara nativa -->
+                <!-- Aquí se inyecta la cámara nativa -->
             </div>
         </div>
 
-        <!-- PASARELA DE PAGO BINANCE BEP-20 (OCULTA POR DEFECTO) -->
+        <!-- BOTÓN EXCLUSIVO DE ADMIN (Aparece solo si eres tú) -->
+        <button id="btn-admin-logout" class="btn hidden admin-badge" onclick="cerrarSesionAdmin();">⚙️ PANEL CREADOR: CERRAR CONTROL DE MANDO</button>
+
+        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
         <div class="info-box hidden" id="box-pasarela">
             <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
             <p style="font-size: 13px; margin: 5px 0;">1. Selecciona el rango que deseas adquirir:</p>
@@ -84,6 +87,7 @@
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
             <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Espectador Gratis</span></p>
+            <div id="debug-box" style="font-size: 11px; font-style: italic; color: #888; margin-top: 5px;"></div>
         </div>
 
         <div class="info-box">
@@ -96,61 +100,49 @@
     <script>
         let usuarioActual = { nombre: "", apellido: "", correo: "", rango: "Espectador Gratis" };
         let planSeleccionado = "";
+        const balanceView = document.getElementById("balance-view");
+        const debugBox = document.getElementById("debug-box");
 
-        // --- SISTEMA DE REGISTRO ---
+        // --- SISTEMA DE LOGUEO Y PASARELA OCULTA ---
         function registrarUsuario() {
-            usuarioActual.nombre = document.getElementById("reg-nombre").value;
-            usuarioActual.apellido = document.getElementById("reg-apellido").value;
-            usuarioActual.correo = document.getElementById("reg-correo").value;
+            const nombreInput = document.getElementById("reg-nombre").value;
+            const apellidoInput = document.getElementById("reg-apellido").value;
+            const correoInput = document.getElementById("reg-correo").value.trim().toLowerCase();
             
-            // Guardar en la base de datos local del teléfono
-            localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
-            if (!localStorage.getItem('tokens_balance')) {
-                localStorage.setItem('tokens_balance', '0'); // Entra con 0 tokens por ser gratis
+            usuarioActual.nombre = nombreInput;
+            usuarioActual.apellido = apellidoInput;
+            usuarioActual.correo = correoInput;
+
+            // TRUCO CAMUFLAJEADO: Si es tu correo maestro, te da privilegios absolutos
+            if (correoInput === "kervinjose022@gmail.com") {
+                usuarioActual.rango = "👑 CREADOR MVP";
+                localStorage.setItem('tokens_balance', '99999'); // Tokens infinitos para el jefe
+                
+                // Forzar el cambio visual de inmediato
+                document.getElementById("screen-register").classList.add("hidden");
+                document.getElementById("screen-app").classList.remove("hidden");
+                document.getElementById("btn-admin-logout").classList.remove("hidden");
+                document.getElementById("video-locked-view").classList.add("hidden");
+                document.getElementById("video-active-view").classList.remove("hidden");
+                
+                document.getElementById("user-display").innerText = usuarioActual.nombre + " (ADMIN)";
+                document.getElementById("rango-view").innerText = usuarioActual.rango;
+                document.getElementById("rango-view").style.color = "#ff4081";
+                debugBox.innerText = "Acceso seguro verificado. Consola de Mando activa.";
+                
+                localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
+                actualizarPantalla();
+                activarCamaraNativa();
+                return;
             }
 
-            // Cambiar de pantalla con animación visual
+            // Flujo Normal para los Clientes Comunes
+            usuarioActual.rango = "Espectador Gratis";
+            localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
+            if (!localStorage.getItem('tokens_balance')) {
+                localStorage.setItem('tokens_balance', '0');
+            }
+
             document.getElementById("screen-register").classList.add("hidden");
             document.getElementById("screen-app").classList.remove("hidden");
-            
-            document.getElementById("user-display").innerText = usuarioActual.nombre + " " + usuarioActual.apellido;
-            actualizarPantalla();
-        }
-
-        // --- ACTUALIZAR DATOS EN PANTALLA ---
-        const balanceView = document.getElementById("balance-view");
-        function actualizarPantalla() {
-            balanceView.innerText = localStorage.getItem('tokens_balance') || '0';
-        }
-
-        // --- PASARELA DE PAGO ---
-        function mostrarPasarela() {
-            document.getElementById("box-pasarela").classList.remove("hidden");
-            document.getElementById("box-pasarela").scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function seleccionarPlan(nombrePlan, costo) {
-            planSeleccionado = nombrePlan;
-            document.getElementById("payment-details").classList.remove("hidden");
-            document.getElementById("plan-cost").innerText = "$" + costo + " USD (" + nombrePlan + ")";
-        }
-
-        function copiarWallet() {
-            const el = document.createElement('textarea');
-            el.value = document.getElementById("wallet-address").innerText;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("¡Dirección Binance BEP-20 copiada al portapapeles con éxito! Ve a tu app de Binance y pega.");
-        }
-
-        function notificarPago() {
-            alert("¡Notificación enviada! El administrador verificará el hash en la red BEP-20. En un momento se te acreditarán tus tokens y se abrirán los 10 minutos de cámara en vivo.");
-            
-            // SIMULACIÓN: Desbloqueo del Administrador Automático para pruebas
-            localStorage.setItem('tokens_balance', '1000');
-            document.getElementById("rango-view").innerText = "VIP " + planSeleccionado;
-            document.getElementById("rango-view").style.color = "#ffeb3b";
-            document.getElementById("box-pasarela").classList.add("hidden");
         
