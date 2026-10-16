@@ -29,33 +29,32 @@
 </head>
 <body>
 
-    <!-- CAJA DE ACCESO COMPUESTA -->
+    <!-- INTERFAZ DE INGRESO (REGISTRO / LOGIN) -->
     <div class="container" id="screen-auth">
-        
-        <!-- PANTALLA A: FORMULARIO DE REGISTRO -->
+        <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
             <h1>🔐 Registro de Espectador</h1>
             <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" onclick="ejecutarRegistroFirebase();">🎁 ACCEDER AL SHOW GRATIS</button>
+            <button class="btn" onclick="ejecutarRegistroInmediato();">🎁 ACCEDER AL SHOW GRATIS</button>
             <br>
             <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- PANTALLA B: FORMULARIO DE INICIO DE SESIÓN -->
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="ejecutarLoginFirebase();">⚡ ENTRAR A MI CUENTA</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="ejecutarLoginInmediato();">⚡ ENTRAR A MI CUENTA</button>
             <br>
             <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
-    <!-- PANTALLA 2: INTERFAZ APP PRINCIPAL -->
+    <!-- INTERFAZ CENTRAL DEL SHOW -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
@@ -101,12 +100,11 @@
         </div>
     </div>
 
-    <!-- CARGA DE LIBRERÍAS CLÁSICAS GLOBALES DE GOOGLE (Súper Compatibles) -->
+    <!-- CARGA DE LIBRERÍAS DE GOOGLE FIREBASE CLÁSICAS (Cero errores de red) -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
     <script>
-        // Configuración oficial de tu servidor Firebase de Google
         const firebaseConfig = {
             apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
             authDomain: "://firebaseapp.com",
@@ -119,12 +117,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        let usuarioDocRef = null;
-        let tiempoRestante = 600; // 10 minutos
+        let correoUsuarioActivo = "";
+        let tiempoRestante = 600; 
         let intervaloCronometro = null;
         let localStream = null;
+        let saldoActual = 0;
 
-        // Función para cambiar de formulario en pantalla al hacer clic
         function conmutarVistaAuth(mostrarLogin) {
             if (mostrarLogin) {
                 document.getElementById("box-register").classList.add("hidden");
@@ -135,34 +133,32 @@
             }
         }
 
-        // ACCIÓN 1: FUNCIÓN DE REGISTRO EN LA NUBE REAL (FIREBASE)
-        async function ejecutarRegistroFirebase() {
+        // --- ACCIÓN A: REGISTRO CON SALTO LOCAL MAESTRO 0.1s ---
+        function ejecutarRegistroInmediato() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
             if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
-            // Guardar en la colección 'Usuarios' (Mayúscula tal como la tienes en Firebase)
-            usuarioDocRef = db.collection("Usuarios").doc(corr);
+            correoUsuarioActivo = corr;
 
-            try {
-                const docSnap = await usuarioDocRef.get();
-                if (docSnap.exists) {
-                    alert("Este correo ya está registrado en la base de datos. Inicia sesión.");
-                    conmutarVistaAuth(true);
-                    return;
-                }
+            // 🚀 EL TIRO GANADOR: Saltamos de pantalla en el acto sin esperar al servidor
+            document.getElementById("screen-auth").style.display = "none";
+            document.getElementById("screen-app").classList.remove("hidden");
+            document.getElementById("user-display").innerText = nom + " " + ape;
+            document.getElementById("rango-view").innerText = "Prueba Gratuita";
+            document.getElementById("balance-view").innerText = "0";
 
-                // Inyectar datos en la nube de Google
-                await usuarioDocRef.set({
-                    nombre: nom + " " + ape,
-                    correo: corr,
-                    rol: "Prueba Gratuita",
-                    tokens_balance: 0
-                });
+            activarCamaraHardware();
+            iniciarCronometroRegresivo(false);
 
-                arrancarEntornoPlataforma(nom + " " + ape, "Prueba Gratuita", 0, false);
-                vincularSnapshotEnVivo();
-
+            // 🔒 GUARDADO ASÍNCRONO EN SEGUNDO PLANO (Viaja a tu Firebase en la nube sin trabar el teléfono)
+            db.collection("Usuarios").doc(corr).set({
+                nombre: nom + " " + ape,
+                correo: corr,
+                rol: "Prueba Gratuita",
+                tokens_balance: 0
+            }).then(() => {
+                console.log("Usuario guardado en la nube con éxito.");
         
