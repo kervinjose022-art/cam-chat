@@ -31,7 +31,7 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE ENTRADA CON MUTACIÓN DIRECTA POR BOTÓN -->
+    <!-- INTERFAZ DE ENTRADA CONMUTABLE -->
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
@@ -41,9 +41,9 @@
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" onclick="forzarIngresoRegistro();">🎁 ACCEDER AL SHOW GRATIS</button>
+            <button class="btn" onclick="registrarUsuarioNuevo();">🎁 ACCEDER AL SHOW GRATIS</button>
             <br>
-            <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
+            <span class="link-toggle" onclick="conmutarPantallas(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
         <!-- FORMULARIO DE INICIO DE SESIÓN -->
@@ -52,9 +52,9 @@
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
             
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="forzarIngresoLogin();">⚡ ENTRAR A MI CUENTA</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="iniciarSesionUsuario();">⚡ ENTRAR A MI CUENTA</button>
             <br>
-            <span class="link-toggle" onclick="cambiarVistaFormularios(false);">¿No tienes cuenta? Regístrate Gratis</span>
+            <span class="link-toggle" onclick="conmutarPantallas(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
@@ -80,7 +80,7 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱_♀️</div>
+                    <div class="model-thumb">👱🏻‍♀️</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
@@ -120,8 +120,8 @@
 
         const firestoreApiUrl = "https://googleapis.com";
 
-        // Función instantánea para cambiar entre Registro y Login
-        function cambiarVistaFormularios(verLogin) {
+        // Función corregida para alternar entre Registro y Login
+        function conmutarPantallas(verLogin) {
             if (verLogin) {
                 document.getElementById("box-register").style.display = "none";
                 document.getElementById("box-login").style.display = "block";
@@ -132,26 +132,27 @@
             }
         }
 
-        // 1. FORZAR ACCESO REGISTRO: CAMBIO EN 0.01 SEGUNDOS GARANTIZADO
-        function forzarIngresoRegistro() {
+        // 1. REGISTRO CORREGIDO CON SALTO INSTANTÁNEO
+        function registrarUsuarioNuevo() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
+            if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
             datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
+            
+            // Guardar localmente para habilitar el login inmediato en el móvil
+            let baseLocal = JSON.parse(localStorage.getItem('local_db_users') || "[]");
+            if(!baseLocal.some(u => u.correo === corr)) {
+                baseLocal.push(datosUsuarioLocal);
+                localStorage.setItem('local_db_users', JSON.stringify(baseLocal));
+            }
 
-            // EL SALTO DE FUERZA BRUTA: Quita el formulario de inmediato
+            // SALTO VISUAL DE INGRESO DIRECTO
             document.getElementById("screen-auth").style.display = "none";
             document.getElementById("screen-app").style.display = "block";
             document.getElementById("screen-app").classList.remove("hidden");
             
             document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
-            document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
-            document.getElementById("balance-view").innerText = "0";
-
-            // Guardar en la memoria local por si acaso
-            localStorage.setItem("ultimo_correo", corr);
-
         
