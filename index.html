@@ -35,9 +35,8 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE ENTRADA CON MUTACIÓN DIRECTA POR TOQUE -->
     <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO CON BOTONES DE ACCESO DE FUERZA BRUTA -->
+        <!-- FORMULARIO DE REGISTRO OPTIMIZADO -->
         <div id="box-register">
             <h1>🔐 Registro de Cuenta</h1>
             <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis en CamChat Live</p>
@@ -46,11 +45,10 @@
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
             
-            <div class="section-title">Selecciona tu Rol para Ingresar de una vez:</div>
-            <!-- Botón de Espectador -->
-            <button class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 ENTRAR COMO ESPECTADOR (10 MIN GRATIS)</button>
-            <!-- Botón de Modelo -->
-            <button class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 ENTRAR COMO MODELO (SALA ILIMITADA)</button>
+            <div class="section-title">Toca una opción para Registrarte e Ingresar:</div>
+            <!-- Botones Claros con la palabra Registrarse -->
+            <button class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)</button>
+            <button class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)</button>
             <br>
             <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
@@ -72,7 +70,6 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Perfil Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (CUADRÍCULA DE STREAMERS) -->
         <div id="catalog-section">
             <h3 style="text-align: left; margin: 15px 0 5px 0; color: #ff4081;">💋 Modelos Disponibles en Vivo:</h3>
             <div class="models-grid">
@@ -103,7 +100,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN B: REPRODUCTOR STREAMING ACTIVADO -->
         <div id="stream-section" class="hidden">
             <div id="video-container">
                 <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
@@ -140,7 +136,6 @@
             }
         }
 
-        // 1. CONTROLADOR DE FUERZA BRUTA: DISPARA EL ACCESO SEGÚN EL BOTÓN SELECCIONADO
         function procesarAccesoDirecto(rolAsignado) {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
@@ -148,6 +143,14 @@
 
             if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
-            // 🔑 ACCESO MAESTRO PARA TI COMO DUEÑO
             if (corr === "kervinjose022@gmail.com") {
+                datosUsuarioLocal = { nombre: nom + " (Admin)", correo: corr, rango: "👑 CREADOR MVP", tokens: 99999 };
+                desbloquearInterfazApp();
+                return;
+            }
+
+            datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: rolAsignado, tokens: 0 };
+            desbloquearInterfazApp();
+
+            let historial = JSON.parse(localStorage.getItem('backup_db_system') || "[]");
         
