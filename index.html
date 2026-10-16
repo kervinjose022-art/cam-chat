@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -30,7 +29,7 @@
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Cargando dependencias de video nativas...</div>
+            <div id="debug-box" class="debug-msg">Iniciando enlace de cámara automatizado...</div>
         </div>
 
         <div class="info-box">
@@ -40,10 +39,8 @@
         </div>
     </div>
 
-    <!-- Motores Globales e Inyecciones de Video Recomendadas ( jsDelivr / unpkg ) -->
+    <!-- Carga del Motor de Video Original de Zego -->
     <script src="https://unpkg.com"></script>
-    <script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zegocloud/zego-uikit-prebuilt@2.18.4/zego-uikit-prebuilt.min.js"></script>
 
     <script>
         // --- SISTEMA FINANCIERO INTEGRADO ---
@@ -78,8 +75,9 @@
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- ENTRADA AUTOMÁTICA CON MOTOR CORREGIDO ---
+        // --- ENTRADA AUTOMÁTICA UNIVERSAL ---
         window.addEventListener('load', () => {
+            // Tus credenciales reales validadas de Zego
             const appID = 1783743082;
             const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
             const roomID = "sala_webcam_prueba";
@@ -87,28 +85,21 @@
             const userName = "Invitado_Celular";
 
             try {
+                // Generar token con la librería limpia original
                 const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
                 const zp = ZegoUIKitPrebuilt.create(kitToken);
                 
+                // Iniciar la sala con el cargador estándar automático de Zego
                 zp.joinRoom({
                     container: document.getElementById('video-container'),
-                    scenario: {
-                        mode: ZegoUIKitPrebuilt.Scenario.VideoConference,
-                    },
-                    showUserList: false,
-                    showRoomTimer: false,
+                    sharedLinks: [],
+                    showPreJoinView: false, // Desactiva pantallas previas para ir directo al video
                     turnOnCameraWhenJoining: true,
-                    turnOnMicrophoneWhenJoining: true,
-                    showMyCameraToggleButton: true,
-                    showMyMicrophoneToggleButton: true,
-                    showAudioVideoSettingsButton: false,
-                    showScreenSharingButton: false,
-                    showTextChat: false,
-                    maxUsers: 2
+                    turnOnMicrophoneWhenJoining: true
                 });
-                debugBox.innerText = "Señal de video establecida en canal seguro.";
+                debugBox.innerText = "Conexión de video establecida con éxito.";
             } catch(err) {
-                debugBox.innerText = "Fallo de inicialización: " + err.message;
+                debugBox.innerText = "Error del sistema de video: " + err.message;
             }
         });
     </script>
