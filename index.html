@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Real Global</title>
+    <title>CamChat Live - Sistema Dual Profesional</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
         h1 { color: #ff4081; margin-bottom: 5px; font-size: 24px; }
-        .btn { background-color: #4caf50; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
-        .btn:hover { background-color: #43a047; }
+        .btn { border: none; padding: 15px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 12px; width: 100%; font-weight: bold; color: white; }
+        .btn-user { background-color: #4caf50; }
+        .btn-user:hover { background-color: #43a047; }
+        .btn-model { background-color: #e91e63; }
+        .btn-model:hover { background-color: #d81b60; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        input[type="text"], input[type="email"], select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; font-size: 14px; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; font-size: 14px; }
         
         /* DISEÑO DE CUADRÍCULA DE MODELOS STREAMERS */
         .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
@@ -27,14 +30,14 @@
         .hidden { display: none !important; }
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
         .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
-        label { display: block; text-align: left; font-size: 12px; color: #ff4081; font-weight: bold; margin-top: 5px; }
+        .section-title { font-size: 12px; color: #ff4081; font-weight: bold; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <!-- INTERFAZ DE ENTRADA CONMUTABLE -->
+    <!-- INTERFAZ DE ENTRADA CON MUTACIÓN DIRECTA POR TOQUE -->
     <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO CON SELECTOR DE ROL -->
+        <!-- FORMULARIO DE REGISTRO CON BOTONES DE ACCESO DE FUERZA BRUTA -->
         <div id="box-register">
             <h1>🔐 Registro de Cuenta</h1>
             <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis en CamChat Live</p>
@@ -43,14 +46,11 @@
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
             
-            <!-- 🎭 EL INTERRUPTOR DE ROL CLAVE -->
-            <label for="reg-rol">¿CÓMO DESEAS INGRESAR A LA PLATAFORMA?</label>
-            <select id="reg-rol">
-                <option value="Prueba Gratuita" selected>👤 Usuario Espectador (Ver Shows - 10 Min Gratis)</option>
-                <option value="Modelo Oficial">💃 Modelo Streamer (Transmitir En Vivo - Sin Límite)</option>
-            </select>
-
-            <button class="btn" onclick="procesarIngresoDual();">🎁 CREAR CUENTA E INGRESAR</button>
+            <div class="section-title">Selecciona tu Rol para Ingresar de una vez:</div>
+            <!-- Botón de Espectador -->
+            <button class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 ENTRAR COMO ESPECTADOR (10 MIN GRATIS)</button>
+            <!-- Botón de Modelo -->
+            <button class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 ENTRAR COMO MODELO (SALA ILIMITADA)</button>
             <br>
             <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
@@ -89,7 +89,7 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb"></div>
+                    <div class="model-thumb">👱🏻‍♀️</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
@@ -140,17 +140,14 @@
             }
         }
 
-        // 1. PROCESADOR INTEGRADO DUAL (CAPTURA EL ROL SELECCIONADO)
-        function procesarIngresoDual() {
+        // 1. CONTROLADOR DE FUERZA BRUTA: DISPARA EL ACCESO SEGÚN EL BOTÓN SELECCIONADO
+        function procesarAccesoDirecto(rolAsignado) {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
-            const rolSeleccionado = document.getElementById("reg-rol").value; // Captura el rol del select
 
             if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
             // 🔑 ACCESO MAESTRO PARA TI COMO DUEÑO
             if (corr === "kervinjose022@gmail.com") {
-                datosUsuarioLocal = { nombre: nom + " (Admin)", correo: corr, rango: "👑 CREADOR MVP", tokens: 99999 };
-                desbloquearInterfazApp();
         
