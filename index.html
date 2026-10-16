@@ -46,7 +46,6 @@
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
             
             <div class="section-title">Toca una opción para Registrarte e Ingresar:</div>
-            <!-- Botones Claros con la palabra Registrarse -->
             <button class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)</button>
             <button class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)</button>
             <br>
@@ -118,13 +117,13 @@
         </div>
     </div>
 
-    <!-- SDK COMPATIBLE DE FIREBASE (HTML PURO) -->
+    <!-- LIBRERÍAS OFICIALES -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
     <script>
-        // CONFIGURACIÓN DE TU PROYECTO FIREBASE
+        // CONFIGURACIÓN OBLIGATORIA (Asegúrate de pegar tus datos aquí, hermano)
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_AUTH_DOMAIN",
@@ -134,17 +133,16 @@
             appId: "TU_APP_ID"
         };
 
-        // Inicializar Firebase globalmente
+        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        auth.useDeviceLanguage(); // Optimiza la velocidad de respuesta de Auth
 
-        // Variables operativas globales
         let cargando = false;
         let tiempoRestante = 600;
         let intervaloCronometro = null;
 
-        // 1. REGISTRO DE USUARIOS CORREGIDO (Evita congelamiento de pantalla)
         async function procesarAccesoDirecto(tipoUsuario) {
             if (cargando) return;
 
@@ -152,11 +150,15 @@
             const ape = document.getElementById("reg-apellido").value.trim();
             const corr = document.getElementById("reg-correo").value.trim();
 
-            // CONDICIÓN REPARADA: Valida correctamente que no falte ningún dato obligatorio
             if (!nom || !ape || !corr) {
                 alert("Por favor hermano, llena todos los campos para continuar.");
                 return;
             }
 
             cargando = true;
+            cambiarEstadoBotonesCarga(true);
+
+            // SISTEMA ANTI-CONGELAMIENTO AUTOMÁTICO (Temporizador de escape)
+            const timeoutSeguridad = setTimeout(() => {
+                if (cargando) {
         
