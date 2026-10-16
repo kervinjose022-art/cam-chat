@@ -31,30 +31,30 @@
 <body>
 
     <div class="container" id="screen-auth">
-        <!-- BOX REGISTRO -->
+        <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
             <h1>🔐 Registro de Espectador</h1>
             <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" onclick="registrarUsuarioNuevo();">🎁 ACCEDER AL SHOW GRATIS</button>
+            <button class="btn" onclick="accesoInmediatoRegistro();">🎁 ACCEDER AL SHOW GRATIS</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
+            <span class="link-toggle" onclick="conmutarVistas(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- BOX LOGIN -->
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="iniciarSesionUsuario();">⚡ ENTRAR A MI CUENTA</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="accesoInmediatoLogin();">⚡ ENTRAR A MI CUENTA</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
+            <span class="link-toggle" onclick="conmutarVistas(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
-    <!-- APP PRINCIPAL -->
+    <!-- APLICACIÓN PRINCIPAL -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
@@ -107,29 +107,15 @@
         <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
-    <!-- LIBRERÍAS OFICIALES INTEGRADAS NATIVAS -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
-            authDomain: "://firebaseapp.com",
-            projectId: "camchat-900d6",
-            storageBucket: "://appspot.com",
-            messagingSenderId: "434447301379",
-            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
         let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
 
-        function conmutarVistaAuth(mostrarLogin) {
-            if (mostrarLogin) {
+        const firestoreApiUrl = "https://googleapis.com";
+
+        function conmutarVistas(verLogin) {
+            if (verLogin) {
                 document.getElementById("box-register").classList.add("hidden");
                 document.getElementById("box-login").classList.remove("hidden");
             } else {
@@ -138,8 +124,8 @@
             }
         }
 
-        // CONTROLADOR DE REGISTRO BLINDADO
-        async function registrarUsuarioNuevo() {
+        // SALTO LOCAL EN 0.01 SEGUNDOS (Cero congelamientos de pantalla)
+        function accesoInmediatoRegistro() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
@@ -148,13 +134,24 @@
 
             datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
 
-            // 🚀 INTERRUPTOR DE CAMBIO INMEDIATO (Cambia de pantalla en 0.01 segundos pase lo que pase)
+            // Forzar avance visual instantáneo
             document.getElementById("screen-auth").classList.add("hidden");
             document.getElementById("screen-app").classList.remove("hidden");
             document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
             document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
             document.getElementById("balance-view").innerText = "0";
 
-            // Guardado asíncrono puro directo en tu Firebase Firestore (Colección 'Usuarios')
-            try {
+            // Guardar copia local de respaldo inmediato para el login
+            let backupDb = JSON.parse(localStorage.getItem('db_local_backup') || "[]");
+            if (!backupDb.some(u => u.correo === corr)) {
+                backupDb.push(datosUsuarioLocal);
+                localStorage.setItem('db_local_backup', JSON.stringify(backupDb));
+            }
+
+            // Inyección silenciosa e invisible a Firebase Firestore en segundo plano (API REST Nativa)
+            const payload = {
+                fields: {
+                    nombre: { stringValue: nom + " " + ape },
+                    correo: { stringValue: corr },
+                    rol: { stringValue: "Prueba Gratuita" },
         
