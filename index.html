@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Catálogo</title>
+    <title>CamChat Centro de Mando VIP</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
@@ -12,7 +12,6 @@
         .btn:hover { background-color: #43a047; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
         
         /* DISEÑO DE CUADRÍCULA DE MODELOS STREAMERS */
         .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
@@ -26,46 +25,14 @@
         .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
         .hidden { display: none !important; }
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
-        .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <!-- INTERFAZ DE LOGUEO / REGISTRO -->
-    <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO CON ACCIÓN COMPATIBLE -->
-        <div id="box-register">
-            <h1>🔐 Registro de Espectador</h1>
-            <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
-            
-            <form id="form-reg" onsubmit="event.preventDefault(); ejecutarRegistroInmediato();">
-                <input type="text" id="reg-nombre" placeholder="Nombre" required>
-                <input type="text" id="reg-apellido" placeholder="Apellido" required>
-                <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
-                <button type="submit" class="btn">🎁 ACCEDER AL SHOW GRATIS</button>
-            </form>
-            <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
-        </div>
-
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
-        <div id="box-login" class="hidden">
-            <h1>🔓 Iniciar Sesión</h1>
-            <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
-            
-            <form id="form-log" onsubmit="event.preventDefault(); ejecutarLoginInmediato();">
-                <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico" required>
-                <button type="submit" class="btn" style="background-color: #3f51b5;">⚡ ENTRAR A MI CUENTA</button>
-            </form>
-            <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
-        </div>
-    </div>
-
-    <!-- PANEL GENERAL DE MENÚ Y MODELOS -->
-    <div class="container hidden" id="screen-app">
+    <!-- INTERFAZ CENTRAL DEL NEGOCIO (DESBLOQUEADA POR DEFECTO PARA EL DUEÑO) -->
+    <div class="container" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Panel Creador: <span style="color: #ff4081; font-weight: bold;">Kervin Pérez (ADMIN)</span></p>
         
         <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (CUADRÍCULA DE STREAMERS) -->
         <div id="catalog-section">
@@ -84,13 +51,13 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱🏻‍♀️</div>
+                    <div class="model-thumb">🔻</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👩🏻</div>
+                    <div class="model-thumb">💎</div>
                     <h4>Scarlet VIP</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Scarlet VIP');">🎥 ENTRAR AL SHOW</button>
@@ -101,7 +68,7 @@
         <!-- SECCIÓN B: REPRODUCTOR STREAMING ACTIVADO -->
         <div id="stream-section" class="hidden">
             <div id="video-container">
-                <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
+                <div id="cronometro-view" class="timer-badge">⏱️ Tiempo VIP: ILIMITADO</div>
                 <div class="stream-view">
                     <p>🎙️ TRANSMITIENDO EN VIVO: <br><span id="model-active-name" style="color:#ff4081; font-size:22px;"></span></p>
                 </div>
@@ -110,49 +77,26 @@
         </div>
 
         <div class="info-box">
-            <h3>🔴 Servidor Central</h3>
-            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
+            <h3>🔴 Servidor Central: <span style="color:#4caf50;">En Línea</span></h3>
+            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">99999</span> Tokens</p>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #ff4081; font-weight: bold;">👑 CREADOR MVP</span></p>
         </div>
-        <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
     <script>
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
-        let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
 
-        function conmutarVistaAuth(mostrarLogin) {
-            if (mostrarLogin) {
-                document.getElementById("box-register").classList.add("hidden");
-                document.getElementById("box-login").classList.remove("hidden");
-            } else {
-                document.getElementById("box-login").classList.add("hidden");
-                document.getElementById("box-register").classList.remove("hidden");
-            }
+        function entrarAlShowDeModelo(nombreModelo) {
+            document.getElementById("catalog-section").classList.add("hidden");
+            document.getElementById("stream-section").classList.remove("hidden");
+            document.getElementById("model-active-name").innerText = nombreModelo;
         }
 
-        function ejecutarRegistroInmediato() {
-            const nom = document.getElementById("reg-nombre").value;
-            const ape = document.getElementById("reg-apellido").value;
-            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
-
-            datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
-            
-            let lista = JSON.parse(localStorage.getItem('backup_db_usuarios') || "[]");
-            if(!lista.some(u => u.correo === corr)) {
-                lista.push(datosUsuarioLocal);
-                localStorage.setItem('backup_db_usuarios', JSON.stringify(lista));
-            }
-
-            document.getElementById("screen-auth").style.display = "none";
-            document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
-            document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
-            document.getElementById("balance-view").innerText = "0";
-
-            // Envío asíncrono limpio mediante API nativa
-            const urlApiGoogle = "https://googleapis.com" + corr;
-            const payload = {
-                fields: {
-                    
+        function regresarAlCatalogo() {
+            document.getElementById("stream-section").classList.add("hidden");
+            document.getElementById("catalog-section").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
