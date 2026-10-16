@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Global</title>
+    <title>CamChat Live - Sistema Real</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -29,30 +29,33 @@
 </head>
 <body>
 
-    <!-- CAJA DE AUTENTICACIÓN -->
+    <!-- CAJA DE ACCESO COMPUESTA -->
     <div class="container" id="screen-auth">
-        <!-- FORMULARIO 1: REGISTRO -->
+        
+        <!-- PANTALLA A: FORMULARIO DE REGISTRO -->
         <div id="box-register">
             <h1>🔐 Registro de Espectador</h1>
             <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" id="btn-registrar">🎁 ACCEDER AL SHOW GRATIS</button>
-            <span class="link-toggle" id="go-to-login">¿Ya tienes cuenta? Inicia Sesión</span>
+            <button class="btn" onclick="ejecutarRegistroFirebase();">🎁 ACCEDER AL SHOW GRATIS</button>
+            <br>
+            <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- FORMULARIO 2: LOGIN CONECTADO A LA NUBE -->
+        <!-- PANTALLA B: FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" id="btn-login">⚡ ENTRAR A MI CUENTA</button>
-            <span class="link-toggle" id="go-to-register">¿No tienes cuenta? Regístrate Gratis</span>
+            <button class="btn" style="background-color: #3f51b5;" onclick="ejecutarLoginFirebase();">⚡ ENTRAR A MI CUENTA</button>
+            <br>
+            <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
-    <!-- PANTALLA 2: ENTORNO DEL SHOW EN VIVO -->
+    <!-- PANTALLA 2: INTERFAZ APP PRINCIPAL -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
@@ -67,20 +70,20 @@
             <div id="video-locked-view" class="hidden" style="text-align: center; padding: 10px; z-index: 5;">
                 <h3 style="color: #ff5252; margin: 0;">🔒 Tiempo de Prueba Expirado</h3>
                 <p style="font-size: 12px; color: #ccc;">Tus 10 minutos gratis terminaron. Activa un Plan VIP para continuar.</p>
-                <button class="btn" style="background-color: #ffeb3b; color: #000; width: auto;" id="btn-abrir-pasarela">💳 DESBLOQUEAR TRANSMISIÓN AQUÍ</button>
+                <button class="btn" style="background-color: #ffeb3b; color: #000; width: auto;" onclick="mostrarPasarela();">💳 DESBLOQUEAR TRANSMISIÓN AQUÍ</button>
             </div>
         </div>
 
-        <!-- PASARELA CRIPTO BINANCE BEP-20 -->
+        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
         <div class="info-box hidden" id="box-pasarela">
             <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
             <div class="plan-grid">
-                <div class="plan-card" id="plan-vip-click"><h4>🥈 Plan VIP Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan();"><h4>🥈 Plan VIP Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
             </div>
             <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
                 <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
                 <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #4caf50;" id="btn-notificar-pago">Avisar Pago al Administrador</button>
+                <button class="btn" style="background-color: #4caf50;" onclick="notificarPagoAlServidor();">Avisar Pago al Administrador</button>
             </div>
         </div>
 
@@ -92,17 +95,18 @@
 
         <div class="info-box">
             <h3>👥 Panel de Control de Tokens</h3>
-            <button class="btn" id="btn-regalo" style="background-color: #ff4081;">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens</button>
-            <button class="btn" style="background-color: #555; margin-top:15px; font-size:12px; padding:6px;" id="btn-logout">🚪 Cerrar Sesión</button>
+            <button class="btn" id="btn-regalo" style="background-color: #ff4081;" onclick="restarTokensBoton();">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="sumarTokensBoton();">💳 Recargar 500 Tokens</button>
+            <button class="btn" style="background-color: #555; margin-top:15px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
         </div>
     </div>
 
-    <!-- INYECTOR MODERNO DE GOOGLE FIREBASE v10 SDK -->
-    <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://gstatic.com";
+    <!-- CARGA DE LIBRERÍAS CLÁSICAS GLOBALES DE GOOGLE (Súper Compatibles) -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
 
+    <script>
+        // Configuración oficial de tu servidor Firebase de Google
         const firebaseConfig = {
             apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
             authDomain: "://firebaseapp.com",
@@ -111,57 +115,54 @@
             messagingSenderId: "434447301379",
             appId: "1:434447301379:web:a5571e06a1c69530cb0736"
         };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let activeUserRef = null;
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        let usuarioDocRef = null;
         let tiempoRestante = 600; // 10 minutos
         let intervaloCronometro = null;
         let localStream = null;
 
-        // Alternar vistas visuales
-        document.getElementById("go-to-login").addEventListener("click", () => {
-            document.getElementById("box-register").classList.add("hidden");
-            document.getElementById("box-login").classList.remove("hidden");
-        });
-        document.getElementById("go-to-register").addEventListener("click", () => {
-            document.getElementById("box-login").classList.add("hidden");
-            document.getElementById("box-register").classList.remove("hidden");
-        });
+        // Función para cambiar de formulario en pantalla al hacer clic
+        function conmutarVistaAuth(mostrarLogin) {
+            if (mostrarLogin) {
+                document.getElementById("box-register").classList.add("hidden");
+                document.getElementById("box-login").classList.remove("hidden");
+            } else {
+                document.getElementById("box-login").classList.add("hidden");
+                document.getElementById("box-register").classList.remove("hidden");
+            }
+        }
 
-        // ACCIÓN 1: FUNCIÓN DE REGISTRO EN LA NUBE REAL
-        document.getElementById("btn-registrar").addEventListener("click", async () => {
+        // ACCIÓN 1: FUNCIÓN DE REGISTRO EN LA NUBE REAL (FIREBASE)
+        async function ejecutarRegistroFirebase() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
+            if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
-            activeUserRef = doc(db, "Usuarios", corr);
+            // Guardar en la colección 'Usuarios' (Mayúscula tal como la tienes en Firebase)
+            usuarioDocRef = db.collection("Usuarios").doc(corr);
 
             try {
-                // Verificar si ya existe antes de sobreescribir
-                const docSnap = await getDoc(activeUserRef);
-                if (docSnap.exists()) {
-                    alert("Este correo ya está registrado. Por favor, inicia sesión.");
-                    document.getElementById("box-register").classList.add("hidden");
-                    document.getElementById("box-login").classList.remove("hidden");
+                const docSnap = await usuarioDocRef.get();
+                if (docSnap.exists) {
+                    alert("Este correo ya está registrado en la base de datos. Inicia sesión.");
+                    conmutarVistaAuth(true);
                     return;
                 }
 
-                // Guardar perfil real en Firebase de Google
-                await setDoc(activeUserRef, {
+                // Inyectar datos en la nube de Google
+                await usuarioDocRef.set({
                     nombre: nom + " " + ape,
                     correo: corr,
                     rol: "Prueba Gratuita",
                     tokens_balance: 0
                 });
 
-                iniciarEntornoApp(nom + " " + ape, "Prueba Gratuita", 0, false);
-                vincularEscuchaEnVivo();
-
-            } catch (e) { alert("Error guardando en Firebase: " + e.message); }
-        });
+                arrancarEntornoPlataforma(nom + " " + ape, "Prueba Gratuita", 0, false);
+                vincularSnapshotEnVivo();
 
         
