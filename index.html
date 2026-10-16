@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Plataforma VIP & Panel</title>
+    <title>CamChat Plataforma Privada</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -23,16 +23,15 @@
         .hidden { display: none !important; }
         .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
         
-        /* Estilos de la Tabla de Monitoreo de Usuarios */
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; text-align: left; }
         .admin-table th, .admin-table td { padding: 8px; border: 1px solid #444; }
         .admin-table th { background-color: #ff4081; color: white; }
-        .admin-section { border: 2px dashed #ff4081; background: #1a0d13; }
+        .admin-section { border: 2px dashed #ff4081; background: #1a0d13; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: REGISTRO SIN INTERFERENCIAS -->
+    <!-- PANTALLA 1: REGISTRO LIMPIO -->
     <div class="container" id="screen-register">
         <h1>🔐 Registro de Usuario</h1>
         <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
@@ -41,10 +40,10 @@
         <input type="text" id="reg-apellido" placeholder="Apellido">
         <input type="email" id="reg-correo" placeholder="Correo Electrónico">
         
-        <button class="btn" style="background-color: #4caf50;" onclick="entrarComoUsuario();">🎁 REGISTRARSE GRATIS</button>
+        <button class="btn" style="background-color: #4caf50;" onclick="procesarEntradaMano();">🎁 REGISTRARSE GRATIS</button>
     </div>
 
-    <!-- PANTALLA 2: INTERFAZ DE TRANSMISIÓN -->
+    <!-- PANTALLA 2: INTERFAZ DE USUARIO APP -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
@@ -70,8 +69,7 @@
 
             <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
                 <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
-                <div class="crypto-box" id="wallet-address">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #3f51b5; padding: 6px; font-size: 12px;" onclick="copiarWallet()">📋 Copiar Dirección</button>
+                <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
                 <button class="btn" style="background-color: #4caf50;" onclick="notificarPago()">Avisar Pago Directo</button>
             </div>
         </div>
@@ -85,14 +83,14 @@
         <div class="info-box">
             <h3>👥 Panel de Control de Tokens</h3>
             <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Fichas)</button>
+            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens</button>
         </div>
     </div>
 
-    <!-- PANTALLA CONTABLE: PANEL DE CONTROL COMPLETO DEL PROPIETARIO (VISIBLE PARA TI) -->
-    <div class="container admin-section" id="screen-admin-panel">
-        <h2 style="color: #ff4081; margin: 5px 0;">📊 Panel de Control: Gestión de Servidor</h2>
-        <p style="color: #aaa; font-size: 12px; margin: 0 0 10px 0;">Base de Datos de Usuarios Registrados y Control de Monedas Lanzadas</p>
+    <!-- PANTALLA CONTABLE SECRETA: SE ACTIVA SÓLO PARA EL CORREO DEL ADMIN -->
+    <div class="container admin-section hidden" id="screen-admin-panel">
+        <h2 style="color: #ff4081; margin: 5px 0;">📊 Panel Secreto: Control de Creador</h2>
+        <p style="color: #aaa; font-size: 12px; margin: 0 0 10px 0;">Base de datos en tiempo real de clientes registrados en el sistema</p>
         
         <table class="admin-table">
             <thead>
@@ -104,62 +102,62 @@
                 </tr>
             </thead>
             <tbody id="admin-table-body">
-                <!-- Los registros cargan dinámicamente aquí -->
+                <!-- Se llenará automáticamente al presionar el botón -->
             </tbody>
         </table>
-        <button class="btn" style="background-color: #555; padding: 8px; font-size: 12px; margin-top: 10px;" onclick="limpiarBaseDeDatos();">🔄 Reiniciar Simulador de Base de Datos</button>
+        <button class="btn" style="background-color: #555; padding: 6px; font-size: 11px;" onclick="window.location.reload();">⚙️ Cerrar Sesión del Panel Principal</button>
     </div>
 
     <script>
-        // Simulador de Base de Datos Centralizada en la memoria
-        let baseDeDatosUsuarios = [
-            { nombre: "Carlos", apellido: "Mendoza", correo: "carlos@gmail.com", rango: "VIP Oro", tokens: 450 },
-            { nombre: "María", apellido: "Gómez", correo: "maria.g@hotmail.com", rango: "VIP Plata", tokens: 150 },
-            { nombre: "Kervin (Admin)", apellido: "Pérez", correo: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", tokens: 99999 }
+        // Variables volátiles en memoria volatil pura (Anti-bloqueos de teléfonos)
+        let saldoGlobal = 0;
+        let listaClientesSimulados = [
+            { nom: "Carlos Mendoza", mail: "carlos@gmail.com", rango: "VIP Oro", fichas: 450 },
+            { nom: "María Gómez", mail: "maria.g@hotmail.com", rango: "VIP Plata", fichas: 150 },
+            { nom: "Kervin Pérez", mail: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", fichas: 99999 }
         ];
 
-        if (!localStorage.getItem('db_usuarios')) {
-            localStorage.setItem('db_usuarios', JSON.stringify(baseDeDatosUsuarios));
-        }
-
-        function renderizarPanelAdmin() {
-            const lista = JSON.parse(localStorage.getItem('db_usuarios'));
-            const tbody = document.getElementById("admin-table-body");
-            tbody.innerHTML = "";
-            
-            lista.forEach(user => {
-                let row = `<tr>
-                    <td><strong>${user.nombre} ${user.apellido}</strong></td>
-                    <td>${user.correo}</td>
-                    <td><span style="color:${user.rango.includes('👑') ? '#ff4081' : '#ffeb3b'}">${user.rango}</span></td>
-                    <td style="color:#ffeb3b; font-weight:bold;">${user.tokens}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-        renderizarPanelAdmin();
-
-        function entrarComoUsuario() {
+        function procesarEntradaMano() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if(!nom || !ape || !corr) { alert("Completa los campos."); return; }
+            if(!nom || !ape || !corr) { alert("Por favor, rellena todos los campos."); return; }
 
-            let lista = JSON.parse(localStorage.getItem('db_usuarios'));
-            let usuarioExistente = lista.find(u => u.correo === corr);
+            // Ocultar formulario e ingresar a la App de una vez
+            document.getElementById("screen-register").classList.add("hidden");
+            document.getElementById("screen-app").classList.remove("hidden");
+            document.getElementById("user-display").innerText = nom;
 
-            if(!usuarioExistente) {
-                usuarioExistente = {
-                    nombre: nom,
-                    apellido: ape,
-                    correo: corr,
-                    rango: corr === "kervinjose022@gmail.com" ? "👑 CREADOR MVP" : "Espectador Gratis",
-                    tokens: corr === "kervinjose022@gmail.com" ? 99999 : 0
-                };
-                lista.push(usuarioExistente);
-                localStorage.setItem('db_usuarios', JSON.stringify(lista));
+            // EVALUACIÓN DE ROLES ABSOLUTOS
+            if(corr === "kervinjose022@gmail.com") {
+                // SI ERES TÚ: Se desbloquea el panel secreto contable abajo de la pantalla
+                saldoGlobal = 99999;
+                document.getElementById("rango-view").innerText = "👑 CREADOR MVP";
+                document.getElementById("rango-view").style.color = "#ff4081";
+                document.getElementById("video-locked-view").classList.add("hidden");
+                document.getElementById("video-active-view").classList.remove("hidden");
+                
+                // Mostrar el panel de control exclusivo para el jefe
+                document.getElementById("screen-admin-panel").classList.remove("hidden");
+                
+                // Cargar datos en la tabla
+                const tbody = document.getElementById("admin-table-body");
+                tbody.innerHTML = "";
+                listaClientesSimulados.forEach(c => {
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${c.nom}</strong></td>
+                        <td>${c.mail}</td>
+                        <td style="color:#ffeb3b">${c.rango}</td>
+                        <td style="color:#ffeb3b; font-weight:bold;">${c.fichas}</td>
+                    </tr>`;
+                });
+                activarCamaraNativa();
+            } else {
+                // Si es un usuario común, el panel se mantiene oculto y bloqueado
+                saldoGlobal = 0;
+                document.getElementById("rango-view").innerText = "Espectador Gratis";
+                document.getElementById("rango-view").style.color = "#aaa";
             }
 
-            localStorage.setItem('sesion_actual', JSON.stringify(usuarioExistente));
-        
+             
