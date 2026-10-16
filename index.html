@@ -14,7 +14,6 @@
         .status { color: #4caf50; font-weight: bold; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
-        /* Contenedor del reproductor de video */
         #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; }
     </style>
 </head>
@@ -24,13 +23,13 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
         
-        <!-- El Cuadro de Video de la Webcam -->
+        <!-- Cuadro de Video Multidispositivo -->
         <div id="video-container"></div>
 
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Iniciando transmisión segura...</div>
+            <div id="debug-box" class="debug-msg">Iniciando conexión de cámara multidispositivo...</div>
         </div>
 
         <div class="info-box">
@@ -40,12 +39,12 @@
         </div>
     </div>
 
-    <!-- SDK de Transmisión de ZEGOCLOUD -->
+    <!-- Motores Globales de Video de Zego -->
     <script src="https://unpkg.com"></script>
     <script src="https://unpkg.com"></script>
 
     <script>
-        // --- MOTOR DE TOKENS (LOCALSTORAGE) ---
+        // --- SISTEMA FINANCIERO INTEGRADO ---
         if (!localStorage.getItem('tokens_balance')) {
             localStorage.setItem('tokens_balance', '1000');
         }
@@ -77,36 +76,35 @@
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- MOTOR DE VIDEO EN VIVO (ZEGOCLOUD) ---
+        // --- APERTURA FORZADA DE CÁMARA (MODO CONFERENCIA) ---
         window.addEventListener('load', () => {
-            // Tus llaves reales inyectadas de la imagen
             const appID = 1783743082;
             const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
-            
-            // Generar sala y usuario aleatorio para la prueba de la webcam
             const roomID = "sala_webcam_prueba";
             const userID = "user_" + Math.floor(Math.random() * 10000);
-            const userName = "Modelo_Live";
+            const userName = "Invitado_Celular";
 
-            // Crear el token de acceso seguro
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-
-            // Inicializar la interfaz de video dentro de nuestro contenedor
             const zp = ZegoUIKitPrebuilt.create(kitToken);
+            
             zp.joinRoom({
                 container: document.getElementById('video-container'),
                 scenario: {
-                    mode: ZegoUIKitPrebuilt.Scenario.LiveStreaming,
-                    config: {
-                        role: ZegoUIKitPrebuilt.Anchor, // Configurado como Transmisora/Modelo
-                    },
+                    mode: ZegoUIKitPrebuilt.Scenario.VideoConference, // Fuerza el encendido directo en celulares
                 },
                 showUserList: false,
-                showRoomTimer: true,
-                turnOnCameraWhenJoining: true, // Enciende la cámara automáticamente
+                showRoomTimer: false,
+                turnOnCameraWhenJoining: true,
                 turnOnMicrophoneWhenJoining: true,
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: false,
+                showScreenSharingButton: false,
+                showTextChat: false,
+                showUserList: false,
+                maxUsers: 2
             });
-            debugBox.innerText = "Transmisión en vivo iniciada. ID de Sala: " + roomID;
+            debugBox.innerText = "Señal de video establecida en canal seguro.";
         });
     </script>
 </body>
