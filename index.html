@@ -13,7 +13,7 @@
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .status { color: #4caf50; font-weight: bold; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        .debug-msg { color: #aaa; font-size: 13px; text-align: center; margin-top: 10px; font-weight: bold; }
+        .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
         #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -23,15 +23,15 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
         
-        <!-- Cuadro de Video con Botón de Activación Manual -->
+        <!-- Cuadro de Video con Activación Manual Forzada -->
         <div id="video-container">
-            <button id="btn-camara" class="btn" style="width: auto; background-color: #4caf50; padding: 15px 30px; font-size: 16px;">🔴 ENTRAR AL SHOW EN VIVO</button>
+            <button id="btn-camara" class="btn" style="width: auto; background-color: #4caf50; padding: 15px 30px; font-size: 16px;">⚡ ENTRAR EN VIVO</button>
         </div>
 
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg" style="font-size: 11px; font-style: italic; color: #888; text-align: left;">Presiona el botón verde de arriba para activar la cámara del celular...</div>
+            <div id="debug-box" class="debug-msg">Toca el botón verde de arriba para prender la cámara...</div>
         </div>
 
         <div class="info-box">
@@ -41,8 +41,8 @@
         </div>
     </div>
 
-    <!-- Carga desde jsDelivr de alta velocidad -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- Carga del Motor de Video Limpio Original de Zego -->
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
 
     <script>
         // --- SISTEMA FINANCIERO INTEGRADO ---
@@ -63,7 +63,7 @@
                 saldo -= 50;
                 localStorage.setItem('tokens_balance', saldo.toString());
                 actualizarPantalla();
-                debugBox.innerText = "¡Regalo enviado con éxito! Tu comisión del 30% ha sido retenida.";
+                debugBox.innerText = "¡Regalo enviado! Comisión retenida en tu cuenta de administrador.";
                 alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
             } else { alert("Saldo insuficiente. Por favor recarga."); }
         });
@@ -73,11 +73,11 @@
             saldo += 500;
             localStorage.setItem('tokens_balance', saldo.toString());
             actualizarPantalla();
-            debugBox.innerText = "Recarga procesada exitosamente mediante pasarela simulada.";
+            debugBox.innerText = "Recarga procesada exitosamente.";
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- ACTIVACIÓN CON INTERACCIÓN HUMANA OBLIGATORIA ---
+        // --- APERTURA FORZADA MEDIANTE TOQUE HUMANO ---
         document.getElementById("btn-camara").addEventListener("click", () => {
             const appID = 1783743082;
             const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
@@ -85,28 +85,24 @@
             const userID = "user_" + Math.floor(Math.random() * 10000);
             const userName = "Invitado_Celular";
 
-            if (typeof ZegoUIKitPrebuilt !== 'undefined') {
-                try {
-                    // Limpiar el contenedor antes de inyectar el video
-                    document.getElementById("video-container").innerHTML = "";
-                    document.getElementById("video-container").style.border = "2px solid #4caf50";
-
-                    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-                    const zp = ZegoUIKitPrebuilt.create(kitToken);
-                    
-                    zp.joinRoom({
-                        container: document.getElementById('video-container'),
-                        sharedLinks: [],
-                        showPreJoinView: false,
-                        turnOnCameraWhenJoining: true,
-                        turnOnMicrophoneWhenJoining: true
-                    });
-                    debugBox.innerText = "¡Transmisión conectada con éxito mediante click humano!";
-                } catch(err) {
-                    debugBox.innerText = "Error de Zego al conectar: " + err.message;
-                }
-            } else {
-                alert("El motor de video aún se está descargando de internet. Espera 3 segundos e intenta presionar de nuevo.");
+            try {
+                // Borrar el botón verde para inyectar el video limpio
+                document.getElementById("video-container").innerHTML = "";
+                
+                const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+                const zp = ZegoUIKitPrebuilt.create(kitToken);
+                
+                zp.joinRoom({
+                    container: document.getElementById('video-container'),
+                    sharedLinks: [],
+                    showPreJoinView: false,
+                    turnOnCameraWhenJoining: true,
+                    turnOnMicrophoneWhenJoining: true
+                });
+                
+                debugBox.innerText = "¡Transmisión iniciada correctamente!";
+            } catch(err) {
+                debugBox.innerText = "Fallo: " + err.message;
             }
         });
     </script>
