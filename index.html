@@ -31,21 +31,19 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE ENTRADA CONMUTABLE -->
+    <!-- INTERFAZ DE ENTRADA CON MUTACIÓN DIRECTA POR BOTÓN -->
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
             <h1>🔐 Registro de Espectador</h1>
             <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
             
-            <form id="form-reg" onsubmit="event.preventDefault(); registrarUsuarioFirebase();">
-                <input type="text" id="reg-nombre" placeholder="Nombre" required>
-                <input type="text" id="reg-apellido" placeholder="Apellido" required>
-                <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
-                <button type="submit" class="btn">🎁 ACCEDER AL SHOW GRATIS</button>
-            </form>
+            <input type="text" id="reg-nombre" placeholder="Nombre">
+            <input type="text" id="reg-apellido" placeholder="Apellido">
+            <input type="email" id="reg-correo" placeholder="Correo Electrónico">
+            <button class="btn" onclick="forzarIngresoRegistro();">🎁 ACCEDER AL SHOW GRATIS</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
+            <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
         <!-- FORMULARIO DE INICIO DE SESIÓN -->
@@ -53,12 +51,10 @@
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
             
-            <form id="form-log" onsubmit="event.preventDefault(); iniciarSesionFirebase();">
-                <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico" required>
-                <button type="submit" class="btn" style="background-color: #3f51b5;">⚡ ENTRAR A MI CUENTA</button>
-            </form>
+            <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
+            <button class="btn" style="background-color: #3f51b5;" onclick="forzarIngresoLogin();">⚡ ENTRAR A MI CUENTA</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
+            <span class="link-toggle" onclick="cambiarVistaFormularios(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
@@ -84,7 +80,7 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱🏻‍♀️</div>
+                    <div class="model-thumb">👱_♀️</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
@@ -122,35 +118,40 @@
         let intervaloCronometro = null;
         let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
 
-        // URL base de la REST API de tu Firebase en la nube de Google
         const firestoreApiUrl = "https://googleapis.com";
 
-        function conmutarVistaAuth(mostrarLogin) {
-            if (mostrarLogin) {
-                document.getElementById("box-register").classList.add("hidden");
+        // Función instantánea para cambiar entre Registro y Login
+        function cambiarVistaFormularios(verLogin) {
+            if (verLogin) {
+                document.getElementById("box-register").style.display = "none";
+                document.getElementById("box-login").style.display = "block";
                 document.getElementById("box-login").classList.remove("hidden");
             } else {
-                document.getElementById("box-login").classList.add("hidden");
-                document.getElementById("box-register").classList.remove("hidden");
+                document.getElementById("box-login").style.display = "none";
+                document.getElementById("box-register").style.display = "block";
             }
         }
 
-        // 1. REGISTRO ASÍNCRONO: SALTO LOCAL EN 0.1s E INYECCIÓN REAL EN FIREBASE
-        function registrarUsuarioFirebase() {
+        // 1. FORZAR ACCESO REGISTRO: CAMBIO EN 0.01 SEGUNDOS GARANTIZADO
+        function forzarIngresoRegistro() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
+            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
+
             datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
 
-            // AVANCE DE PANTALLA INMEDIATO AL CATÁLOGO VERGATARIO
+            // EL SALTO DE FUERZA BRUTA: Quita el formulario de inmediato
             document.getElementById("screen-auth").style.display = "none";
+            document.getElementById("screen-app").style.display = "block";
             document.getElementById("screen-app").classList.remove("hidden");
+            
             document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
             document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
             document.getElementById("balance-view").innerText = "0";
 
-            // Inyectar el JSON directo a tu Firebase real mediante canal HTTP nativo (Anti-bloqueos)
-            const payload = {
-                fields: {
-                    nombre: { stringValue: nom + " " + ape },
+            // Guardar en la memoria local por si acaso
+            localStorage.setItem("ultimo_correo", corr);
+
+        
