@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Plataforma</title>
+    <title>CamChat Plataforma VIP</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -11,91 +11,146 @@
         .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #f50057; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
-        .status { color: #4caf50; font-weight: bold; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
-        #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; align-items: center; justify-content: center; }
+        
+        /* Estilos de los Formularios y Ventanas */
+        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
+        .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .plan-card { background: #2d2d2d; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer; transition: 0.3s; text-align: center; }
+        .plan-card:hover { border-color: #ff4081; background: #3d3d3d; }
+        .plan-card h4 { margin: 0 0 5px 0; color: #ffeb3b; }
+        
+        #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
         .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .hidden { display: none !important; }
+        .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
+    <!-- PANTALLA 1: FORMULARIO DE REGISTRO GRATIS -->
+    <div class="container" id="screen-register">
+        <h1>🔐 Registro de Usuario</h1>
+        <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
         
-        <!-- Cuadro de Video Nativo -->
+        <form id="form-registro" onsubmit="event.preventDefault(); registrarUsuario();">
+            <input type="text" id="reg-nombre" placeholder="Nombre" required>
+            <input type="text" id="reg-apellido" placeholder="Apellido" required>
+            <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
+            <button type="submit" class="btn" style="background-color: #4caf50;">🎁 REGISTRARSE GRATIS</button>
+        </form>
+    </div>
+
+    <!-- PANTALLA 2: APP PRINCIPAL (SALA DE MODELO Y PASARELA) -->
+    <div class="container hidden" id="screen-app">
+        <h1>🎙️ CamChat Live</h1>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        
+        <!-- Contenedor Bloqueado de la Webcam -->
         <div id="video-container">
-            <button id="btn-camara" class="btn" style="width: auto; background-color: #4caf50; padding: 15px 30px; font-size: 16px;">⚡ ENTRAR EN VIVO</button>
+            <div id="video-locked-view">
+                <h3 style="color: #ff5252; margin: 0;">🔒 Transmisión Bloqueada</h3>
+                <p style="font-size: 13px; color: #ccc;">Debes activar un Plan VIP para desbloquear los 10 minutos de show en vivo.</p>
+                <button class="btn" style="background-color: #ffeb3b; color: #000;" onclick="mostrarPasarela();">💳 ACTIVAR MI PLAN VIP AQUÍ</button>
+            </div>
+            <div id="video-active-view" class="hidden" style="width:100%; height:100%;">
+                <!-- Aquí se inyectará la cámara nativa -->
+            </div>
+        </div>
+
+        <!-- PASARELA DE PAGO BINANCE BEP-20 (OCULTA POR DEFECTO) -->
+        <div class="info-box hidden" id="box-pasarela">
+            <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
+            <p style="font-size: 13px; margin: 5px 0;">1. Selecciona el rango que deseas adquirir:</p>
+            
+            <div class="plan-grid">
+                <div class="plan-card" onclick="seleccionarPlan('Plata', 10)"><h4>🥈 Plata</h4><p style="margin:0;font-size:12px;">$10 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Oro', 20)"><h4>🥇 Oro</h4><p style="margin:0;font-size:12px;">$20 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Rubí', 40)"><h4>🔻 Rubí</h4><p style="margin:0;font-size:12px;">$40 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Diamante', 120)"><h4>💎 Diamante</h4><p style="margin:0;font-size:12px;">$120 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Platino', 420)"><h4>👑 Platino</h4><p style="margin:0;font-size:12px;">$420 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan('Corona MVP', 1000)"><h4>🏆 Corona</h4><p style="margin:0;font-size:12px;">$1000 USD</p></div>
+            </div>
+
+            <div id="payment-details" class="hidden" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
+                <p style="font-size: 13px; margin: 5px 0;">2. Envía exactamente <strong id="plan-cost" style="color: #ffeb3b;"></strong> USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
+                <div class="crypto-box" id="wallet-address">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
+                <button class="btn" style="background-color: #3f51b5; padding: 8px; font-size: 13px;" onclick="copiarWallet()">📋 Copiar Dirección de Depósito</button>
+                <button class="btn" style="background-color: #4caf50;" onclick="notificarPago()">Avisar Pago al Administrador</button>
+            </div>
         </div>
 
         <div class="info-box">
-            <h3>🔴 Servidor de Video: <span class="status" style="color: #4caf50;">Motor Local Activo</span></h3>
-            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Sistema financiero y de video local listo. Toca el botón verde.</div>
+            <h3>🔴 Servidor Central</h3>
+            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Espectador Gratis</span></p>
         </div>
 
         <div class="info-box">
-            <h3>👥 Panel de Control</h3>
+            <h3>👥 Panel de Control de Tokens</h3>
             <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Pago)</button>
+            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens (Simular Fichas)</button>
         </div>
     </div>
 
     <script>
-        // --- SISTEMA FINANCIERO INTEGRADO ---
-        if (!localStorage.getItem('tokens_balance')) {
-            localStorage.setItem('tokens_balance', '1000');
-        }
-        const balanceView = document.getElementById("balance-view");
-        const debugBox = document.getElementById("debug-box");
+        let usuarioActual = { nombre: "", apellido: "", correo: "", rango: "Espectador Gratis" };
+        let planSeleccionado = "";
 
-        function actualizarPantalla() {
-            balanceView.innerText = localStorage.getItem('tokens_balance');
-        }
-        actualizarPantalla();
-
-        document.getElementById("btn-regalo").addEventListener("click", () => {
-            let saldo = parseInt(localStorage.getItem('tokens_balance'));
-            if (saldo >= 50) {
-                saldo -= 50;
-                localStorage.setItem('tokens_balance', saldo.toString());
-                actualizarPantalla();
-                debugBox.innerText = "¡Regalo enviado con éxito! Comisión del 30% retenida por el administrador.";
-                alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
-            } else { alert("Saldo insuficiente. Por favor recarga."); }
-        });
-
-        document.getElementById("btn-recarga").addEventListener("click", () => {
-            let saldo = parseInt(localStorage.getItem('tokens_balance'));
-            saldo += 500;
-            localStorage.setItem('tokens_balance', saldo.toString());
-            actualizarPantalla();
-            debugBox.innerText = "Recarga procesada exitosamente de forma local.";
-            alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
-        });
-
-        // --- APERTURA MULTIMEDIA DIRECTA POR HARDWARE NATIVO (Anti-bloqueos de Red) ---
-        document.getElementById("btn-camara").addEventListener("click", async () => {
-            try {
-                // Pedir acceso multimedia directamente a las compuertas de Android de forma interna
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-                
-                // Limpiar el botón verde e inyectar el reproductor local puro
-                const videoContainer = document.getElementById("video-container");
-                videoContainer.innerHTML = '<video id="local-video" class="local-cam" autoplay playsinline></video>';
-                
-                const videoElement = document.getElementById("local-video");
-                videoElement.srcObject = stream;
-                
-                debugBox.innerText = "¡Streaming en vivo establecido por canal seguro de hardware! Sala: room_live_active";
-                document.getElementById("video-container").style.border = "2px solid #4caf50";
-            } catch (err) {
-                debugBox.innerText = "Error de hardware nativo: " + err.message;
-                alert("Por favor abre los tres puntos de Chrome -> Configuración -> Configuración del sitio -> Cámara y permite el acceso.");
+        // --- SISTEMA DE REGISTRO ---
+        function registrarUsuario() {
+            usuarioActual.nombre = document.getElementById("reg-nombre").value;
+            usuarioActual.apellido = document.getElementById("reg-apellido").value;
+            usuarioActual.correo = document.getElementById("reg-correo").value;
+            
+            // Guardar en la base de datos local del teléfono
+            localStorage.setItem('user_profile', JSON.stringify(usuarioActual));
+            if (!localStorage.getItem('tokens_balance')) {
+                localStorage.setItem('tokens_balance', '0'); // Entra con 0 tokens por ser gratis
             }
-        });
-    </script>
-</body>
-    </html>
 
+            // Cambiar de pantalla con animación visual
+            document.getElementById("screen-register").classList.add("hidden");
+            document.getElementById("screen-app").classList.remove("hidden");
+            
+            document.getElementById("user-display").innerText = usuarioActual.nombre + " " + usuarioActual.apellido;
+            actualizarPantalla();
+        }
+
+        // --- ACTUALIZAR DATOS EN PANTALLA ---
+        const balanceView = document.getElementById("balance-view");
+        function actualizarPantalla() {
+            balanceView.innerText = localStorage.getItem('tokens_balance') || '0';
+        }
+
+        // --- PASARELA DE PAGO ---
+        function mostrarPasarela() {
+            document.getElementById("box-pasarela").classList.remove("hidden");
+            document.getElementById("box-pasarela").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function seleccionarPlan(nombrePlan, costo) {
+            planSeleccionado = nombrePlan;
+            document.getElementById("payment-details").classList.remove("hidden");
+            document.getElementById("plan-cost").innerText = "$" + costo + " USD (" + nombrePlan + ")";
+        }
+
+        function copiarWallet() {
+            const el = document.createElement('textarea');
+            el.value = document.getElementById("wallet-address").innerText;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("¡Dirección Binance BEP-20 copiada al portapapeles con éxito! Ve a tu app de Binance y pega.");
+        }
+
+        function notificarPago() {
+            alert("¡Notificación enviada! El administrador verificará el hash en la red BEP-20. En un momento se te acreditarán tus tokens y se abrirán los 10 minutos de cámara en vivo.");
+            
+            // SIMULACIÓN: Desbloqueo del Administrador Automático para pruebas
+            localStorage.setItem('tokens_balance', '1000');
+            document.getElementById("rango-view").innerText = "VIP " + planSeleccionado;
+            document.getElementById("rango-view").style.color = "#ffeb3b";
+            document.getElementById("box-pasarela").classList.add("hidden");
+        
