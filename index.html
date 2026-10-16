@@ -13,7 +13,7 @@
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .status { color: #4caf50; font-weight: bold; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        .debug-msg { color: #aaa; font-size: 13px; text-align: center; margin-top: 10px; font-weight: bold; }
+        .debug-msg { color: #888; font-size: 11px; margin-top: 5px; font-style: italic; }
         #video-container { width: 100%; height: 300px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #ff4081; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -23,7 +23,7 @@
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Plataforma Streaming & Webcam (Control de Intermediario)</p>
         
-        <!-- Cuadro de Video con Activación Manual Forzada -->
+        <!-- Cuadro de Video Dinámico -->
         <div id="video-container">
             <button id="btn-camara" class="btn" style="width: auto; background-color: #4caf50; padding: 15px 30px; font-size: 16px;">⚡ ENTRAR EN VIVO</button>
         </div>
@@ -31,7 +31,7 @@
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg" style="font-size: 11px; font-style: italic; color: #888; text-align: left;">Toca el botón verde de arriba para prender la cámara...</div>
+            <div id="debug-box" class="debug-msg">Sincronizando dependencias de video seguras...</div>
         </div>
 
         <div class="info-box">
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <!-- Carga del Motor de Video Limpio Original de Zego -->
+    <!-- Carga desde el CDN Estable de Alta Velocidad -->
     <script src="https://jsdelivr.net"></script>
 
     <script>
@@ -63,7 +63,7 @@
                 saldo -= 50;
                 localStorage.setItem('tokens_balance', saldo.toString());
                 actualizarPantalla();
-                debugBox.innerText = "¡Regalo enviado! Comisión retenida en tu cuenta de administrador.";
+                debugBox.innerText = "¡Regalo enviado con éxito! Comisión retenida por el administrador.";
                 alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
             } else { alert("Saldo insuficiente. Por favor recarga."); }
         });
@@ -77,35 +77,50 @@
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- APERTURA FORZADA MEDIANTE SALA DINÁMICA ALEATORIA ---
-        document.getElementById("btn-camara").addEventListener("click", () => {
-            const appID = 1783743082;
-            const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
+        // --- SISTEMA INTELIGENTE CON TEMPORIZADOR Y SALA ALEATORIA ---
+        function inicializarBotonSeguro() {
+            const btnCamara = document.getElementById("btn-camara");
             
-            // TRUCO MAESTRO: Generamos un ID de sala único en el segundo para que no expire jamás
-            const roomID = "room_" + Math.floor(1000 + Math.random() * 9000);
-            const userID = "user_" + Math.floor(Math.random() * 10000);
-            const userName = "Invitado_Celular";
+            if (typeof ZegoUIKitPrebuilt !== 'undefined') {
+                debugBox.innerText = "Motor de video cargado y listo. Presiona el botón verde.";
+                
+                // Remover eventos viejos para evitar duplicados
+                const nuevoBtn = btnCamara.cloneNode(true);
+                btnCamara.parentNode.replaceChild(nuevoBtn, btnCamara);
 
-            try {
-                // Borrar el botón verde para inyectar el video limpio
-                document.getElementById("video-container").innerHTML = "";
-                
-                const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-                const zp = ZegoUIKitPrebuilt.create(kitToken);
-                
-                zp.joinRoom({
-                    container: document.getElementById('video-container'),
-                    sharedLinks: [],
-                    showPreJoinView: false,
-                    turnOnCameraWhenJoining: true,
-                    turnOnMicrophoneWhenJoining: true
+                nuevoBtn.addEventListener("click", () => {
+                    const appID = 1783743082;
+                    const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
+                    const roomID = "room_" + Math.floor(1000 + Math.random() * 9000);
+                    const userID = "user_" + Math.floor(Math.random() * 10000);
+                    const userName = "Invitado_Celular";
+
+                    try {
+                        document.getElementById("video-container").innerHTML = "";
+                        
+                        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+                        const zp = ZegoUIKitPrebuilt.create(kitToken);
+                        
+                        zp.joinRoom({
+                            container: document.getElementById('video-container'),
+                            sharedLinks: [],
+                            showPreJoinView: false,
+                            turnOnCameraWhenJoining: true,
+                            turnOnMicrophoneWhenJoining: true
+                        });
+                        debugBox.innerText = "¡Conexión multimedia exitosa! ID de sala: " + roomID;
+                    } catch(err) {
+                        debugBox.innerText = "Error al conectar: " + err.message;
+                    }
                 });
-                
-                debugBox.innerText = "¡Transmisión iniciada correctamente! Código de sala: " + roomID;
-            } catch(err) {
-                debugBox.innerText = "Fallo: " + err.message;
+            } else {
+                debugBox.innerText = "Descargando componentes de Zegocloud de fondo...";
+                setTimeout(inicializarBotonSeguro, 1000);
             }
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(inicializarBotonSeguro, 1500);
         });
     </script>
 </body>
