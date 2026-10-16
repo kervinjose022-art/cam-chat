@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Real</title>
+    <title>CamChat Live - Catálogo de Streamers</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
-        .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
         h1 { color: #ff4081; margin-bottom: 5px; font-size: 24px; }
         .btn { background-color: #4caf50; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #43a047; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
-        #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; position: relative; }
-        .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        /* DISEÑO DE CUADRÍCULA / VENTANAS DE MODELOS */
+        .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; position: relative; overflow: hidden; }
+        .model-thumb { width: 100%; height: 140px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #ff4081; border: 1px dashed #ff4081; }
+        .model-card h4 { margin: 6px 0 2px 0; font-size: 14px; }
+        .model-status { font-size: 11px; color: #4caf50; font-weight: bold; }
+        .btn-stream { background-color: #ff4081; color: white; padding: 6px; font-size: 11px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
+        .btn-stream:hover { background-color: #f50057; }
+
+        /* Contenedor del Show Activo */
+        #video-container { width: 100%; height: 280px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
         .hidden { display: none !important; }
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
         .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
@@ -22,7 +33,7 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE ACCESO (REGISTRO / LOGIN) -->
+    <!-- INTERFAZ DE LOGUEO / REGISTRO -->
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
@@ -36,7 +47,7 @@
             <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <!-- FORMULARIO DE LOGIN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
@@ -47,16 +58,55 @@
         </div>
     </div>
 
-    <!-- APP PRINCIPAL DESBLOQUEADA -->
+    <!-- INTERFAZ PRINCIPAL CON CATÁLOGO DE MODELOS -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <div id="video-container">
-            <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
-            <div id="video-active-view" style="width:100%; height:100%;">
-                <video id="local-video" class="local-cam" autoplay playsinline></video>
+        <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (VISIBLE POR DEFECTO AL ENTRAR) -->
+        <div id="catalog-section">
+            <h3 style="text-align: left; margin: 15px 0 5px 0; color: #ff4081;">💋 Modelos Disponibles en Vivo:</h3>
+            <div class="models-grid">
+                <!-- Modelo 1 -->
+                <div class="model-card">
+                    <div class="model-thumb">💃🏻</div>
+                    <h4>Vanessa Model</h4>
+                    <span class="model-status">🔴 EN VIVO</span>
+                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Vanessa Model');">🎥 ENTRAR AL SHOW</button>
+                </div>
+                <!-- Modelo 2 -->
+                <div class="model-card">
+                    <div class="model-thumb">👩🏼‍🦱</div>
+                    <h4>Camila Sweet</h4>
+                    <span class="model-status">🔴 EN VIVO</span>
+                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
+                </div>
+                <!-- Modelo 3 -->
+                <div class="model-card">
+                    <div class="model-thumb">👱🏻‍♀️</div>
+                    <h4>Nicole Ross</h4>
+                    <span class="model-status">🔴 EN VIVO</span>
+                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
+                </div>
+                <!-- Modelo 4 -->
+                <div class="model-card">
+                    <div class="model-thumb">👩🏻</div>
+                    <h4>Scarlet VIP</h4>
+                    <span class="model-status">🔴 EN VIVO</span>
+                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Scarlet VIP');">🎥 ENTRAR AL SHOW</button>
+                </div>
             </div>
+        </div>
+
+        <!-- SECCIÓN B: REPRODUCITOR DEL SHOW EN VIVO (OCULTO POR DEFECTO) -->
+        <div id="stream-section" class="hidden">
+            <div id="video-container">
+                <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
+                <div class="stream-view">
+                    <p>🎙️ TRANSMITIENDO EN VIVO: <br><span id="model-active-name" style="color:#ff4081; font-size:22px;"></span></p>
+                </div>
+            </div>
+            <button class="btn" style="background-color: #555; margin-top: 10px;" onclick="regresarAlCatalogo();">⬅️ SALIR DE LA SALA / VOLVER AL MENÚ</button>
         </div>
 
         <div class="info-box">
@@ -64,13 +114,31 @@
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
             <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
         </div>
-        <button class="btn" style="background-color: #555; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
+        <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
+    <!-- CARGA DIRECTA DE LIBRERÍAS CLÁSICAS DE GOOGLE FIREBASE -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+
     <script>
-        // Configuración y base de datos local respaldada en memoria del navegador
+        // Configuración oficial de tu base de datos Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
+            authDomain: "://firebaseapp.com",
+            projectId: "camchat-900d6",
+            storageBucket: "://appspot.com",
+            messagingSenderId: "434447301379",
+            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        let correoGlobal = "";
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
+        let datosUsuarioLocal = { nombre: "", rango: "Prueba Gratuita", tokens: 0 };
 
         function conmutarVistaAuth(mostrarLogin) {
             if (mostrarLogin) {
@@ -82,87 +150,13 @@
             }
         }
 
-        // CONTROLADOR DE REGISTRO CON ACCESO VELOZ EN 0.1 SEGUNDOS
+        // REGISTRO ASÍNCRONO SIN CONGELAMIENTOS
         function ejecutarRegistroInmediato() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
+            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
 
-            // Guardar en la base de datos simulada del navegador para el login inmediato
-            let usuariosBase = JSON.parse(localStorage.getItem('db_local_usuarios') || "[]");
-            if (!usuariosBase.some(u => u.correo === corr)) {
-                usuariosBase.push({ nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 });
-                localStorage.setItem('db_local_usuarios', JSON.stringify(usuariosBase));
-            }
-
-            // SALTO VISUAL FORZADO (Cero bloqueos, avanza directo en el video)
-            document.getElementById("screen-auth").style.display = "none";
-            document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = nom + " " + ape;
-            document.getElementById("rango-view").innerText = "Prueba Gratuita";
-            document.getElementById("balance-view").innerText = "0";
-
-            activarCamaraHardware();
-            iniciarCronometro(false);
-        }
-
-        // CONTROLADOR DE LOGIN REAL DESDE LA MEMORIA CONECTADA
-        function ejecutarLoginInmediato() {
-            const corr = document.getElementById("login-correo").value.trim().toLowerCase();
-
-            if (!corr) { alert("Introduce tu correo."); return; }
-
-            let usuariosBase = JSON.parse(localStorage.getItem('db_local_usuarios') || "[]");
-            let usuarioEncontrado = usuariosBase.find(u => u.correo === corr);
-
-            // Permitir el acceso directo si eres tú como administrador o si ya estabas en la lista
-            if (usuarioEncontrado || corr === "kervinjose022@gmail.com") {
-                let nombreUser = usuarioEncontrado ? usuarioEncontrado.nombre : "Kervin (Admin)";
-                let rangoUser = corr === "kervinjose022@gmail.com" ? "👑 CREADOR MVP" : (usuarioEncontrado.rango || "Prueba Gratuita");
-                let tokensUser = corr === "kervinjose022@gmail.com" ? 99999 : (usuarioEncontrado.tokens || 0);
-                let esVIP = corr === "kervinjose022@gmail.com" || rangoUser.includes("VIP");
-
-                document.getElementById("screen-auth").style.display = "none";
-                document.getElementById("screen-app").classList.remove("hidden");
-                document.getElementById("user-display").innerText = nombreUser;
-                document.getElementById("rango-view").innerText = rangoUser;
-                document.getElementById("balance-view").innerText = tokensUser;
-
-                activarCamaraHardware();
-                iniciarCronometro(esVIP);
-            } else {
-                alert("El correo no se encuentra registrado. Regístrate gratis primero, mano.");
-                conmutarVistaAuth(false);
-            }
-        }
-
-        function iniciarCronometro(libreDeTiempo) {
-            if (intervaloCronometro) clearInterval(intervaloCronometro);
-            if (libreDeTiempo) {
-                document.getElementById("cronometro-view").innerText = "⏱️ Tiempo VIP: ILIMITADO";
-                document.getElementById("cronometro-view").style.color = "#4caf50";
-                document.getElementById("rango-view").style.color = "#ff4081";
-            } else {
-                intervaloCronometro = setInterval(() => {
-                    tiempoRestante--;
-                    let minutos = Math.floor(tiempoRestante / 60);
-                    let segundos = tiempoRestante % 60;
-                    segundos = segundos < 10 ? "0" + segundos : segundos;
-                    document.getElementById("cronometro-view").innerText = "⏱️ Tiempo Libre: " + minutos + ":" + segundos;
-                    if (tiempoRestante <= 0) clearInterval(intervaloCronometro);
-                }, 1000);
-            }
-        }
-
-        async function activarCamaraHardware() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-                document.getElementById("video-active-view").innerHTML = '<video id="local-video" class="local-cam" autoplay playsinline></video>';
-                document.getElementById("local-video").srcObject = stream;
-            } catch (e) {}
-        }
-    </script>
-</body>
-</html>
+            correoGlobal = corr;
+        
