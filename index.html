@@ -30,21 +30,19 @@
 </head>
 <body>
 
-    <!-- PANTALLA 1: FORMULARIO DE REGISTRO CON FRENO DE RECARGA -->
+    <!-- PANTALLA 1: REGISTRO SEGURO SIN LLAMADOS DE HARDWARE -->
     <div class="container" id="screen-register">
         <h1>🔐 Registro de Usuario</h1>
         <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis para ingresar a CamChat Live</p>
         
-        <!-- Se implementó onSubmit seguro para que el botón avance sí o sí -->
-        <form onsubmit="event.preventDefault(); validarAccesoPlataforma();">
-            <input type="text" id="reg-nombre" placeholder="Nombre" required>
-            <input type="text" id="reg-apellido" placeholder="Apellido" required>
-            <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
-            <button type="submit" class="btn" style="background-color: #4caf50;">🎁 REGISTRARSE GRATIS</button>
-        </form>
+        <input type="text" id="reg-nombre" placeholder="Nombre">
+        <input type="text" id="reg-apellido" placeholder="Apellido">
+        <input type="email" id="reg-correo" placeholder="Correo Electrónico">
+        
+        <button class="btn" style="background-color: #4caf50;" onclick="ejecutarAccesoSeguro();">🎁 REGISTRARSE GRATIS</button>
     </div>
 
-    <!-- PANTALLA 2: APLICACIÓN PRINCIPAL (SALA Y CONTROLES) -->
+    <!-- PANTALLA 2: INTERFAZ DE TRANSMISIÓN PRINCIPAL -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Bienvenido, <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
@@ -60,14 +58,17 @@
             </div>
         </div>
 
+        <!-- BOTÓN EXCLUSIVO DE ADMIN PARA ENCENDER TRANSMISIÓN -->
+        <button id="btn-forzar-camara" class="btn hidden" style="background-color: #4caf50;" onclick="activarTransmisionManual();">🎥 REPRODUCIR SEÑAL DE VIDEO</button>
+
         <!-- PASARELA DE PAGO BINANCE BEP-20 -->
         <div class="info-box hidden" id="box-pasarela">
             <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
             <div class="plan-grid">
-                <div class="plan-card" onclick="seleccionarPlan()"><h4>🥈 Plan Base</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan()"><h4> Plan VIP</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
             </div>
             <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
-                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
+                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance Red BEP-20:</p>
                 <div style="background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; color: #4caf50;">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
                 <button class="btn" style="background-color: #4caf50;" onclick="simularPagoExitoso()">Avisar Pago Directo</button>
             </div>
@@ -100,7 +101,7 @@
             </thead>
             <tbody id="admin-table-body"></tbody>
         </table>
-        <button class="btn" style="background-color: #555; padding: 8px; font-size: 12px; margin-top: 10px;" onclick="cerrarSesionCompleta();">🔄 Cerrar Control de Mando</button>
+        <button class="btn" style="background-color: #555; padding: 8px; font-size: 12px; margin-top: 10px;" onclick="window.location.reload();">🔄 Cerrar Control de Mando</button>
     </div>
 
     <script>
@@ -111,53 +112,56 @@
             { nombre: "María Gómez", correo: "maria.g@hotmail.com", rango: "VIP Plata", tokens: 150 }
         ];
 
-        function validarAccesoPlataforma() {
+        function ejecutarAccesoSeguro() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            // Salto de pantalla inmediato
+            if (!nom || !ape || !corr) {
+                alert("Por favor rellena todos los campos.");
+                return;
+            }
+
+            // Salto de pantalla puramente visual (Cero llamadas de hardware trabando el proceso)
             document.getElementById("screen-register").classList.add("hidden");
             document.getElementById("screen-app").classList.remove("hidden");
             document.getElementById("user-display").innerText = nom;
 
             if (corr === correoAdmin) {
-                // SI ERES TÚ: Configura el súper balance de administrador y muestra la tabla secreta
                 saldoActual = 99999;
                 document.getElementById("rango-view").innerText = "👑 CREADOR MVP";
                 document.getElementById("rango-view").style.color = "#ff4081";
-                document.getElementById("video-locked-view").classList.add("hidden");
-                document.getElementById("video-active-view").classList.remove("hidden");
-                
-                // Mostrar panel contable abajo
+                document.getElementById("btn-forzar-camara").classList.remove("hidden");
                 document.getElementById("screen-admin-panel").classList.remove("hidden");
                 
-                // Llenar datos contables
                 listaMonitoreo.push({ nombre: nom + " (Jefe)", correo: corr, rango: "👑 CREADOR MVP", tokens: 99999 });
                 const tbody = document.getElementById("admin-table-body");
                 tbody.innerHTML = "";
                 listaMonitoreo.forEach(u => {
                     tbody.innerHTML += `<tr><td><strong>${u.nombre}</strong></td><td>${u.correo}</td><td style="color:#ffeb3b">${u.rango}</td><td style="color:#ffeb3b;font-weight:bold;">${u.tokens}</td></tr>`;
                 });
-                
-                activarCamaraHardware();
             } else {
-                // Si es un cliente común, el panel se destruye y no ve nada
                 saldoActual = 0;
                 document.getElementById("rango-view").innerText = "Espectador Gratis";
             }
             document.getElementById("balance-view").innerText = saldoActual;
         }
 
-        function mostrarPasarela() { document.getElementById("box-pasarela").classList.remove("hidden"); }
-        function seleccionarPlan() { document.getElementById("payment-details").classList.remove("hidden"); }
-        function simularPagoExitoso() {
-            saldoActual = 1000;
-            document.getElementById("balance-view").innerText = saldoActual;
-            document.getElementById("rango-view").innerText = "VIP Plata";
-            document.getElementById("box-pasarela").classList.add("hidden");
+        function activarTransmisionManual() {
             document.getElementById("video-locked-view").classList.add("hidden");
             document.getElementById("video-active-view").classList.remove("hidden");
+            document.getElementById("btn-forzar-camara").classList.add("hidden");
             activarCamaraHardware();
         }
 
+        async function activarCamaraHardware() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                document.getElementById("local-video").srcObject = stream;
+            } catch (e) {
+                alert("Permiso de cámara denegado. Actívalo en el candado de la barra superior.");
+            }
+        }
+
+        function mostrarPasarela() { document.getElementById("box-pasarela").classList.remove("hidden"); }
+        
