@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Catálogo de Streamers</title>
+    <title>CamChat Live - Catálogo</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
@@ -31,16 +31,19 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE LOGUEO / REGISTRO (CONMUTABLE AL INSTANTE) -->
+    <!-- INTERFAZ DE LOGUEO / REGISTRO -->
     <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO -->
+        <!-- FORMULARIO DE REGISTRO CON ACCIÓN COMPATIBLE -->
         <div id="box-register">
             <h1>🔐 Registro de Espectador</h1>
             <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
-            <input type="text" id="reg-nombre" placeholder="Nombre">
-            <input type="text" id="reg-apellido" placeholder="Apellido">
-            <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" onclick="ejecutarRegistroInmediato();">🎁 ACCEDER AL SHOW GRATIS</button>
+            
+            <form id="form-reg" onsubmit="event.preventDefault(); ejecutarRegistroInmediato();">
+                <input type="text" id="reg-nombre" placeholder="Nombre" required>
+                <input type="text" id="reg-apellido" placeholder="Apellido" required>
+                <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
+                <button type="submit" class="btn">🎁 ACCEDER AL SHOW GRATIS</button>
+            </form>
             <br>
             <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
@@ -49,8 +52,11 @@
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
-            <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="ejecutarLoginInmediato();">⚡ ENTRAR A MI CUENTA</button>
+            
+            <form id="form-log" onsubmit="event.preventDefault(); ejecutarLoginInmediato();">
+                <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico" required>
+                <button type="submit" class="btn" style="background-color: #3f51b5;">⚡ ENTRAR A MI CUENTA</button>
+            </form>
             <br>
             <span class="link-toggle" onclick="conmutarVistaAuth(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
@@ -112,18 +118,9 @@
     </div>
 
     <script>
-        // Lógica de simulación y sincronización asíncrona local inmune a bloqueos
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
         let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
-
-        // Inicializar base de datos local para el login
-        if(!localStorage.getItem('backup_db_usuarios')) {
-            localStorage.setItem('backup_db_usuarios', JSON.stringify([
-                { nombre: "Carlos Mendoza", correo: "carlos@gmail.com", rango: "VIP Oro", tokens: 450 },
-                { nombre: "Kervin Pérez (Admin)", correo: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", tokens: 99999 }
-            ]));
-        }
 
         function conmutarVistaAuth(mostrarLogin) {
             if (mostrarLogin) {
@@ -135,22 +132,27 @@
             }
         }
 
-        // SALTO LOCAL INMEDIATO DE ASIGNACIÓN (VELOCIDAD MAESTRA ABSOLUTA)
         function ejecutarRegistroInmediato() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
-
             datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
             
-            // Respaldar localmente para que el login sirva de inmediato en el teléfono
-            let lista = JSON.parse(localStorage.getItem('backup_db_usuarios'));
+            let lista = JSON.parse(localStorage.getItem('backup_db_usuarios') || "[]");
             if(!lista.some(u => u.correo === corr)) {
-                lista.push({ nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 });
+                lista.push(datosUsuarioLocal);
                 localStorage.setItem('backup_db_usuarios', JSON.stringify(lista));
             }
 
-            // 🚀 SALTO INMEDIATO DE INTERFAZ (Cero dependencias de red externa)
-        
+            document.getElementById("screen-auth").style.display = "none";
+            document.getElementById("screen-app").classList.remove("hidden");
+            document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
+            document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
+            document.getElementById("balance-view").innerText = "0";
+
+            // Envío asíncrono limpio mediante API nativa
+            const urlApiGoogle = "https://googleapis.com" + corr;
+            const payload = {
+                fields: {
+                    
