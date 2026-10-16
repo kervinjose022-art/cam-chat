@@ -29,7 +29,7 @@
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Iniciando enlace de cámara automatizado...</div>
+            <div id="debug-box" class="debug-msg">Esperando sincronización con el satélite de video...</div>
         </div>
 
         <div class="info-box">
@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <!-- Carga del Motor de Video Original de Zego -->
+    <!-- Carga Prioritaria del Motor de Video Original de Zego -->
     <script src="https://unpkg.com"></script>
 
     <script>
@@ -75,32 +75,41 @@
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- ENTRADA AUTOMÁTICA UNIVERSAL ---
-        window.addEventListener('load', () => {
-            // Tus credenciales reales validadas de Zego
+        // --- SISTEMA DE INICIO SEGURO CON RETARDO (TEMPORIZADOR) ---
+        function encenderCamaraSegura() {
             const appID = 1783743082;
             const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
             const roomID = "sala_webcam_prueba";
             const userID = "user_" + Math.floor(Math.random() * 10000);
             const userName = "Invitado_Celular";
 
-            try {
-                // Generar token con la librería limpia original
-                const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-                const zp = ZegoUIKitPrebuilt.create(kitToken);
-                
-                // Iniciar la sala con el cargador estándar automático de Zego
-                zp.joinRoom({
-                    container: document.getElementById('video-container'),
-                    sharedLinks: [],
-                    showPreJoinView: false, // Desactiva pantallas previas para ir directo al video
-                    turnOnCameraWhenJoining: true,
-                    turnOnMicrophoneWhenJoining: true
-                });
-                debugBox.innerText = "Conexión de video establecida con éxito.";
-            } catch(err) {
-                debugBox.innerText = "Error del sistema de video: " + err.message;
+            // Verificar si el motor ya se descargó en la memoria del teléfono
+            if (typeof ZegoUIKitPrebuilt !== 'undefined') {
+                try {
+                    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+                    const zp = ZegoUIKitPrebuilt.create(kitToken);
+                    
+                    zp.joinRoom({
+                        container: document.getElementById('video-container'),
+                        sharedLinks: [],
+                        showPreJoinView: false,
+                        turnOnCameraWhenJoining: true,
+                        turnOnMicrophoneWhenJoining: true
+                    });
+                    debugBox.innerText = "Conexión multimedia establecida al 100%.";
+                } catch(err) {
+                    debugBox.innerText = "Error interno de Zego: " + err.message;
+                }
+            } else {
+                // Si aún no está listo, esperar 1 segundo más e intentarlo otra vez automáticamente
+                debugBox.innerText = "Reintentando conexión segura en 1 segundo...";
+                setTimeout(encenderCamaraSegura, 1000);
             }
+        }
+
+        // Ejecutar el temporizador en cuanto cargue la página
+        window.addEventListener('load', () => {
+            setTimeout(encenderCamaraSegura, 1500); // Espera un segundo y medio para asegurar descargas
         });
     </script>
 </body>
