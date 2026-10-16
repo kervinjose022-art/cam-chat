@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Real</title>
+    <title>CamChat Live - Base de Datos Real</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -12,24 +12,16 @@
         .btn:hover { background-color: #43a047; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        
         input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
-        .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .plan-card { background: #2d2d2d; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer; transition: 0.3s; text-align: center; }
-        .plan-card:hover { border-color: #ff4081; background: #3d3d3d; }
-        
         #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; position: relative; }
         .local-cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .hidden { display: none !important; }
-        .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
-        
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
         .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <!-- INTERFAZ DE INGRESO (REGISTRO / LOGIN) -->
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
@@ -43,7 +35,7 @@
             <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <!-- FORMULARIO DE LOGIN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
@@ -54,35 +46,15 @@
         </div>
     </div>
 
-    <!-- INTERFAZ CENTRAL DEL SHOW -->
+    <!-- APP PRINCIPAL DESBLOQUEADA -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
         <div id="video-container">
             <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
-            
             <div id="video-active-view" style="width:100%; height:100%;">
                 <video id="local-video" class="local-cam" autoplay playsinline></video>
-            </div>
-            
-            <div id="video-locked-view" class="hidden" style="text-align: center; padding: 10px; z-index: 5;">
-                <h3 style="color: #ff5252; margin: 0;">🔒 Tiempo de Prueba Expirado</h3>
-                <p style="font-size: 12px; color: #ccc;">Tus 10 minutos gratis terminaron. Activa un Plan VIP para continuar.</p>
-                <button class="btn" style="background-color: #ffeb3b; color: #000; width: auto;" onclick="mostrarPasarela();">💳 DESBLOQUEAR TRANSMISIÓN AQUÍ</button>
-            </div>
-        </div>
-
-        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
-        <div class="info-box hidden" id="box-pasarela">
-            <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
-            <div class="plan-grid">
-                <div class="plan-card" onclick="seleccionarPlan();"><h4>🥈 Plan VIP Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
-            </div>
-            <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
-                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
-                <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #4caf50;" onclick="notificarPagoAlServidor();">Avisar Pago al Administrador</button>
             </div>
         </div>
 
@@ -91,16 +63,10 @@
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
             <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
         </div>
-
-        <div class="info-box">
-            <h3>👥 Panel de Control de Tokens</h3>
-            <button class="btn" id="btn-regalo" style="background-color: #ff4081;" onclick="restarTokensBoton();">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" onclick="sumarTokensBoton();">💳 Recargar 500 Tokens</button>
-            <button class="btn" style="background-color: #555; margin-top:15px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
-        </div>
+        <button class="btn" style="background-color: #555; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
-    <!-- CARGA DE LIBRERÍAS DE GOOGLE FIREBASE CLÁSICAS (Cero errores de red) -->
+    <!-- COMPONENTES OFICIALES DE GOOGLE FIREBASE -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -120,8 +86,6 @@
         let correoUsuarioActivo = "";
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
-        let localStream = null;
-        let saldoActual = 0;
 
         function conmutarVistaAuth(mostrarLogin) {
             if (mostrarLogin) {
@@ -133,32 +97,84 @@
             }
         }
 
-        // --- ACCIÓN A: REGISTRO CON SALTO LOCAL MAESTRO 0.1s ---
-        function ejecutarRegistroInmediato() {
+        // REGISTRO REAL ASÍNCRONO (Guarda en la nube y avanza en 0.1s)
+        async function ejecutarRegistroInmediato() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
-            if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
+            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
 
             correoUsuarioActivo = corr;
 
-            // 🚀 EL TIRO GANADOR: Saltamos de pantalla en el acto sin esperar al servidor
+            // Avanzar de golpe la pantalla de inmediato
             document.getElementById("screen-auth").style.display = "none";
             document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = nom + " " + ape;
+            document.getElementById("user-display").innerText = nom;
             document.getElementById("rango-view").innerText = "Prueba Gratuita";
-            document.getElementById("balance-view").innerText = "0";
 
             activarCamaraHardware();
-            iniciarCronometroRegresivo(false);
+            iniciarCronometro(false);
 
-            // 🔒 GUARDADO ASÍNCRONO EN SEGUNDO PLANO (Viaja a tu Firebase en la nube sin trabar el teléfono)
+            // Guardar en la colección 'Usuarios' de Firebase
             db.collection("Usuarios").doc(corr).set({
                 nombre: nom + " " + ape,
                 correo: corr,
                 rol: "Prueba Gratuita",
                 tokens_balance: 0
-            }).then(() => {
-                console.log("Usuario guardado en la nube con éxito.");
+            }).then(() => { vincularSnapshotNube(corr); });
+        }
+
+        // LOGIN REAL BUSCANDO EN GOOGLE FIREBASE
+        async function ejecutarLoginInmediato() {
+            const corr = document.getElementById("login-correo").value.trim().toLowerCase();
+
+            if (!corr) { alert("Introduce tu correo."); return; }
+
+            correoUsuarioActivo = corr;
+
+            // Consultar a Firebase en segundo plano
+            db.collection("Usuarios").doc(corr).get().then((docSnap) => {
+                if (docSnap.exists) {
+                    const datos = docSnap.data();
+                    let esVIP = datos.rol.includes("VIP") || datos.correo === "kervinjose022@gmail.com";
+                    
+                    document.getElementById("screen-auth").style.display = "none";
+                    document.getElementById("screen-app").classList.remove("hidden");
+                    document.getElementById("user-display").innerText = datos.nombre;
+                    document.getElementById("rango-view").innerText = datos.rol;
+                    document.getElementById("balance-view").innerText = datos.tokens_balance || 0;
+
+                    activarCamaraHardware();
+                    iniciarCronometro(esVIP);
+                    vincularSnapshotNube(corr);
+                } else {
+                    alert("El correo no está registrado en Firebase nube. Regístrate gratis.");
+                    conmutarVistaAuth(false);
+                }
+            });
+        }
+
+        function iniciarCronometro(libreDeTiempo) {
+            if (libreDeTiempo) {
+                document.getElementById("cronometro-view").innerText = "⏱️ Tiempo VIP: ILIMITADO";
+                document.getElementById("cronometro-view").style.color = "#4caf50";
+                document.getElementById("rango-view").style.color = "#ffeb3b";
+            } else {
+                intervaloCronometro = setInterval(() => {
+                    tiempoRestante--;
+                    let minutos = Math.floor(tiempoRestante / 60);
+                    let segundos = tiempoRestante % 60;
+                    segundos = segundos < 10 ? "0" + segundos : segundos;
+                    document.getElementById("cronometro-view").innerText = "⏱️ Tiempo Libre: " + minutos + ":" + segundos;
+                    if (tiempoRestante <= 0) clearInterval(intervaloCronometro);
+                }, 1000);
+            }
+        }
+
+        function vincularSnapshotNube(correo) {
+            db.collection("Usuarios").doc(correo).onSnapshot((docSnap) => {
+                if (docSnap.exists) {
+                    const datos = docSnap.data();
+                    document.getElementById("balance-view").innerText = datos.tokens_balance || 0;
         
