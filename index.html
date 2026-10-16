@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Real</title>
+    <title>CamChat Live - Sistema Real Global</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
@@ -12,8 +12,9 @@
         .btn:hover { background-color: #43a047; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
+        input[type="text"], input[type="email"], select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; font-size: 14px; }
         
+        /* DISEÑO DE CUADRÍCULA DE MODELOS STREAMERS */
         .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; }
         .model-thumb { width: 100%; height: 140px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #ff4081; border: 1px dashed #ff4081; }
@@ -21,44 +22,57 @@
         .model-status { font-size: 11px; color: #4caf50; font-weight: bold; }
         .btn-stream { background-color: #ff4081; color: white; padding: 6px; font-size: 11px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
         
-        #video-container { width: 100%; height: 260px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; position: relative; }
+        #video-container { width: 100%; height: 280px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
         .hidden { display: none !important; }
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
         .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
+        label { display: block; text-align: left; font-size: 12px; color: #ff4081; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
+    <!-- INTERFAZ DE ENTRADA CONMUTABLE -->
     <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO -->
+        <!-- FORMULARIO DE REGISTRO CON SELECTOR DE ROL -->
         <div id="box-register">
-            <h1>🔐 Registro de Espectador</h1>
-            <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows</p>
+            <h1>🔐 Registro de Cuenta</h1>
+            <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis en CamChat Live</p>
+            
             <input type="text" id="reg-nombre" placeholder="Nombre">
             <input type="text" id="reg-apellido" placeholder="Apellido">
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            <button class="btn" onclick="accesoInmediatoRegistro();">🎁 ACCEDER AL SHOW GRATIS</button>
+            
+            <!-- 🎭 EL INTERRUPTOR DE ROL CLAVE -->
+            <label for="reg-rol">¿CÓMO DESEAS INGRESAR A LA PLATAFORMA?</label>
+            <select id="reg-rol">
+                <option value="Prueba Gratuita" selected>👤 Usuario Espectador (Ver Shows - 10 Min Gratis)</option>
+                <option value="Modelo Oficial">💃 Modelo Streamer (Transmitir En Vivo - Sin Límite)</option>
+            </select>
+
+            <button class="btn" onclick="procesarIngresoDual();">🎁 CREAR CUENTA E INGRESAR</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistas(true);">¿Ya tienes cuenta? Inicia Sesión</span>
+            <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
         <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
+            
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="accesoInmediatoLogin();">⚡ ENTRAR A MI CUENTA</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="procesarLoginDual();">⚡ ENTRAR A MI CUENTA</button>
             <br>
-            <span class="link-toggle" onclick="conmutarVistas(false);">¿No tienes cuenta? Regístrate Gratis</span>
+            <span class="link-toggle" onclick="cambiarVistaFormularios(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL -->
+    <!-- PANEL GENERAL DE MENÚ Y MODELOS -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
+        <p style="margin: 0; color: #aaa; font-size: 13px;">Perfil Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
+        <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (CUADRÍCULA DE STREAMERS) -->
         <div id="catalog-section">
             <h3 style="text-align: left; margin: 15px 0 5px 0; color: #ff4081;">💋 Modelos Disponibles en Vivo:</h3>
             <div class="models-grid">
@@ -75,13 +89,13 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱🏻‍♀️</div>
+                    <div class="model-thumb"></div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👩🏻</div>
+                    <div class="model-thumb">💎</div>
                     <h4>Scarlet VIP</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Scarlet VIP');">🎥 ENTRAR AL SHOW</button>
@@ -89,6 +103,7 @@
             </div>
         </div>
 
+        <!-- SECCIÓN B: REPRODUCTOR STREAMING ACTIVADO -->
         <div id="stream-section" class="hidden">
             <div id="video-container">
                 <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
@@ -96,13 +111,13 @@
                     <p>🎙️ TRANSMITIENDO EN VIVO: <br><span id="model-active-name" style="color:#ff4081; font-size:22px;"></span></p>
                 </div>
             </div>
-            <button class="btn" style="background-color: #555; margin-top: 10px;" onclick="regresarAlCatalogo();">⬅️ SALIR DE LA SALA</button>
+            <button class="btn" style="background-color: #555; margin-top: 10px;" onclick="regresarAlCatalogo();">⬅️ SALIR DE LA SALA / VOLVER AL MENÚ</button>
         </div>
 
         <div class="info-box">
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango Operativo:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
         </div>
         <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
@@ -114,44 +129,28 @@
 
         const firestoreApiUrl = "https://googleapis.com";
 
-        function conmutarVistas(verLogin) {
+        function cambiarVistaFormularios(verLogin) {
             if (verLogin) {
-                document.getElementById("box-register").classList.add("hidden");
+                document.getElementById("box-register").style.display = "none";
+                document.getElementById("box-login").style.display = "block";
                 document.getElementById("box-login").classList.remove("hidden");
             } else {
-                document.getElementById("box-login").classList.add("hidden");
-                document.getElementById("box-register").classList.remove("hidden");
+                document.getElementById("box-login").style.display = "none";
+                document.getElementById("box-register").style.display = "block";
             }
         }
 
-        // SALTO LOCAL EN 0.01 SEGUNDOS (Cero congelamientos de pantalla)
-        function accesoInmediatoRegistro() {
+        // 1. PROCESADOR INTEGRADO DUAL (CAPTURA EL ROL SELECCIONADO)
+        function procesarIngresoDual() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
             const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
+            const rolSeleccionado = document.getElementById("reg-rol").value; // Captura el rol del select
 
             if (!nom || !ape || !corr) { alert("Por favor rellena todos los campos."); return; }
 
-            datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
-
-            // Forzar avance visual instantáneo
-            document.getElementById("screen-auth").classList.add("hidden");
-            document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = datosUsuarioLocal.nombre;
-            document.getElementById("rango-view").innerText = datosUsuarioLocal.rango;
-            document.getElementById("balance-view").innerText = "0";
-
-            // Guardar copia local de respaldo inmediato para el login
-            let backupDb = JSON.parse(localStorage.getItem('db_local_backup') || "[]");
-            if (!backupDb.some(u => u.correo === corr)) {
-                backupDb.push(datosUsuarioLocal);
-                localStorage.setItem('db_local_backup', JSON.stringify(backupDb));
-            }
-
-            // Inyección silenciosa e invisible a Firebase Firestore en segundo plano (API REST Nativa)
-            const payload = {
-                fields: {
-                    nombre: { stringValue: nom + " " + ape },
-                    correo: { stringValue: corr },
-                    rol: { stringValue: "Prueba Gratuita" },
+            // 🔑 ACCESO MAESTRO PARA TI COMO DUEÑO
+            if (corr === "kervinjose022@gmail.com") {
+                datosUsuarioLocal = { nombre: nom + " (Admin)", correo: corr, rango: "👑 CREADOR MVP", tokens: 99999 };
+                desbloquearInterfazApp();
         
