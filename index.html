@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -29,7 +30,7 @@
         <div class="info-box">
             <h3>🔴 Servidor de Video: <span class="status">ZEGOCLOUD Activo</span></h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">1000</span> Tokens</p>
-            <div id="debug-box" class="debug-msg">Iniciando conexión de cámara multidispositivo...</div>
+            <div id="debug-box" class="debug-msg">Cargando dependencias de video nativas...</div>
         </div>
 
         <div class="info-box">
@@ -39,9 +40,10 @@
         </div>
     </div>
 
-    <!-- Motores Globales de Video de Zego -->
+    <!-- Motores Globales e Inyecciones de Video Recomendadas ( jsDelivr / unpkg ) -->
     <script src="https://unpkg.com"></script>
-    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zegocloud/zego-uikit-prebuilt@2.18.4/zego-uikit-prebuilt.min.js"></script>
 
     <script>
         // --- SISTEMA FINANCIERO INTEGRADO ---
@@ -62,7 +64,7 @@
                 saldo -= 50;
                 localStorage.setItem('tokens_balance', saldo.toString());
                 actualizarPantalla();
-                debugBox.innerText = "¡Regalo enviado! Comisión del 30% asegurada para el administrador.";
+                debugBox.innerText = "¡Regalo enviado con éxito! Tu comisión del 30% ha sido retenida.";
                 alert("¡Regalo enviado con éxito! Se descontaron 50 tokens.");
             } else { alert("Saldo insuficiente. Por favor recarga."); }
         });
@@ -76,7 +78,7 @@
             alert("¡Recarga exitosa! Se han acreditado 500 tokens.");
         });
 
-        // --- APERTURA FORZADA DE CÁMARA (MODO CONFERENCIA) ---
+        // --- ENTRADA AUTOMÁTICA CON MOTOR CORREGIDO ---
         window.addEventListener('load', () => {
             const appID = 1783743082;
             const serverSecret = "8e5ede7da6087d2a9fccb7f611ff60ed";
@@ -84,27 +86,30 @@
             const userID = "user_" + Math.floor(Math.random() * 10000);
             const userName = "Invitado_Celular";
 
-            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
-            const zp = ZegoUIKitPrebuilt.create(kitToken);
-            
-            zp.joinRoom({
-                container: document.getElementById('video-container'),
-                scenario: {
-                    mode: ZegoUIKitPrebuilt.Scenario.VideoConference, // Fuerza el encendido directo en celulares
-                },
-                showUserList: false,
-                showRoomTimer: false,
-                turnOnCameraWhenJoining: true,
-                turnOnMicrophoneWhenJoining: true,
-                showMyCameraToggleButton: true,
-                showMyMicrophoneToggleButton: true,
-                showAudioVideoSettingsButton: false,
-                showScreenSharingButton: false,
-                showTextChat: false,
-                showUserList: false,
-                maxUsers: 2
-            });
-            debugBox.innerText = "Señal de video establecida en canal seguro.";
+            try {
+                const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+                const zp = ZegoUIKitPrebuilt.create(kitToken);
+                
+                zp.joinRoom({
+                    container: document.getElementById('video-container'),
+                    scenario: {
+                        mode: ZegoUIKitPrebuilt.Scenario.VideoConference,
+                    },
+                    showUserList: false,
+                    showRoomTimer: false,
+                    turnOnCameraWhenJoining: true,
+                    turnOnMicrophoneWhenJoining: true,
+                    showMyCameraToggleButton: true,
+                    showMyMicrophoneToggleButton: true,
+                    showAudioVideoSettingsButton: false,
+                    showScreenSharingButton: false,
+                    showTextChat: false,
+                    maxUsers: 2
+                });
+                debugBox.innerText = "Señal de video establecida en canal seguro.";
+            } catch(err) {
+                debugBox.innerText = "Fallo de inicialización: " + err.message;
+            }
         });
     </script>
 </body>
