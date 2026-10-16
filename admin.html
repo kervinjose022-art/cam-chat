@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CamChat - Panel Secreto de Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #0b0609; color: white; text-align: center; padding: 15px; margin: 0; }
+        .container { max-width: 700px; margin: 15px auto; background: #160d12; padding: 20px; border-radius: 12px; border: 2px solid #ff4081; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.2); }
+        h1 { color: #ff4081; margin-bottom: 5px; font-size: 26px; }
+        .btn { background-color: #ff4081; color: white; border: none; padding: 10px 15px; font-size: 13px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background-color: #f50057; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
+        .admin-table th, .admin-table td { padding: 10px; border: 1px solid #331a26; }
+        .admin-table th { background-color: #ff4081; color: white; }
+        .status-badge { background: #2d2d2d; padding: 15px; border-radius: 6px; margin-bottom: 15px; text-align: left; border-left: 5px solid #4caf50; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📊 Consola de Mando Global</h1>
+        <p style="color: #aaa; font-size: 13px; margin: 0 0 15px 0;">Dueño de Negocio: <strong>Kervin Pérez</strong></p>
+
+        <div class="status-badge">
+            <p style="margin: 0; font-size: 14px;"><strong>Base de Datos Central:</strong> <span style="color:#4caf50; font-weight:bold;">Conectada a Firebase Firestore (Live)</span></p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #aaa;">Monitoreo contable automatizado de transacciones y balances de usuarios.</p>
+        </div>
+
+        <!-- TABLA COMPLETA CONECTADA A TU GOOGLE FIREBASE -->
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID Usuario / Nombre</th>
+                    <th>Correo Electrónico</th>
+                    <th>Rango / Rol</th>
+                    <th>Tokens Activos</th>
+                </tr>
+            </thead>
+            <tbody id="firebase-table-body">
+                <tr><td colspan="4" style="text-align:center; color:#888;">Escaneando base de datos en la nube...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SDK de Conexión en Vivo de Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, onSnapshot } from "https://gstatic.com";
+
+        // Tus credenciales reales configuradas del servidor de Google
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
+            authDomain: "://firebaseapp.com",
+            projectId: "camchat-900d6",
+            storageBucket: "://appspot.com",
+            messagingSenderId: "434447301379",
+            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tbody = document.getElementById("firebase-table-body");
+
+        // ESCUCHA EN TIEMPO REAL: Cada vez que un usuario se registre, aparecerá aquí solo en 1 segundo
+        onSnapshot(collection(db, "Usuarios"), (snapshot) => {
+            tbody.innerHTML = "";
+            if (!snapshot.empty) {
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Extraer los datos reales guardados de Firebase
+                    const nombre = data.nombre || "Sin Nombre";
+                    const correo = data.correo || doc.id; // Muestra el ID si no hay correo campo
+                    const rol = data.rol || "Espectador Gratis";
+                    const tokens = data.tokens_balance !== undefined ? data.tokens_balance : 0;
+
+                    let row = `<tr>
+                        <td><strong>👤 ${nombre}</strong><br><span style="font-size:10px; color:#888;">ID: ${doc.id}</span></td>
+                        <td>${correo}</td>
+                        <td><span style="color:${rol.includes('👑') || rol.includes('admin') ? '#ff4081' : '#ffeb3b'}">${rol}</span></td>
+                        <td style="color:#ffeb3b; font-weight:bold; font-size:15px;">🪙 ${tokens}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff5252;">No hay usuarios registrados en la colección 'Usuarios' de Firebase.</td></tr>`;
+            }
+        }, (error) => {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff5252;">Error de Permisos: ${error.message}</td></tr>`;
+        });
+    </script>
+</body>
+</html>
