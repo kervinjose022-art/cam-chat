@@ -8,8 +8,8 @@
         body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h1 { color: #ff4081; margin-bottom: 5px; font-size: 24px; }
-        .btn { background-color: #ff4081; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
-        .btn:hover { background-color: #f50057; }
+        .btn { background-color: #4caf50; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; }
+        .btn:hover { background-color: #43a047; }
         .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         
@@ -23,13 +23,12 @@
         .hidden { display: none !important; }
         .crypto-box { background: #121212; padding: 10px; border-radius: 5px; border: 1px dashed #4caf50; word-break: break-all; font-family: monospace; font-size: 12px; margin-top: 5px; color: #4caf50; }
         
-        /* Reloj del Cronómetro */
         .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: REGISTRO GRATIS INICIAL -->
+    <!-- PANTALLA 1: REGISTRO CON SALTO LOCAL INMEDIATO -->
     <div class="container" id="screen-register">
         <h1>🔐 Registro de Espectador</h1>
         <p style="color: #aaa; font-size: 13px;">Regístrate gratis y obtén 10 minutos de prueba en los shows en vivo</p>
@@ -38,45 +37,38 @@
         <input type="text" id="reg-apellido" placeholder="Apellido">
         <input type="email" id="reg-correo" placeholder="Correo Electrónico">
         
-        <button class="btn" style="background-color: #4caf50;" id="btn-registrar-fb">🎁 ACCEDER AL SHOW GRATIS</button>
+        <button class="btn" onclick="forzarSaltoInstantaneo();">🎁 ACCEDER AL SHOW GRATIS</button>
     </div>
 
-    <!-- PANTALLA 2: INTERFAZ APP PRINCIPAL CON TEMPORIZADOR -->
+    <!-- PANTALLA 2: APLICACIÓN DESBLOQUEADA -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Espectador: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <!-- Cuadro del Reproductor de Video -->
         <div id="video-container">
-            <!-- El Reloj en cuenta regresiva visible -->
             <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
             
             <div id="video-active-view" style="width:100%; height:100%;">
                 <video id="local-video" class="local-cam" autoplay playsinline></video>
             </div>
             
-            <!-- Muro de Pago Oculto (Se activa a los 10 minutos) -->
             <div id="video-locked-view" class="hidden" style="text-align: center; padding: 10px; z-index: 5;">
                 <h3 style="color: #ff5252; margin: 0;">🔒 Tiempo de Prueba Expirado</h3>
-                <p style="font-size: 12px; color: #ccc;">Tus 10 minutos gratis terminaron. Activa un Plan VIP mediante Binance para continuar con la modelo.</p>
-                <button class="btn" style="background-color: #ffeb3b; color: #000;" onclick="mostrarPasarela();">💳 DESBLOQUEAR TRANSMISIÓN AQUÍ</button>
+                <p style="font-size: 12px; color: #ccc;">Tus 10 minutos gratis terminaron. Activa un Plan VIP para continuar con la modelo.</p>
+                <button class="btn" style="background-color: #ffeb3b; color: #000; width: auto;" onclick="mostrarPasarela();">💳 DESBLOQUEAR TRANSMISIÓN AQUÍ</button>
             </div>
         </div>
 
-        <!-- PASARELA DE PAGO BINANCE BEP-20 (MURO DE PAGO CRIPTO) -->
+        <!-- PASARELA DE PAGO BINANCE BEP-20 -->
         <div class="info-box hidden" id="box-pasarela">
             <h3 style="color: #4caf50; margin: 0 0 10px 0; text-align: center;">⚡ Pasarela de Depósito Cripto</h3>
             <div class="plan-grid">
-                <div class="plan-card" onclick="seleccionarPlan('Plata', 10)"><h4>🥈 Plata</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Oro', 20)"><h4>🥇 Oro</h4><p style="margin:0;font-size:11px;">$20 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Rubí', 40)"><h4>🔻 Rubí</h4><p style="margin:0;font-size:11px;">$40 USD</p></div>
-                <div class="plan-card" onclick="seleccionarPlan('Diamante', 120)"><h4>💎 Diamante</h4><p style="margin:0;font-size:11px;">$120 USD</p></div>
+                <div class="plan-card" onclick="seleccionarPlan()"><h4> Plan VIP</h4><p style="margin:0;font-size:11px;">$10 USD</p></div>
             </div>
-
             <div id="payment-details" class="hidden" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
-                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance <strong>Red BEP-20</strong>:</p>
+                <p style="font-size: 12px;">Envía USDT a tu dirección de Binance Red BEP-20:</p>
                 <div class="crypto-box">0x29f0f1edd5258ee3b7553bff665df4d1dd811af0</div>
-                <button class="btn" style="background-color: #4caf50;" id="btn-notificar-pago">Avisar Pago al Administrador</button>
+                <button class="btn" style="background-color: #3f51b5;" onclick="alert('Notificación enviada con éxito.');">Avisar Pago Directo</button>
             </div>
         </div>
 
@@ -88,80 +80,73 @@
 
         <div class="info-box">
             <h3>👥 Panel de Control de Tokens</h3>
-            <button class="btn" id="btn-regalo">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
-            <button class="btn" style="background-color: #3f51b5;" id="btn-recarga">💳 Recargar 500 Tokens</button>
+            <button class="btn" id="btn-regalo" onclick="restarFichas();">🎁 Enviar Regalo Real (Restar 50 Tokens)</button>
+            <button class="btn" style="background-color: #3f51b5;" onclick="sumarFichas();">💳 Recargar 500 Tokens</button>
         </div>
     </div>
 
-    <!-- CONEXIÓN EN CALIENTE A FIREBASE -->
-    <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment } from "https://gstatic.com";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
-            authDomain: "://firebaseapp.com",
-            projectId: "camchat-900d6",
-            storageBucket: "://appspot.com",
-            messagingSenderId: "434447301379",
-            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        let activeUserRef = null;
-        let activePlan = "Plata";
-        let tiempoRestante = 600; // 10 minutos expresados en segundos (10 * 60)
+    <script>
+        let saldoLocal = 0;
+        let tiempoRestante = 600; // 10 minutos
         let localStream = null;
 
-        document.getElementById("btn-registrar-fb").addEventListener("click", async () => {
+        // FUNCIÓN DEFINITIVA: ROMPE EL BLOQUEO AL INSTANTE
+        function forzarSaltoInstantaneo() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
-            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
+            const corr = document.getElementById("reg-correo").value.trim();
 
-            if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
+            if (!nom || !ape || !corr) {
+                alert("Por favor, rellena todos los campos.");
+                return;
+            }
 
-            activeUserRef = doc(db, "Usuarios", corr);
-
-            await setDoc(activeUserRef, {
-                nombre: nom + " " + ape,
-                correo: corr,
-                rol: "Prueba Gratuita",
-                tokens_balance: 0
-            });
-
-            document.getElementById("screen-register").classList.add("hidden");
+            // SALTO DE PANTALLA EN EL ACTO (Cero retrasos de servidores)
+            document.getElementById("screen-register").style.display = "none";
             document.getElementById("screen-app").classList.remove("hidden");
-            document.getElementById("user-display").innerText = nom;
+            document.getElementById("user-display").innerText = nom + " " + ape;
 
-            // Encender la cámara gratis de una vez al entrar
+            // Encender la cámara de una vez
             activarCamaraHardware();
 
-            // Arrancar el cronómetro de cuenta regresiva de 10 minutos
-            const intervaloCronometro = setInterval(() => {
+            // Iniciar cuenta regresiva local
+            const intervalo = setInterval(() => {
                 tiempoRestante--;
-                
-                // Formatear el tiempo en minutos y segundos (MM:SS)
                 let minutos = Math.floor(tiempoRestante / 60);
                 let segundos = tiempoRestante % 60;
                 segundos = segundos < 10 ? "0" + segundos : segundos;
                 
                 document.getElementById("cronometro-view").innerText = "⏱️ Tiempo Libre: " + minutos + ":" + segundos;
 
-                // CUANDO LLEGUE A 0: Se ejecuta el bloqueo automático de transmisión
                 if (tiempoRestante <= 0) {
-                    clearInterval(intervaloCronometro);
-                    bloquearShowPorTiempoExpilado();
+                    clearInterval(intervalo);
+                    if (localStream) {
+                        localStream.getTracks().forEach(track => track.stop());
+                    }
+                    document.getElementById("video-active-view").classList.add("hidden");
+                    document.getElementById("video-container").style.border = "2px solid #ff5252";
+                    document.getElementById("video-locked-view").classList.remove("hidden");
+                    mostrarPasarela();
                 }
             }, 1000);
+        }
 
-            // Escuchar balance en tiempo real
-            onSnapshot(activeUserRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const datos = docSnap.data();
-                    document.getElementById("balance-view").innerText = datos.tokens_balance || 0;
-                    
-                    // Si el administrador le cambia el rango a VIP desde el panel, se rompe cualquier bloqueo
-                    if (datos.rol.includes("VIP")) {
-                        clearInterval(intervaloCronometro);
+        async function activarCamaraHardware() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                localStream = stream;
+                document.getElementById("video-active-view").innerHTML = '<video id="local-video" class="local-cam" autoplay playsinline></video>';
+                document.getElementById("local-video").srcObject = stream;
+            } catch (e) {
+                console.log("Esperando interacción.");
+            }
+        }
+
+        function mostrarPasarela() { document.getElementById("box-pasarela").classList.remove("hidden"); }
+        function seleccionarPlan() { document.getElementById("payment-details").classList.remove("hidden"); }
         
+        function restarFichas() { if(saldoLocal >= 50) { saldoLocal -= 50; document.getElementById("balance-view").innerText = saldoLocal; } }
+        function sumarFichas() { saldoLocal += 500; document.getElementById("balance-view").innerText = saldoLocal; }
+    </script>
+</body>
+</html>
