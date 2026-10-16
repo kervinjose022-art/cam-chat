@@ -14,16 +14,14 @@
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; }
         
-        /* DISEÑO DE CUADRÍCULA / VENTANAS DE MODELOS */
+        /* DISEÑO DE CUADRÍCULA DE MODELOS STREAMERS */
         .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
-        .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; position: relative; overflow: hidden; }
+        .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; }
         .model-thumb { width: 100%; height: 140px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #ff4081; border: 1px dashed #ff4081; }
         .model-card h4 { margin: 6px 0 2px 0; font-size: 14px; }
         .model-status { font-size: 11px; color: #4caf50; font-weight: bold; }
         .btn-stream { background-color: #ff4081; color: white; padding: 6px; font-size: 11px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
-        .btn-stream:hover { background-color: #f50057; }
-
-        /* Contenedor del Show Activo */
+        
         #video-container { width: 100%; height: 280px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
         .hidden { display: none !important; }
@@ -33,7 +31,7 @@
 </head>
 <body>
 
-    <!-- INTERFAZ DE LOGUEO / REGISTRO -->
+    <!-- INTERFAZ DE LOGUEO / REGISTRO (CONMUTABLE AL INSTANTE) -->
     <div class="container" id="screen-auth">
         <!-- FORMULARIO DE REGISTRO -->
         <div id="box-register">
@@ -47,7 +45,7 @@
             <span class="link-toggle" onclick="conmutarVistaAuth(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
 
-        <!-- FORMULARIO DE LOGIN -->
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
             <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
@@ -58,37 +56,33 @@
         </div>
     </div>
 
-    <!-- INTERFAZ PRINCIPAL CON CATÁLOGO DE MODELOS -->
+    <!-- PANEL GENERAL DE MENÚ Y MODELOS -->
     <div class="container hidden" id="screen-app">
         <h1>🎙️ CamChat Live</h1>
         <p style="margin: 0; color: #aaa; font-size: 13px;">Usuario Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
         
-        <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (VISIBLE POR DEFECTO AL ENTRAR) -->
+        <!-- SECCIÓN A: CATÁLOGO DE VENTANAS (CUADRÍCULA DE STREAMERS) -->
         <div id="catalog-section">
             <h3 style="text-align: left; margin: 15px 0 5px 0; color: #ff4081;">💋 Modelos Disponibles en Vivo:</h3>
             <div class="models-grid">
-                <!-- Modelo 1 -->
                 <div class="model-card">
                     <div class="model-thumb">💃🏻</div>
                     <h4>Vanessa Model</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Vanessa Model');">🎥 ENTRAR AL SHOW</button>
                 </div>
-                <!-- Modelo 2 -->
                 <div class="model-card">
                     <div class="model-thumb">👩🏼‍🦱</div>
                     <h4>Camila Sweet</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
-                <!-- Modelo 3 -->
                 <div class="model-card">
                     <div class="model-thumb">👱🏻‍♀️</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
                 </div>
-                <!-- Modelo 4 -->
                 <div class="model-card">
                     <div class="model-thumb">👩🏻</div>
                     <h4>Scarlet VIP</h4>
@@ -98,7 +92,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN B: REPRODUCITOR DEL SHOW EN VIVO (OCULTO POR DEFECTO) -->
+        <!-- SECCIÓN B: REPRODUCTOR STREAMING ACTIVADO -->
         <div id="stream-section" class="hidden">
             <div id="video-container">
                 <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
@@ -117,28 +111,19 @@
         <button class="btn" style="background-color: #333; margin-top:10px; font-size:12px; padding:6px;" onclick="window.location.reload();">🚪 Cerrar Sesión</button>
     </div>
 
-    <!-- CARGA DIRECTA DE LIBRERÍAS CLÁSICAS DE GOOGLE FIREBASE -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-
     <script>
-        // Configuración oficial de tu base de datos Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZVxxoL8K1bg_Q2CFEZjukWbx9DCZcXkQ",
-            authDomain: "://firebaseapp.com",
-            projectId: "camchat-900d6",
-            storageBucket: "://appspot.com",
-            messagingSenderId: "434447301379",
-            appId: "1:434447301379:web:a5571e06a1c69530cb0736"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        let correoGlobal = "";
+        // Lógica de simulación y sincronización asíncrona local inmune a bloqueos
         let tiempoRestante = 600; 
         let intervaloCronometro = null;
-        let datosUsuarioLocal = { nombre: "", rango: "Prueba Gratuita", tokens: 0 };
+        let datosUsuarioLocal = { nombre: "", correo: "", rango: "Prueba Gratuita", tokens: 0 };
+
+        // Inicializar base de datos local para el login
+        if(!localStorage.getItem('backup_db_usuarios')) {
+            localStorage.setItem('backup_db_usuarios', JSON.stringify([
+                { nombre: "Carlos Mendoza", correo: "carlos@gmail.com", rango: "VIP Oro", tokens: 450 },
+                { nombre: "Kervin Pérez (Admin)", correo: "kervinjose022@gmail.com", rango: "👑 CREADOR MVP", tokens: 99999 }
+            ]));
+        }
 
         function conmutarVistaAuth(mostrarLogin) {
             if (mostrarLogin) {
@@ -150,7 +135,7 @@
             }
         }
 
-        // REGISTRO ASÍNCRONO SIN CONGELAMIENTOS
+        // SALTO LOCAL INMEDIATO DE ASIGNACIÓN (VELOCIDAD MAESTRA ABSOLUTA)
         function ejecutarRegistroInmediato() {
             const nom = document.getElementById("reg-nombre").value;
             const ape = document.getElementById("reg-apellido").value;
@@ -158,5 +143,14 @@
 
             if (!nom || !ape || !corr) { alert("Rellena todos los campos."); return; }
 
-            correoGlobal = corr;
+            datosUsuarioLocal = { nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 };
+            
+            // Respaldar localmente para que el login sirva de inmediato en el teléfono
+            let lista = JSON.parse(localStorage.getItem('backup_db_usuarios'));
+            if(!lista.some(u => u.correo === corr)) {
+                lista.push({ nombre: nom + " " + ape, correo: corr, rango: "Prueba Gratuita", tokens: 0 });
+                localStorage.setItem('backup_db_usuarios', JSON.stringify(lista));
+            }
+
+            // 🚀 SALTO INMEDIATO DE INTERFAZ (Cero dependencias de red externa)
         
