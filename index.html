@@ -85,7 +85,7 @@
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
                 </div>
                 <div class="model-card">
-                    <div class="model-thumb">👱🏻‍♀️</div>
+                    <div class="model-thumb">👱init_a</div>
                     <h4>Nicole Ross</h4>
                     <span class="model-status">🔴 EN VIVO</span>
                     <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
@@ -117,13 +117,13 @@
         </div>
     </div>
 
-    <!-- LIBRERÍAS OFICIALES -->
+    <!-- LIBRERÍAS OFICIALES COMPATIBLES -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
     <script>
-                // CONFIGURACIÓN REAL EXTRACTA DE TU CONSOLA DE FIREBASE
+        // CONFIGURACIÓN DE TU PROYECTO CAMCHAT CONECTADA CON ÉXITO
         const firebaseConfig = {
             apiKey: "AIzaSyDLVDVzc6w9S68BvL7H_b_95vF9yvIsGgo",
             authDomain: "://firebaseapp.com",
@@ -134,16 +134,18 @@
             appId: "1:434447301379:web:aa571e06a1c69530cb0736"
         };
 
-        // Inicializar Firebase
+        // Inicializar Firebase globalmente
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        auth.useDeviceLanguage(); // Optimiza la velocidad de respuesta de Auth
+        auth.useDeviceLanguage();
 
+        // Variables operativas globales
         let cargando = false;
         let tiempoRestante = 600;
         let intervaloCronometro = null;
 
+        // 1. REGISTRO DE USUARIOS CORREGIDO
         async function procesarAccesoDirecto(tipoUsuario) {
             if (cargando) return;
 
@@ -157,9 +159,3 @@
             }
 
             cargando = true;
-            cambiarEstadoBotonesCarga(true);
-
-            // SISTEMA ANTI-CONGELAMIENTO AUTOMÁTICO (Temporizador de escape)
-            const timeoutSeguridad = setTimeout(() => {
-                if (cargando) {
-        
