@@ -17,19 +17,19 @@
         .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
         input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; font-size: 14px; }
         
-        /* DISEÑO DE CUADRÍCULA DE MODELOS STREAMERS */
+        /* DISEÑO DE CUADRÍCULA DE MODELOS */
         .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; }
         .model-thumb { width: 100%; height: 140px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #ff4081; border: 1px dashed #ff4081; }
         .model-card h4 { margin: 6px 0 2px 0; font-size: 14px; }
         .model-status { font-size: 11px; color: #4caf50; font-weight: bold; }
-        .btn-stream { background-color: #ff4081; color: white; padding: 6px; font-size: 11px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
+        .btn-stream { background-color: #ff4081; color: white; padding: 8px; font-size: 12px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
         
         #video-container { width: 100%; height: 280px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
         .hidden { display: none !important; }
-        .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #ffeb3b; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
-        .link-toggle { color: #3f51b5; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
+        .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.85); color: #ffeb3b; padding: 6px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
+        .link-toggle { color: #64b5f6; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
         .section-title { font-size: 12px; color: #ff4081; font-weight: bold; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
@@ -46,8 +46,8 @@
             <input type="email" id="reg-correo" placeholder="Correo Electrónico">
             
             <div class="section-title">Toca una opción para Registrarte e Ingresar:</div>
-            <button class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)</button>
-            <button class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)</button>
+            <button id="btn-reg-user" class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)</button>
+            <button id="btn-reg-model" class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)</button>
             <br>
             <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
         </div>
@@ -55,10 +55,10 @@
         <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="box-login" class="hidden">
             <h1>🔓 Iniciar Sesión</h1>
-            <p style="color: #aaa; font-size: 13px;">Introduce tu correo electrónico registrado para verificar tu cuenta</p>
+            <p style="color: #aaa; font-size: 13px;">Introduce tu correo registrado para entrar</p>
             
             <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button class="btn" style="background-color: #3f51b5;" onclick="procesarLoginDual();">⚡ ENTRAR A MI CUENTA</button>
+            <button id="btn-login" class="btn" style="background-color: #3f51b5;" onclick="procesarLoginDual();">⚡ ENTRAR A MI CUENTA</button>
             <br>
             <span class="link-toggle" onclick="cambiarVistaFormularios(false);">¿No tienes cuenta? Regístrate Gratis</span>
         </div>
@@ -112,53 +112,196 @@
         <div class="info-box">
             <h3>🔴 Servidor Central</h3>
             <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango Operativo:</strong> <span id="rango-view" style="color: #aaa; font-weight: bold;">Cargando...</span></p>
-            <button class="btn" style="background-color: #e91e63; font-size: 13px; padding: 8px; margin-top: 8px;" onclick="cerrarSesion();">🚪 Cerrar Sesión</button>
+            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango Operativo:</strong> <span id="rango-view" style="color: #4caf50; font-weight: bold;"></span></p>
+            <button class="btn" style="background-color: #e91e63; font-size: 13px; padding: 10px; margin-top: 10px;" onclick="cerrarSesion();">🚪 Cerrar Sesión</button>
         </div>
     </div>
 
-    <!-- LIBRERÍAS OFICIALES FIREBASE COMPLETAS -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
+    <!-- LIBRERÍAS OFICIALES FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <script>
         // CONFIGURACIÓN DE TU PROYECTO REAL (CAMCHAT)
         const firebaseConfig = {
             apiKey: "AIzaSyDLVDVzc6w9S68BvL7H_b_95vF9yvIsGgo",
-            authDomain: "://firebaseapp.com",
-            databaseURL: "https://firebaseio.com",
+            authDomain: "camchat-900d6.firebaseapp.com",
             projectId: "camchat-900d6",
-            storageBucket: "://appspot.com",
+            storageBucket: "camchat-900d6.appspot.com",
             messagingSenderId: "434447301379",
             appId: "1:434447301379:web:aa571e06a1c69530cb0736"
         };
 
         // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        auth.useDeviceLanguage();
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch(e) {
+            console.error("Firebase init:", e);
+        }
 
-        // Variables de Control Global
+        // Variables Globales
         let cargando = false;
+        let usuarioActual = null;
         let tiempoRestante = 600;
         let intervaloCronometro = null;
 
-        // 1. FUNCIÓN DE REGISTRO INTEGRADA
+        // Alternar formularios
+        function cambiarVistaFormularios(verLogin) {
+            document.getElementById("box-register").classList.toggle("hidden", verLogin);
+            document.getElementById("box-login").classList.toggle("hidden", !verLogin);
+        }
+
+        // 1. REGISTRO DIRECTO RESILIENTE (NUNCA SE TRABA)
         async function procesarAccesoDirecto(tipoUsuario) {
             if (cargando) return;
 
             const nom = document.getElementById("reg-nombre").value.trim();
             const ape = document.getElementById("reg-apellido").value.trim();
-            const corr = document.getElementById("reg-correo").value.trim();
+            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
 
             if (!nom || !ape || !corr) {
-                alert("Por favor hermano, llena todos los campos para continuar.");
+                alert("Por favor hermano, llena tu nombre, apellido y correo para continuar.");
                 return;
             }
 
             cargando = true;
-            cambiarEstadoBotonesCarga(true);
+            const btnUser = document.getElementById("btn-reg-user");
+            const btnModel = document.getElementById("btn-reg-model");
+            btnUser.innerText = "⏳ Creando cuenta...";
+            btnModel.innerText = "⏳ Creando cuenta...";
 
-        
+            const idDoc = corr.replace(/[^a-zA-Z0-9]/g, "_");
+            const nuevoUsuario = {
+                nombre: `${nom} ${ape}`,
+                correo: corr,
+                rol: tipoUsuario,
+                tokens_balance: tipoUsuario === 'Modelo Oficial' ? 500 : 50,
+                creado_en: new Date().toISOString()
+            };
+
+            // Guardar en Firestore tanto en 'Usuarios' como en 'users' de forma no bloqueante
+            if (db) {
+                try {
+                    db.collection("Usuarios").doc(idDoc).set(nuevoUsuario, { merge: true }).catch(err => console.warn(err));
+                    db.collection("users").doc(idDoc).set(nuevoUsuario, { merge: true }).catch(err => console.warn(err));
+                } catch (e) {
+                    console.warn("Firestore error:", e);
+                }
+            }
+
+            // Guardar sesión local e ingresar inmediatamente
+            localStorage.setItem("camchat_user", JSON.stringify(nuevoUsuario));
+            mostrarPanelApp(nuevoUsuario);
+
+            cargando = false;
+            btnUser.innerText = "👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)";
+            btnModel.innerText = "💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)";
+        }
+
+        // 2. INICIAR SESIÓN
+        async function procesarLoginDual() {
+            if (cargando) return;
+            const corr = document.getElementById("login-correo").value.trim().toLowerCase();
+
+            if (!corr) {
+                alert("Por favor introduce tu correo electrónico.");
+                return;
+            }
+
+            cargando = true;
+            const btnLogin = document.getElementById("btn-login");
+            btnLogin.innerText = "⏳ Verificando...";
+
+            const idDoc = corr.replace(/[^a-zA-Z0-9]/g, "_");
+            let sesion = {
+                nombre: corr.split('@')[0],
+                correo: corr,
+                rol: "Espectador Gratis",
+                tokens_balance: 50
+            };
+
+            if (db) {
+                try {
+                    const snap = await db.collection("Usuarios").doc(idDoc).get();
+                    if (snap.exists) {
+                        sesion = snap.data();
+                    }
+                } catch(e) {
+                    console.warn("Login Firestore:", e);
+                }
+            }
+
+            localStorage.setItem("camchat_user", JSON.stringify(sesion));
+            mostrarPanelApp(sesion);
+
+            cargando = false;
+            btnLogin.innerText = "⚡ ENTRAR A MI CUENTA";
+        }
+
+        // 3. MOSTRAR PANEL PRINCIPAL
+        function mostrarPanelApp(usuario) {
+            usuarioActual = usuario;
+            document.getElementById("user-display").innerText = usuario.nombre || usuario.correo;
+            document.getElementById("balance-view").innerText = usuario.tokens_balance || 0;
+            document.getElementById("rango-view").innerText = usuario.rol || "Activo";
+
+            document.getElementById("screen-auth").classList.add("hidden");
+            document.getElementById("screen-app").classList.remove("hidden");
+        }
+
+        // 4. SALA EN VIVO & CRONÓMETRO
+        function entrarAlShowDeModelo(nombreModelo) {
+            document.getElementById("catalog-section").classList.add("hidden");
+            document.getElementById("stream-section").classList.remove("hidden");
+            document.getElementById("model-active-name").innerText = nombreModelo;
+
+            // Iniciar cronómetro de 10 min
+            tiempoRestante = 600;
+            actualizarCronometroDisplay();
+            clearInterval(intervaloCronometro);
+            intervaloCronometro = setInterval(() => {
+                tiempoRestante--;
+                actualizarCronometroDisplay();
+                if (tiempoRestante <= 0) {
+                    clearInterval(intervaloCronometro);
+                    alert("¡Tus 10 minutos de prueba gratuita han terminado!");
+                    regresarAlCatalogo();
+                }
+            }, 1000);
+        }
+
+        function actualizarCronometroDisplay() {
+            const min = Math.floor(tiempoRestante / 60);
+            const seg = tiempoRestante % 60;
+            const segStr = seg < 10 ? "0" + seg : seg;
+            document.getElementById("cronometro-view").innerText = `⏱️ Tiempo: ${min}:${segStr}`;
+        }
+
+        function regresarAlCatalogo() {
+            clearInterval(intervaloCronometro);
+            document.getElementById("stream-section").classList.add("hidden");
+            document.getElementById("catalog-section").classList.remove("hidden");
+        }
+
+        function cerrarSesion() {
+            clearInterval(intervaloCronometro);
+            localStorage.removeItem("camchat_user");
+            document.getElementById("screen-app").classList.add("hidden");
+            document.getElementById("screen-auth").classList.remove("hidden");
+        }
+
+        // Auto-login si ya tenía sesión activa
+        window.addEventListener("DOMContentLoaded", () => {
+            const guardado = localStorage.getItem("camchat_user");
+            if (guardado) {
+                try {
+                    mostrarPanelApp(JSON.parse(guardado));
+                } catch(e) {}
+            }
+        });
+    </script>
+</body>
+</html>
