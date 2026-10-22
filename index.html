@@ -1,307 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CamChat Live - Sistema Dual Profesional</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
-        .container { max-width: 600px; margin: 10px auto; background: #1e1e1e; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
-        h1 { color: #ff4081; margin-bottom: 5px; font-size: 24px; }
-        .btn { border: none; padding: 15px 20px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 12px; width: 100%; font-weight: bold; color: white; }
-        .btn-user { background-color: #4caf50; }
-        .btn-user:hover { background-color: #43a047; }
-        .btn-model { background-color: #e91e63; }
-        .btn-model:hover { background-color: #d81b60; }
-        .info-box { background: #2d2d2d; padding: 12px; border-radius: 5px; margin-top: 10px; text-align: left; }
-        .token-count { font-size: 26px; color: #ffeb3b; font-weight: bold; }
-        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ff4081; background-color: #121212; color: white; box-sizing: border-box; font-size: 14px; }
-        
-        /* DISEÑO DE CUADRÍCULA DE MODELOS */
-        .models-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
-        .model-card { background: #2d2d2d; border-radius: 8px; border: 2px solid #ff4081; padding: 8px; text-align: center; }
-        .model-thumb { width: 100%; height: 140px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #ff4081; border: 1px dashed #ff4081; }
-        .model-card h4 { margin: 6px 0 2px 0; font-size: 14px; }
-        .model-status { font-size: 11px; color: #4caf50; font-weight: bold; }
-        .btn-stream { background-color: #ff4081; color: white; padding: 8px; font-size: 12px; border: none; border-radius: 4px; width: 100%; font-weight: bold; margin-top: 5px; cursor: pointer; }
-        
-        #video-container { width: 100%; height: 280px; background-color: #000; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .stream-view { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #ffeb3b; background: linear-gradient(45deg, #160d12, #000); }
-        .hidden { display: none !important; }
-        .timer-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.85); color: #ffeb3b; padding: 6px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid #ffeb3b; z-index: 10; }
-        .link-toggle { color: #64b5f6; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 15px; font-size: 14px; }
-        .section-title { font-size: 12px; color: #ff4081; font-weight: bold; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 1px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CamChat Live - Streaming & Comunidad</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0d14;
+      color: #f1f5f9;
+    }
+    .neon-border {
+      border: 1.5px dashed #ff2b85;
+      box-shadow: 0 0 15px rgba(255, 43, 133, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #ff2b85;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #151824;
+    }
+  </style>
 </head>
-<body>
+<body class="min-h-screen pb-16 selection:bg-pink-600 selection:text-white">
 
-    <div class="container" id="screen-auth">
-        <!-- FORMULARIO DE REGISTRO OPTIMIZADO -->
-        <div id="box-register">
-            <h1>🔐 Registro de Cuenta</h1>
-            <p style="color: #aaa; font-size: 13px;">Crea tu cuenta gratis en CamChat Live</p>
-            
-            <input type="text" id="reg-nombre" placeholder="Nombre">
-            <input type="text" id="reg-apellido" placeholder="Apellido">
-            <input type="email" id="reg-correo" placeholder="Correo Electrónico">
-            
-            <div class="section-title">Toca una opción para Registrarte e Ingresar:</div>
-            <button id="btn-reg-user" class="btn btn-user" onclick="procesarAccesoDirecto('Prueba Gratuita');">👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)</button>
-            <button id="btn-reg-model" class="btn btn-model" onclick="procesarAccesoDirecto('Modelo Oficial');">💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)</button>
-            <br>
-            <span class="link-toggle" onclick="cambiarVistaFormularios(true);">¿Ya tienes cuenta? Inicia Sesión</span>
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 bg-[#0e111a]/95 backdrop-blur border-b border-pink-900/40 px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl animate-pulse">🎙️</span>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-pink-300">
+            CamChat Live
+          </h1>
+          <div id="header-user-status" class="text-xs text-zinc-400 flex items-center gap-1.5 font-medium">
+            <span>Perfil Activo:</span>
+            <span id="active-user-name" class="text-pink-400 font-bold">Invitado</span>
+            <span id="active-user-badge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Tokens Pill -->
+        <div id="user-token-pill" class="hidden items-center gap-1.5 bg-zinc-900/90 border border-amber-500/40 px-3 py-1.5 rounded-full text-xs font-bold text-amber-400 shadow-sm">
+          <span>🪙</span>
+          <span id="header-tokens-val">0</span>
         </div>
 
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
-        <div id="box-login" class="hidden">
-            <h1>🔓 Iniciar Sesión</h1>
-            <p style="color: #aaa; font-size: 13px;">Introduce tu correo registrado para entrar</p>
-            
-            <input type="email" id="login-correo" placeholder="Introduce tu Correo Electrónico">
-            <button id="btn-login" class="btn" style="background-color: #3f51b5;" onclick="procesarLoginDual();">⚡ ENTRAR A MI CUENTA</button>
-            <br>
-            <span class="link-toggle" onclick="cambiarVistaFormularios(false);">¿No tienes cuenta? Regístrate Gratis</span>
+        <!-- Botones Sesión -->
+        <div id="auth-buttons" class="flex items-center gap-2">
+          <button onclick="mostrarModalAuth('login')" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-lg font-semibold transition border border-zinc-700">
+            Entrar
+          </button>
+          <button onclick="mostrarModalAuth('registro')" class="text-xs bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-3 py-1.5 rounded-lg font-bold shadow-md transition">
+            Registrarme
+          </button>
         </div>
+
+        <button id="btn-logout" onclick="cerrarSesion()" class="hidden text-xs bg-zinc-800/80 hover:bg-red-950/60 text-zinc-300 hover:text-red-400 px-3 py-1.5 rounded-lg font-semibold border border-zinc-700/60 transition">
+          <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Salir
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= BARRA DE ADMINISTRADOR (EXCLUSIVA kervinjose022@gmail.com) ================= -->
+  <div id="admin-top-banner" class="hidden bg-gradient-to-r from-amber-950/80 via-zinc-900 to-amber-950/80 border-b border-amber-500/50 px-4 py-2 text-center text-xs">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-amber-300 font-bold">
+        <span class="text-base">👑</span>
+        <span>ADMINISTRADOR MASTER: <span id="admin-badge-email" class="text-white font-mono"></span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="cambiarVista('admin')" id="nav-btn-admin" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black px-3 py-1 rounded text-xs transition shadow-md flex items-center gap-1.5">
+          <i class="fa-solid fa-users-gear"></i> Ver Panel de Registros
+        </button>
+        <button onclick="cambiarVista('modelos')" id="nav-btn-modelos" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold px-3 py-1 rounded text-xs transition">
+          <i class="fa-solid fa-tv"></i> Ver Modelos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 mt-6">
+
+    <!-- Mensajes Globales -->
+    <div id="global-alert" class="hidden mb-4 p-3 rounded-xl border text-sm flex items-center justify-between transition-all">
+      <div class="flex items-center gap-2">
+        <i id="global-alert-icon" class="fa-solid fa-circle-info"></i>
+        <span id="global-alert-text"></span>
+      </div>
+      <button onclick="cerrarAlerta()" class="text-xs opacity-70 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- PANEL GENERAL DE MENÚ Y MODELOS -->
-    <div class="container hidden" id="screen-app">
-        <h1>🎙️ CamChat Live</h1>
-        <p style="margin: 0; color: #aaa; font-size: 13px;">Perfil Activo: <span id="user-display" style="color: #ff4081; font-weight: bold;"></span></p>
-        
-        <div id="catalog-section">
-            <h3 style="text-align: left; margin: 15px 0 5px 0; color: #ff4081;">💋 Modelos Disponibles en Vivo:</h3>
-            <div class="models-grid">
-                <div class="model-card">
-                    <div class="model-thumb">💃🏻</div>
-                    <h4>Vanessa Model</h4>
-                    <span class="model-status">🔴 EN VIVO</span>
-                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Vanessa Model');">🎥 ENTRAR AL SHOW</button>
-                </div>
-                <div class="model-card">
-                    <div class="model-thumb">👩🏼‍🦱</div>
-                    <h4>Camila Sweet</h4>
-                    <span class="model-status">🔴 EN VIVO</span>
-                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Camila Sweet');">🎥 ENTRAR AL SHOW</button>
-                </div>
-                <div class="model-card">
-                    <div class="model-thumb">👱🏻‍♀️</div>
-                    <h4>Nicole Ross</h4>
-                    <span class="model-status">🔴 EN VIVO</span>
-                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Nicole Ross');">🎥 ENTRAR AL SHOW</button>
-                </div>
-                <div class="model-card">
-                    <div class="model-thumb">💎</div>
-                    <h4>Scarlet VIP</h4>
-                    <span class="model-status">🔴 EN VIVO</span>
-                    <button class="btn-stream" onclick="entrarAlShowDeModelo('Scarlet VIP');">🎥 ENTRAR AL SHOW</button>
-                </div>
+    <!-- ================= VISTA: PANEL DE ADMINISTRACIÓN DE REGISTROS ================= -->
+    <section id="vista-admin" class="hidden space-y-6">
+      <!-- Tarjeta Principal de Administración -->
+      <div class="bg-gradient-to-br from-[#181b29] via-[#12141f] to-[#181b29] border border-amber-500/40 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">👑</span>
+              <h2 class="text-xl sm:text-2xl font-black text-amber-300">Panel de Control de Registros</h2>
             </div>
+            <p class="text-xs text-zinc-400 mt-1">
+              Monitoreo en tiempo real de todos los usuarios registrados en CamChat (Firestore <span class="font-mono text-pink-400">Usuarios</span>).
+            </p>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button onclick="recargarUsuariosAdmin()" class="flex-1 sm:flex-initial bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded-xl text-xs font-bold border border-zinc-700 flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+            </button>
+            <a href="admin.html" target="_blank" class="flex-1 sm:flex-initial bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/50 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> admin.html
+            </a>
+          </div>
         </div>
 
-        <div id="stream-section" class="hidden">
-            <div id="video-container">
-                <div id="cronometro-view" class="timer-badge">⏱️ Tiempo Libre: 10:00</div>
-                <div class="stream-view">
-                    <p>🎙️ TRANSMITIENDO EN VIVO: <br><span id="model-active-name" style="color:#ff4081; font-size:22px;"></span></p>
-                </div>
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+          <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 text-center">
+            <div class="text-[11px] text-zinc-400 font-medium">Total Registrados</div>
+            <div id="stat-total-usuarios" class="text-2xl font-black text-white mt-0.5">0</div>
+          </div>
+          <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 text-center">
+            <div class="text-[11px] text-zinc-400 font-medium">Usuarios Estándar</div>
+            <div id="stat-usuarios-reg" class="text-2xl font-black text-pink-400 mt-0.5">0</div>
+          </div>
+          <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 text-center">
+            <div class="text-[11px] text-zinc-400 font-medium">Modelos</div>
+            <div id="stat-modelos-reg" class="text-2xl font-black text-rose-400 mt-0.5">0</div>
+          </div>
+          <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3 text-center">
+            <div class="text-[11px] text-zinc-400 font-medium">Tokens en Circulación</div>
+            <div id="stat-total-tokens" class="text-2xl font-black text-amber-400 mt-0.5">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buscador y Filtro -->
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+          <input type="text" id="admin-search" oninput="filtrarUsuariosAdmin()" placeholder="Buscar por nombre o correo (ej. José margarita)..." 
+            class="w-full bg-[#12141f] border border-zinc-800 focus:border-pink-500 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none transition">
+        </div>
+        <select id="admin-filter-rol" onchange="filtrarUsuariosAdmin()" class="bg-[#12141f] border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-zinc-300 focus:outline-none focus:border-pink-500">
+          <option value="todos">Todos los Roles</option>
+          <option value="Usuario">Solo Usuarios</option>
+          <option value="Modelo">Solo Modelos</option>
+          <option value="Administrador">Solo Administradores</option>
+        </select>
+      </div>
+
+      <!-- Tabla de Registros en Vivo -->
+      <div class="bg-[#10121d] border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-3.5 border-b border-zinc-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-zinc-300">Base de Datos en Vivo</span>
+          </div>
+          <span id="admin-conteo-filtrados" class="text-[11px] text-zinc-400 font-mono">Cargando registros...</span>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-zinc-900/90 text-zinc-400 uppercase text-[10px] tracking-wider border-b border-zinc-800">
+              <tr>
+                <th class="py-3 px-4">Usuario / Nombre</th>
+                <th class="py-3 px-4">Correo Electrónico</th>
+                <th class="py-3 px-4">Rol Actual</th>
+                <th class="py-3 px-4">Saldo Tokens</th>
+                <th class="py-3 px-4 text-center">Acciones Rápidas</th>
+              </tr>
+            </thead>
+            <tbody id="admin-usuarios-tbody" class="divide-y divide-zinc-800/80">
+              <tr>
+                <td colspan="5" class="py-8 text-center text-zinc-500">
+                  <i class="fa-solid fa-spinner fa-spin text-lg text-pink-500 mb-2"></i>
+                  <div>Conectando con Firestore...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VISTA: MODELOS EN VIVO (CATÁLOGO) ================= -->
+    <section id="vista-modelos" class="space-y-4">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">💋</span>
+        <h2 class="text-xl font-black text-pink-500 tracking-tight">Modelos Disponibles en Vivo:</h2>
+      </div>
+
+      <!-- Tarjetas de Modelos -->
+      <div class="grid grid-cols-2 gap-3 sm:gap-4">
+        <!-- Vanessa -->
+        <div class="bg-[#12141f] rounded-2xl p-3 border-2 border-pink-500/50 shadow-lg flex flex-col justify-between hover:border-pink-500 transition duration-300">
+          <div class="neon-border rounded-xl bg-black/80 aspect-square flex items-center justify-center mb-3">
+            <span class="text-5xl sm:text-6xl drop-shadow-lg">💃</span>
+          </div>
+          <div class="text-center space-y-1">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-100">Vanessa Model</h3>
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+              <span>🔴 EN VIVO</span>
             </div>
-            <button class="btn" style="background-color: #555; margin-top: 10px;" onclick="regresarAlCatalogo();">⬅️ SALIR DE LA SALA / VOLVER AL MENÚ</button>
+            <button onclick="entrarAlShow('Vanessa Model', 50)" class="w-full mt-2 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-extrabold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition">
+              <i class="fa-solid fa-video"></i> ENTRAR AL SHOW
+            </button>
+          </div>
         </div>
 
-        <div class="info-box">
-            <h3>🔴 Servidor Central</h3>
-            <p style="margin: 5px 0;"><strong>Tu Balance Actual:</strong> <span class="token-count" id="balance-view">0</span> Tokens</p>
-            <p style="margin: 5px 0; font-size: 13px;"><strong>Tu Rango Operativo:</strong> <span id="rango-view" style="color: #4caf50; font-weight: bold;"></span></p>
-            <button class="btn" style="background-color: #e91e63; font-size: 13px; padding: 10px; margin-top: 10px;" onclick="cerrarSesion();">🚪 Cerrar Sesión</button>
+        <!-- Camila -->
+        <div class="bg-[#12141f] rounded-2xl p-3 border-2 border-pink-500/50 shadow-lg flex flex-col justify-between hover:border-pink-500 transition duration-300">
+          <div class="neon-border rounded-xl bg-black/80 aspect-square flex items-center justify-center mb-3">
+            <span class="text-5xl sm:text-6xl drop-shadow-lg">🧑‍🦱</span>
+          </div>
+          <div class="text-center space-y-1">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-100">Camila Sweet</h3>
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+              <span>🔴 EN VIVO</span>
+            </div>
+            <button onclick="entrarAlShow('Camila Sweet', 50)" class="w-full mt-2 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-extrabold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition">
+              <i class="fa-solid fa-video"></i> ENTRAR AL SHOW
+            </button>
+          </div>
         </div>
-    </div>
 
-    <!-- LIBRERÍAS OFICIALES FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+        <!-- Nicole -->
+        <div class="bg-[#12141f] rounded-2xl p-3 border-2 border-pink-500/50 shadow-lg flex flex-col justify-between hover:border-pink-500 transition duration-300">
+          <div class="neon-border rounded-xl bg-black/80 aspect-square flex items-center justify-center mb-3">
+            <span class="text-5xl sm:text-6xl drop-shadow-lg">👱‍♀️</span>
+          </div>
+          <div class="text-center space-y-1">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-100">Nicole Ross</h3>
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+              <span>🔴 EN VIVO</span>
+            </div>
+            <button onclick="entrarAlShow('Nicole Ross', 50)" class="w-full mt-2 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-extrabold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition">
+              <i class="fa-solid fa-video"></i> ENTRAR AL SHOW
+            </button>
+          </div>
+        </div>
 
-    <script>
-        // CONFIGURACIÓN DE TU PROYECTO REAL (CAMCHAT)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDLVDVzc6w9S68BvL7H_b_95vF9yvIsGgo",
-            authDomain: "camchat-900d6.firebaseapp.com",
-            projectId: "camchat-900d6",
-            storageBucket: "camchat-900d6.appspot.com",
-            messagingSenderId: "434447301379",
-            appId: "1:434447301379:web:aa571e06a1c69530cb0736"
-        };
+        <!-- Scarlet -->
+        <div class="bg-[#12141f] rounded-2xl p-3 border-2 border-pink-500/50 shadow-lg flex flex-col justify-between hover:border-pink-500 transition duration-300">
+          <div class="neon-border rounded-xl bg-black/80 aspect-square flex items-center justify-center mb-3">
+            <span class="text-5xl sm:text-6xl drop-shadow-lg">💎</span>
+          </div>
+          <div class="text-center space-y-1">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-100">Scarlet VIP</h3>
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+              <span>🔴 EN VIVO</span>
+            </div>
+            <button onclick="entrarAlShow('Scarlet VIP', 100)" class="w-full mt-2 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-extrabold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition">
+              <i class="fa-solid fa-video"></i> ENTRAR AL SHOW
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        // Inicializar Firebase
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        } catch(e) {
-            console.error("Firebase init:", e);
-        }
+  </main>
 
-        // Variables Globales
-        let cargando = false;
-        let usuarioActual = null;
-        let tiempoRestante = 600;
-        let intervaloCronometro = null;
+  <!-- ================= MODAL: AUTENTICACIÓN ================= -->
+  <div id="modal-auth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[#141724] border border-pink-500/40 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+      <button onclick="cerrarModalAuth()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
 
-        // Alternar formularios
-        function cambiarVistaFormularios(verLogin) {
-            document.getElementById("box-register").classList.toggle("hidden", verLogin);
-            document.getElementById("box-login").classList.toggle("hidden", !verLogin);
-        }
+      <div class="flex border-b border-zinc-800 mb-5">
+        <button id="tab-login" onclick="cambiarTabAuth('login')" class="flex-1 pb-2.5 text-xs font-bold text-pink-400 border-b-2 border-pink-500 transition">
+          Iniciar Sesión
+        </button>
+        <button id="tab-registro" onclick="cambiarTabAuth('registro')" class="flex-1 pb-2.5 text-xs font-bold text-zinc-400 hover:text-zinc-200 transition">
+          Crear Cuenta Nueva
+        </button>
+      </div>
 
-        // 1. REGISTRO DIRECTO RESILIENTE (NUNCA SE TRABA)
-        async function procesarAccesoDirecto(tipoUsuario) {
-            if (cargando) return;
+      <!-- Login -->
+      <form id="form-login" onsubmit="procesarLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Correo Electrónico</label>
+          <input type="email" id="login-email" required placeholder="tu@correo.com" 
+            class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Contraseña</label>
+          <input type="password" id="login-pass" required placeholder="••••••••" 
+            class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+        </div>
+        <button type="submit" id="btn-submit-login" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2">
+          <span>Ingresar a CamChat</span>
+        </button>
+      </form>
 
-            const nom = document.getElementById("reg-nombre").value.trim();
-            const ape = document.getElementById("reg-apellido").value.trim();
-            const corr = document.getElementById("reg-correo").value.trim().toLowerCase();
-
-            if (!nom || !ape || !corr) {
-                alert("Por favor hermano, llena tu nombre, apellido y correo para continuar.");
-                return;
-            }
-
-            cargando = true;
-            const btnUser = document.getElementById("btn-reg-user");
-            const btnModel = document.getElementById("btn-reg-model");
-            btnUser.innerText = "⏳ Creando cuenta...";
-            btnModel.innerText = "⏳ Creando cuenta...";
-
-            const idDoc = corr.replace(/[^a-zA-Z0-9]/g, "_");
-            const nuevoUsuario = {
-                nombre: `${nom} ${ape}`,
-                correo: corr,
-                rol: tipoUsuario,
-                tokens_balance: tipoUsuario === 'Modelo Oficial' ? 500 : 50,
-                creado_en: new Date().toISOString()
-            };
-
-            // Guardar en Firestore tanto en 'Usuarios' como en 'users' de forma no bloqueante
-            if (db) {
-                try {
-                    db.collection("Usuarios").doc(idDoc).set(nuevoUsuario, { merge: true }).catch(err => console.warn(err));
-                    db.collection("users").doc(idDoc).set(nuevoUsuario, { merge: true }).catch(err => console.warn(err));
-                } catch (e) {
-                    console.warn("Firestore error:", e);
-                }
-            }
-
-            // Guardar sesión local e ingresar inmediatamente
-            localStorage.setItem("camchat_user", JSON.stringify(nuevoUsuario));
-            mostrarPanelApp(nuevoUsuario);
-
-            cargando = false;
-            btnUser.innerText = "👤 REGISTRARSE COMO ESPECTADOR (10 MIN GRATIS)";
-            btnModel.innerText = "💃 REGISTRARSE COMO MODELO (SALA ILIMITADA)";
-        }
-
-        // 2. INICIAR SESIÓN
-        async function procesarLoginDual() {
-            if (cargando) return;
-            const corr = document.getElementById("login-correo").value.trim().toLowerCase();
-
-            if (!corr) {
-                alert("Por favor introduce tu correo electrónico.");
-                return;
-            }
-
-            cargando = true;
-            const btnLogin = document.getElementById("btn-login");
-            btnLogin.innerText = "⏳ Verificando...";
-
-            const idDoc = corr.replace(/[^a-zA-Z0-9]/g, "_");
-            let sesion = {
-                nombre: corr.split('@')[0],
-                correo: corr,
-                rol: "Espectador Gratis",
-                tokens_balance: 50
-            };
-
-            if (db) {
-                try {
-                    const snap = await db.collection("Usuarios").doc(idDoc).get();
-                    if (snap.exists) {
-                        sesion = snap.data();
-                    }
-                } catch(e) {
-                    console.warn("Login Firestore:", e);
-                }
-            }
-
-            localStorage.setItem("camchat_user", JSON.stringify(sesion));
-            mostrarPanelApp(sesion);
-
-            cargando = false;
-            btnLogin.innerText = "⚡ ENTRAR A MI CUENTA";
-        }
-
-        // 3. MOSTRAR PANEL PRINCIPAL
-        function mostrarPanelApp(usuario) {
-            usuarioActual = usuario;
-            document.getElementById("user-display").innerText = usuario.nombre || usuario.correo;
-            document.getElementById("balance-view").innerText = usuario.tokens_balance || 0;
-            document.getElementById("rango-view").innerText = usuario.rol || "Activo";
-
-            document.getElementById("screen-auth").classList.add("hidden");
-            document.getElementById("screen-app").classList.remove("hidden");
-        }
-
-        // 4. SALA EN VIVO & CRONÓMETRO
-        function entrarAlShowDeModelo(nombreModelo) {
-            document.getElementById("catalog-section").classList.add("hidden");
-            document.getElementById("stream-section").classList.remove("hidden");
-            document.getElementById("model-active-name").innerText = nombreModelo;
-
-            // Iniciar cronómetro de 10 min
-            tiempoRestante = 600;
-            actualizarCronometroDisplay();
-            clearInterval(intervaloCronometro);
-            intervaloCronometro = setInterval(() => {
-                tiempoRestante--;
-                actualizarCronometroDisplay();
-                if (tiempoRestante <= 0) {
-                    clearInterval(intervaloCronometro);
-                    alert("¡Tus 10 minutos de prueba gratuita han terminado!");
-                    regresarAlCatalogo();
-                }
-            }, 1000);
-        }
-
-        function actualizarCronometroDisplay() {
-            const min = Math.floor(tiempoRestante / 60);
-            const seg = tiempoRestante % 60;
-            const segStr = seg < 10 ? "0" + seg : seg;
-            document.getElementById("cronometro-view").innerText = `⏱️ Tiempo: ${min}:${segStr}`;
-        }
-
-        function regresarAlCatalogo() {
-            clearInterval(intervaloCronometro);
-            document.getElementById("stream-section").classList.add("hidden");
-            document.getElementById("catalog-section").classList.remove("hidden");
-        }
-
-        function cerrarSesion() {
-            clearInterval(intervaloCronometro);
-            localStorage.removeItem("camchat_user");
-            document.getElementById("screen-app").classList.add("hidden");
-            document.getElementById("screen-auth").classList.remove("hidden");
-        }
-
-        // Auto-login si ya tenía sesión activa
-        window.addEventListener("DOMContentLoaded", () => {
-            const guardado = localStorage.getItem("camchat_user");
-            if (guardado) {
-                try {
-                    mostrarPanelApp(JSON.parse(guardado));
-                } catch(e) {}
-            }
-        });
-    </script>
-</body>
-</html>
+      <!-- Registro -->
+      <form id="form-registro" onsubmit="procesarRegistro(event)" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Nombre Completo o Alias</label>
+          <input type="text" id="reg-nombre" required placeholder="Ej. José margarita" 
+            class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Correo Electrónico</label>
+          <input type="email" id="reg-email" required placeholder="negociosdigitales191023@gmail.com" 
+            class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Contraseña (mínimo 6 caracteres)</label>
+          <input type="password" id="reg-pass" minlength="6" required placeholder="••••••••" 
+            class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-300 mb-1">Tipo de Cuenta</label>
+          <select id="reg-rol" class="w-full bg-[#0c0e17] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none">
+            <option value="Usuario">Usuario (Espectador)</option>
+            <option value="Modelo">Modelo (Transmisora)</option>
+          </select>
+        <
