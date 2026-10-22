@@ -1,319 +1,149 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CamChat Live - Streaming VIP & Modelos IA</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #08090f; color: #f1f5f9; }
-    .neon-glow { box-shadow: 0 0 15px rgba(255, 43, 133, 0.4); }
-    @keyframes pulse-live { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }
-    .live-dot { animation: pulse-live 1.6s infinite ease-in-out; }
-    @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-70px) scale(1.3); } }
-    .floating-heart { animation: float-up 1.4s ease-out forwards; }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>CamChat Live - Streaming VIP & Modelos IA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap');
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+.ldot{animation:p 1.5s infinite}
+@keyframes f{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
+.fheart{animation:f 1.2s ease-out forwards}
+.inpt{width:100%;background:#090a12;border:1px solid #3f3f46;border-radius:10px;padding:7px 10px;font-size:12px;color:#fff;outline:none}
+.btn-p{background:linear-gradient(to right,#db2777,#e11d48);color:#fff;font-weight:800;border-radius:10px}
+.mcard{background:#111320;border:1px solid rgba(244,63,94,0.3);border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+</style>
 </head>
-<body class="min-h-screen pb-16 bg-[#08090f] text-slate-100">
-
-  <!-- HEADER -->
-  <header class="sticky top-0 z-40 bg-[#0c0e18]/95 backdrop-blur border-b border-pink-900/30 px-3 py-2.5">
-    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center space-x-2 cursor-pointer" onclick="cambiarVista('modelos')">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-pink-600 to-amber-400 flex items-center justify-center shadow neon-glow">
-          <i class="fa-solid fa-video text-white text-xs"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-base sm:text-lg font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-amber-300">
-              CamChat Live
-            </h1>
-            <span class="text-[8px] font-black bg-pink-500/20 text-pink-400 border border-pink-500/30 px-1 rounded">IA VIP</span>
-          </div>
-          <div class="text-[10px] text-zinc-400 flex items-center gap-1 font-medium">
-            <span>Usuario:</span>
-            <span id="active-user-name" class="text-pink-400 font-bold truncate max-w-[110px]">Invitado</span>
-            <span id="active-user-badge" class="hidden px-1 py-0.2 rounded text-[9px] font-black"></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <div id="user-token-pill" class="hidden items-center gap-1 bg-zinc-900 border border-amber-500/50 px-2.5 py-1 rounded-full text-xs font-bold text-amber-300 cursor-pointer" onclick="recargarBonoGratis()">
-          <span>🪙</span><span id="header-tokens-val" class="font-mono">0</span>
-          <span class="text-[9px] bg-amber-500 text-zinc-950 px-1 rounded-full font-black hidden sm:inline">+ Recargar</span>
-        </div>
-        <div id="auth-buttons" class="flex items-center gap-1.5">
-          <button onclick="mostrarModalAuth('login')" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-lg font-semibold border border-zinc-700">
-            Ingresar
-          </button>
-          <button onclick="mostrarModalAuth('registro')" class="text-xs bg-gradient-to-r from-pink-600 to-rose-600 text-white px-3 py-1.5 rounded-lg font-bold shadow">
-            Registrarme
-          </button>
-        </div>
-        <button id="btn-logout" onclick="cerrarSesion()" class="hidden text-xs bg-zinc-900 hover:bg-red-950 text-zinc-400 hover:text-red-300 px-2.5 py-1.5 rounded-lg border border-zinc-800 font-semibold">
-          <i class="fa-solid fa-arrow-right-from-bracket sm:mr-1"></i><span class="hidden sm:inline">Salir</span>
-        </button>
+<body class="min-h-screen pb-16 bg-[#08090f]">
+<header class="sticky top-0 z-40 bg-[#0c0e18]/95 backdrop-blur border-b border-pink-900/30 px-3 py-2">
+  <div class="max-w-5xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-1.5 cursor-pointer" onclick="cambiarVista('modelos')">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-pink-600 to-amber-400 flex items-center justify-center text-white text-[11px]"><i class="fa-solid fa-video"></i></div>
+      <div>
+        <div class="flex items-center gap-1"><span class="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-amber-300">CamChat Live</span><span class="text-[8px] bg-pink-500/20 text-pink-400 border border-pink-500/30 px-1 rounded font-bold">VIP</span></div>
+        <div class="text-[9px] text-zinc-400 flex items-center gap-1"><span>Usuario:</span><span id="active-user-name" class="text-pink-400 font-bold truncate max-w-[90px]">Invitado</span><span id="active-user-badge" class="hidden px-1 py-0.2 rounded text-[8px] font-black"></span></div>
       </div>
     </div>
-  </header>
-
-  <!-- BARRA ADMIN MASTER (kervinjose022@gmail.com) -->
-  <div id="admin-top-banner" class="hidden bg-gradient-to-r from-amber-950 via-zinc-900 to-amber-950 border-b border-amber-500/60 px-3 py-2 text-xs">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-1.5 text-amber-300 font-bold">
-        <span>👑</span><span>PANEL MASTER (<span id="admin-badge-email" class="text-white font-mono"></span>)</span>
+    <div class="flex items-center gap-1.5">
+      <div id="user-token-pill" class="hidden items-center gap-1 bg-zinc-900 border border-amber-500/50 px-2 py-0.5 rounded-full text-xs font-bold text-amber-300 cursor-pointer" onclick="recargarBonoGratis()">
+        <span>🪙</span><span id="header-tokens-val" class="font-mono">0</span><span class="text-[9px] bg-amber-500 text-zinc-950 px-1 rounded-full font-black hidden sm:inline">+ Recargar</span>
       </div>
-      <div class="flex items-center gap-1.5">
-        <button onclick="cambiarVista('admin')" id="nav-btn-admin" class="bg-amber-500 text-zinc-950 font-black px-2.5 py-1 rounded text-xs shadow flex items-center gap-1">
-          <i class="fa-solid fa-users-gear"></i> Ver Registros Firestore
-        </button>
-        <button onclick="cambiarVista('modelos')" id="nav-btn-modelos" class="bg-zinc-800 text-zinc-300 font-bold px-2.5 py-1 rounded text-xs">
-          <i class="fa-solid fa-tv"></i> Modelos
-        </button>
+      <div id="auth-buttons" class="flex items-center gap-1">
+        <button onclick="mostrarModalAuth('login')" class="text-xs bg-zinc-800 text-zinc-200 px-2.5 py-1.5 rounded-lg font-semibold border border-zinc-700">Ingresar</button>
+        <button onclick="mostrarModalAuth('registro')" class="text-xs btn-p px-2.5 py-1.5 shadow">Registrarme</button>
       </div>
+      <button id="btn-logout" onclick="cerrarSesion()" class="hidden text-xs bg-zinc-900 text-zinc-400 px-2 py-1.5 rounded-lg border border-zinc-800"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
     </div>
   </div>
+</header>
 
-  <main class="max-w-6xl mx-auto px-3 sm:px-6 mt-4">
-    <!-- ALERTA GLOBAL -->
-    <div id="global-alert" class="hidden mb-3 p-2.5 rounded-xl border text-xs flex items-center justify-between">
-      <span id="global-alert-text" class="font-medium"></span>
-      <button onclick="cerrarAlerta()" class="opacity-70 hover:opacity-100 p-1"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <!-- VISTA: PANEL DE REGISTROS (ADMIN) -->
-    <section id="vista-admin" class="hidden space-y-4">
-      <div class="bg-[#121422] border border-amber-500/50 rounded-2xl p-4 shadow-xl">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-black text-amber-300 flex items-center gap-2">
-              <span>👑</span> Control de Usuarios Registrados
-            </h2>
-            <p class="text-xs text-zinc-400">Colección Firestore: <span class="text-pink-400 font-mono">Usuarios</span></p>
-          </div>
-          <button onclick="iniciarEscuchaUsuariosAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-700 flex items-center gap-1">
-            <i class="fa-solid fa-arrows-rotate"></i> Actualizar
-          </button>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
-          <div class="bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">
-            <div class="text-[10px] text-zinc-400">Total Usuarios</div>
-            <div id="stat-total-usuarios" class="text-xl font-black text-white">0</div>
-          </div>
-          <div class="bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">
-            <div class="text-[10px] text-zinc-400">Espectadores</div>
-            <div id="stat-usuarios-reg" class="text-xl font-black text-pink-400">0</div>
-          </div>
-          <div class="bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">
-            <div class="text-[10px] text-zinc-400">Modelos</div>
-            <div id="stat-modelos-reg" class="text-xl font-black text-rose-400">0</div>
-          </div>
-          <div class="bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">
-            <div class="text-[10px] text-zinc-400">Tokens Totales</div>
-            <div id="stat-total-tokens" class="text-xl font-black text-amber-400">0</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-[#0f111d] border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
-        <div class="p-3 border-b border-zinc-800 flex items-center justify-between text-xs">
-          <span class="font-bold text-zinc-300 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span> Registros en Tiempo Real
-          </span>
-          <span id="admin-conteo" class="text-zinc-500 font-mono">0 usuarios</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase border-b border-zinc-800">
-              <tr>
-                <th class="py-2.5 px-3">Usuario</th>
-                <th class="py-2.5 px-3">Correo</th>
-                <th class="py-2.5 px-3">Rol</th>
-                <th class="py-2.5 px-3">Tokens</th>
-                <th class="py-2.5 px-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="admin-usuarios-tbody" class="divide-y divide-zinc-800/60">
-              <tr><td colspan="5" class="py-6 text-center text-zinc-500">Cargando registros...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- VISTA: MODELOS IA -->
-    <section id="vista-modelos" class="space-y-4">
-      <!-- HERO -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-950/70 via-[#121422] to-purple-950/60 border border-pink-500/30 p-4 sm:p-6 shadow-xl">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
-          <div>
-            <span class="inline-flex items-center gap-1.5 bg-pink-500/20 text-pink-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-pink-500/40 mb-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-red-500 live-dot"></span> 4 SALAS EN DIRECTO 24/7
-            </span>
-            <h2 class="text-xl sm:text-2xl font-black text-white">
-              Modelos IA <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300">Ultra-Realistas</span>
-            </h2>
-            <p class="text-xs text-zinc-300 mt-1">Transmisión HD, chat interactivo en vivo y shows VIP privados.</p>
-          </div>
-          <button onclick="recargarBonoGratis()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow">
-            <span>🪙</span><span>+50 Tokens Bono</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- GRID DE LAS 4 MODELOS IA -->
-      <div id="grid-modelos" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"></div>
-    </section>
-  </main>
-
-  <!-- MODAL: SHOW EN VIVO INTERACTIVO -->
-  <div id="modal-showroom" class="fixed inset-0 z-50 bg-black/90 backdrop-blur hidden items-center justify-center p-2 sm:p-4">
-    <div class="bg-[#0e101a] border border-pink-500/40 rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
-      <button onclick="cerrarShowRoom()" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20">
-        <i class="fa-solid fa-xmark text-xs"></i>
-      </button>
-
-      <!-- Video Side -->
-      <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-        <img id="stream-img" src="" alt="Stream" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
-        <div class="absolute top-3 left-3 flex items-center gap-2 text-xs">
-          <span class="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN DIRECTO
-          </span>
-          <span class="bg-black/60 text-zinc-200 text-[10px] px-2 py-0.5 rounded-full border border-white/10">1080p HD</span>
-        </div>
-        <div id="floating-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-        <div class="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-          <div>
-            <h4 id="stream-model-name" class="text-base font-black text-white">Modelo</h4>
-            <p class="text-[10px] text-pink-300">Sala Privada en Vivo</p>
-          </div>
-          <div class="flex items-center gap-1">
-            <button onclick="enviarPropina(10, '💖 Corazón')" class="bg-pink-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow">💖 10</button>
-            <button onclick="enviarPropina(50, '🍸 Trago VIP')" class="bg-amber-500 text-zinc-950 px-2 py-1 rounded-lg text-xs font-black shadow">🪙 50</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat Side -->
-      <div class="w-full md:w-72 h-56 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
-        <div class="p-2.5 border-b border-zinc-800 flex items-center justify-between text-xs">
-          <span class="font-bold text-zinc-300"><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat en Vivo</span>
-          <span class="text-[9px] text-emerald-400 font-mono">Conectado</span>
-        </div>
-        <div id="stream-chat-messages" class="flex-1 p-2.5 overflow-y-auto space-y-1.5 text-xs"></div>
-        <div class="p-1.5 bg-zinc-900 border-t border-zinc-800 flex gap-1 text-[10px] font-bold">
-          <button onclick="enviarPropina(25, '✨ Saludo')" class="flex-1 py-1 bg-zinc-800 text-amber-300 rounded">🪙 25</button>
-          <button onclick="enviarPropina(50, '💋 Beso')" class="flex-1 py-1 bg-pink-900/60 text-pink-200 rounded">🪙 50</button>
-          <button onclick="enviarPropina(100, '👑 VIP')" class="flex-1 py-1 bg-amber-500 text-zinc-950 rounded">🪙 100</button>
-        </div>
-        <form onsubmit="enviarMensajeChat(event)" class="p-2 bg-[#0a0c14] border-t border-zinc-800 flex gap-1.5">
-          <input type="text" id="stream-chat-input" placeholder="Escribe a la modelo..." class="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
-          <button type="submit" class="bg-pink-600 text-white w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-paper-plane text-xs"></i>
-          </button>
-        </form>
-      </div>
+<div id="admin-top-banner" class="hidden bg-gradient-to-r from-amber-950 to-zinc-900 border-b border-amber-500/60 px-3 py-1 text-xs">
+  <div class="max-w-5xl mx-auto flex items-center justify-between">
+    <div class="text-amber-300 font-bold text-[11px]">👑 PANEL MASTER (<span id="admin-badge-email" class="text-white font-mono"></span>)</div>
+    <div class="flex gap-1">
+      <button onclick="cambiarVista('admin')" class="bg-amber-500 text-zinc-950 font-black px-2 py-0.5 rounded text-[11px]"><i class="fa-solid fa-users-gear"></i> Firestore</button>
+      <button onclick="cambiarVista('modelos')" class="bg-zinc-800 text-zinc-300 font-bold px-2 py-0.5 rounded text-[11px]"><i class="fa-solid fa-tv"></i></button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL: LOGIN & REGISTRO -->
-  <div id="modal-auth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3">
-    <div class="bg-[#121422] border border-pink-500/40 rounded-2xl max-w-sm w-full p-5 shadow-2xl relative">
-      <button onclick="cerrarModalAuth()" class="absolute top-3.5 right-3.5 text-zinc-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-base"></i>
-      </button>
+<main class="max-w-5xl mx-auto px-3 mt-3">
+  <div id="global-alert" class="hidden mb-3 p-2 rounded-xl border bg-pink-950 border-pink-500/60 text-pink-200 text-xs flex justify-between"><span id="global-alert-text"></span><button onclick="this.parentElement.classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
 
-      <div class="flex border-b border-zinc-800 mb-3">
-        <button id="tab-login" onclick="cambiarTabAuth('login')" class="flex-1 pb-2 text-xs font-bold text-pink-400 border-b-2 border-pink-500">
-          Iniciar Sesión
-        </button>
-        <button id="tab-registro" onclick="cambiarTabAuth('registro')" class="flex-1 pb-2 text-xs font-bold text-zinc-400">
-          Crear Cuenta Nueva
-        </button>
+  <!-- ADMIN VIEW -->
+  <section id="vista-admin" class="hidden space-y-3">
+    <div class="bg-[#121422] border border-amber-500/50 rounded-2xl p-3 shadow">
+      <div class="flex justify-between items-center">
+        <div><h2 class="text-sm font-black text-amber-300">👑 Usuarios Firestore</h2><p class="text-[10px] text-zinc-400">Colección: Usuarios</p></div>
+        <button onclick="iniciarEscuchaUsuariosAdmin()" class="bg-zinc-800 text-zinc-200 px-2 py-1 rounded text-xs border border-zinc-700"><i class="fa-solid fa-arrows-rotate"></i></button>
       </div>
-
-      <div id="modal-auth-alert" class="hidden mb-3 p-2 rounded-xl text-xs font-semibold flex items-center gap-2">
-        <i class="fa-solid fa-circle-info text-sm shrink-0"></i>
-        <span id="modal-auth-alert-text"></span>
+      <div class="grid grid-cols-4 gap-1.5 mt-2 text-center text-xs">
+        <div class="bg-zinc-900 p-1.5 rounded-lg"><div class="text-[9px] text-zinc-400">Total</div><div id="stat-total-usuarios" class="font-black text-white">0</div></div>
+        <div class="bg-zinc-900 p-1.5 rounded-lg"><div class="text-[9px] text-zinc-400">Usuarios</div><div id="stat-usuarios-reg" class="font-black text-pink-400">0</div></div>
+        <div class="bg-zinc-900 p-1.5 rounded-lg"><div class="text-[9px] text-zinc-400">Modelos</div><div id="stat-modelos-reg" class="font-black text-rose-400">0</div></div>
+        <div class="bg-zinc-900 p-1.5 rounded-lg"><div class="text-[9px] text-zinc-400">Tokens</div><div id="stat-total-tokens" class="font-black text-amber-400">0</div></div>
       </div>
+    </div>
+    <div class="bg-[#0f111d] border border-zinc-800 rounded-2xl overflow-x-auto"><table class="w-full text-left text-xs"><tbody id="admin-usuarios-tbody" class="divide-y divide-zinc-800/60"></tbody></table></div>
+  </section>
 
-      <!-- Formulario Login -->
-      <form id="form-login" onsubmit="procesarLogin(event)" class="space-y-3">
-        <div>
-          <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Correo Electrónico</label>
-          <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-[#0a0c14] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-        </div>
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-[11px] font-semibold text-zinc-300">Contraseña</label>
-            <span class="text-[9px] text-zinc-500">(Opcional)</span>
-          </div>
-          <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-[#0a0c14] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-        </div>
-        <button type="submit" id="btn-submit-login" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold py-2 rounded-xl text-xs shadow">
-          <span>Ingresar a CamChat</span>
-        </button>
-        <button type="button" onclick="loginRapido()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/40 rounded-xl py-2 text-xs font-bold flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-bolt text-amber-400"></i> Entrar con 1 Clic (Acceso Directo)
-        </button>
-      </form>
+  <!-- MODELS VIEW -->
+  <section id="vista-modelos" class="space-y-3">
+    <div class="rounded-2xl bg-gradient-to-r from-pink-950/70 via-[#121422] to-purple-950/60 border border-pink-500/30 p-3.5 shadow flex justify-between items-center">
+      <div>
+        <span class="inline-flex items-center gap-1 bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full text-[8px] font-bold border border-pink-500/40 mb-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500 ldot"></span> 4 EN DIRECTO</span>
+        <h2 class="text-base sm:text-lg font-black text-white">Modelos IA <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300">Ultra-Realistas</span></h2>
+        <p class="text-[10px] text-zinc-300">Streaming HD, chat y shows privados.</p>
+      </div>
+      <button onclick="recargarBonoGratis()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-3 py-1.5 rounded-xl text-xs shadow shrink-0">🪙 +50 Bono</button>
+    </div>
+    <div id="grid-modelos" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+  </section>
+</main>
 
-      <!-- Formulario Registro -->
-      <form id="form-registro" onsubmit="procesarRegistro(event)" class="space-y-3 hidden">
-        <div>
-          <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Nombre o Alias</label>
-          <input type="text" id="reg-nombre" required placeholder="Ej. José margarita" class="w-full bg-[#0a0c14] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+<!-- SHOWROOM -->
+<div id="modal-showroom" class="fixed inset-0 z-50 bg-black/90 backdrop-blur hidden items-center justify-center p-2">
+  <div class="bg-[#0e101a] border border-pink-500/40 rounded-2xl max-w-4xl w-full h-[88vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
+    <button onclick="document.getElementById('modal-showroom').classList.add('hidden')" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
+    <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
+      <img id="stream-img" src="" alt="Stream" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+      <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 text-xs"><span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white ldot"></span> EN VIVO</span><span class="bg-black/60 text-zinc-200 text-[9px] px-2 py-0.5 rounded-full">1080p</span></div>
+      <div id="floating-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+      <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between">
+        <div><h4 id="stream-model-name" class="text-sm font-black text-white"></h4><p class="text-[9px] text-pink-300">Sala Privada</p></div>
+        <div class="flex gap-1">
+          <button onclick="enviarPropina(10,'💖 Corazón')" class="bg-pink-600 text-white px-2 py-1 rounded-lg text-xs font-bold">💖 10</button>
+          <button onclick="enviarPropina(50,'🍸 VIP')" class="bg-amber-500 text-zinc-950 px-2 py-1 rounded-lg text-xs font-black">🪙 50</button>
         </div>
-        <div>
-          <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Correo Electrónico</label>
-          <input type="email" id="reg-email" required placeholder="negociosdigitales191023@gmail.com" class="w-full bg-[#0a0c14] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Contraseña</label>
-          <input type="password" id="reg-pass" minlength="6" placeholder="•••••••• (opcional)" class="w-full bg-[#0a0c14] border border-zinc-700 focus:border-pink-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-        </div>
-        <button type="submit" id="btn-submit-registro" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold py-2 rounded-xl text-xs shadow">
-          <span>Crear Mi Cuenta Ahora</span>
-        </button>
+      </div>
+    </div>
+    <div class="w-full md:w-72 h-52 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
+      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat</span><span class="text-[9px] text-emerald-400 font-mono">Conectado</span></div>
+      <div id="stream-chat-messages" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"></div>
+      <div class="p-1 bg-zinc-900 border-t border-zinc-800 flex gap-1 text-[10px] font-bold">
+        <button onclick="enviarPropina(25,'✨ Saludo')" class="flex-1 py-1 bg-zinc-800 text-amber-300 rounded">🪙 25</button>
+        <button onclick="enviarPropina(50,'💋 Beso')" class="flex-1 py-1 bg-pink-900/60 text-pink-200 rounded">🪙 50</button>
+        <button onclick="enviarPropina(100,'👑 VIP')" class="flex-1 py-1 bg-amber-500 text-zinc-950 rounded">🪙 100</button>
+      </div>
+      <form onsubmit="enviarMensajeChat(event)" class="p-2 bg-[#0a0c14] border-t border-zinc-800 flex gap-1.5">
+        <input type="text" id="stream-chat-input" placeholder="Escribe aquí..." class="inpt">
+        <button type="submit" class="bg-pink-600 text-white w-7 h-7 rounded-lg shrink-0 flex items-center justify-center text-xs"><i class="fa-solid fa-paper-plane"></i></button>
       </form>
     </div>
   </div>
+</div>
 
-  <!-- SCRIPT LOGIC -->
-  <script>
-    // 1. MODELOS IA
-    const MODELOS = [
-      {
-        nombre: "Vanessa Vane", costo: 50, tag: "LATINA", tagColor: "bg-pink-950/90 text-pink-300 border-pink-500/40",
-        vistas: "1,420", estrellas: "4.9",
-        img: "models/vanessa.jpg", fallbackImg: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
-        desc: "Streamer latina apasionada, música y charla íntima en privado.",
-        saludo: "¡Hola mi amor! Qué felicidad tenerte en mi sala 💕"
-      },
-      {
-        nombre: "Camila Sweet", costo: 50, tag: "BLONDE", tagColor: "bg-rose-950/90 text-rose-300 border-rose-500/40",
-        vistas: "980", estrellas: "4.8",
-        img: "models/camila.jpg", fallbackImg: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
-        desc: "Dulzura, ASMR y conversaciones acogedoras en vivo.",
-        saludo: "¡Hola cielo! Me alegro tanto de verte hoy 🥰"
-      },
-      {
-        nombre: "Nicole Ross", costo: 75, tag: "TOP VIP", tagColor: "bg-amber-950/90 text-amber-300 border-amber-500/40",
-        vistas: "2,150", estrellas: "5.0",
-        img: "models/nicole.jpg", fallbackImg: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80",
-        desc: "Elegancia, glamour y shows privados de alta gama.",
-        saludo: "Buenas noches querido. Te estaba esperando 🍸"
-      },
-      {
-        nombre: "Scarlet VIP", costo: 100, tag: "👑 MASTER", tagColor: "bg-amber-500 text-zinc-950 border-amber-400",
-        vistas: "3,420", estrellas: "5.0",
-        img: "models/scarlet.jpg", fallbackImg: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=600&q=80",
-        desc: "La reina del salón VIP. Exclu
+<!-- AUTH -->
+<div id="modal-auth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3">
+  <div class="bg-[#121422] border border-pink-500/40 rounded-2xl max-w-xs w-full p-4 shadow-2xl relative">
+    <button onclick="document.getElementById('modal-auth').classList.add('hidden')" class="absolute top-3 right-3 text-zinc-400"><i class="fa-solid fa-xmark"></i></button>
+    <div class="flex border-b border-zinc-800 mb-3">
+      <button id="tab-login" onclick="tabAuth('login')" class="flex-1 pb-1.5 text-xs font-bold text-pink-400 border-b-2 border-pink-500">Ingresar</button>
+      <button id="tab-registro" onclick="tabAuth('reg')" class="flex-1 pb-1.5 text-xs font-bold text-zinc-400">Crear Cuenta</button>
+    </div>
+    <div id="auth-err" class="hidden mb-2 p-1.5 rounded text-xs bg-red-950 border border-red-500 text-red-200"></div>
+    <form id="f-login" onsubmit="procesarLogin(event)" class="space-y-2">
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Correo</label><input type="email" id="login-email" required placeholder="tu@correo.com" class="inpt"></div>
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Contraseña (Opcional)</label><input type="password" id="login-pass" placeholder="••••••••" class="inpt"></div>
+      <button type="submit" class="w-full btn-p py-2 text-xs shadow">Ingresar</button>
+      <button type="button" onclick="loginRapido()" class="w-full bg-zinc-900 text-amber-300 border border-amber-500/40 rounded-xl py-1.5 text-xs font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Entrar con 1 Clic (Directo)</button>
+    </form>
+    <form id="f-reg" onsubmit="procesarReg(event)" class="space-y-2 hidden">
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Nombre</label><input type="text" id="reg-nom" required placeholder="Ej. José margarita" class="inpt"></div>
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Correo</label><input type="email" id="reg-mail" required placeholder="tu@correo.com" class="inpt"></div>
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Contraseña</label><input type="password" id="reg-pw" placeholder="••••••••" class="inpt"></div>
+      <button type="submit" class="w-full btn-p py-2 text-xs shadow">Crear Mi Cuenta</button>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+                                                                                     </html>
