@@ -15,6 +15,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
 .ldot{animation:p 1.5s infinite}
 @keyframes f{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px) scale(1.2)}}
 .fheart{animation:f 1.2s ease-out forwards}
+@keyframes sway{0%,100%{transform:scale(1.02) rotate(0deg)}50%{transform:scale(1.06) rotate(0.4deg)}}
+.live-motion{animation:sway 6s ease-in-out infinite alternate}
 .inpt{width:100%;background:#090a12;border:1px solid #3f3f46;border-radius:10px;padding:7px 10px;font-size:12px;color:#fff;outline:none}
 .btn-p{background:linear-gradient(to right,#db2777,#e11d48);color:#fff;font-weight:800;border-radius:10px}
 .mcard{background:#111320;border:1px solid rgba(244,63,94,0.3);border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
@@ -43,6 +45,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
   </div>
 </header>
 
+<!-- BARRA MODELO STREAMER -->
+<div id="model-top-banner" class="hidden bg-gradient-to-r from-rose-950 via-zinc-900 to-pink-950 border-b border-pink-500/60 px-3 py-1.5 text-xs">
+  <div class="max-w-5xl mx-auto flex items-center justify-between">
+    <div class="text-pink-300 font-bold text-[11px] flex items-center gap-1.5"><span>💄</span><span>STUDIO MODELO (<span id="model-badge-name" class="text-white font-bold"></span>)</span><span class="text-amber-300 font-mono text-[10px]">🪙 Ganados: <b id="model-badge-tokens">0</b></span></div>
+    <button onclick="abrirStudioModelo()" class="bg-gradient-to-r from-red-600 to-pink-600 text-white font-black px-2.5 py-1 rounded-lg text-xs shadow flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-white ldot"></span> TRANSMITIR EN VIVO</button>
+  </div>
+</div>
+
+<!-- BARRA ADMIN MASTER -->
 <div id="admin-top-banner" class="hidden bg-gradient-to-r from-amber-950 to-zinc-900 border-b border-amber-500/60 px-3 py-1 text-xs">
   <div class="max-w-5xl mx-auto flex items-center justify-between">
     <div class="text-amber-300 font-bold text-[11px]">👑 PANEL MASTER (<span id="admin-badge-email" class="text-white font-mono"></span>)</div>
@@ -77,9 +88,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
   <section id="vista-modelos" class="space-y-3">
     <div class="rounded-2xl bg-gradient-to-r from-pink-950/70 via-[#121422] to-purple-950/60 border border-pink-500/30 p-3.5 shadow flex justify-between items-center">
       <div>
-        <span class="inline-flex items-center gap-1 bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full text-[8px] font-bold border border-pink-500/40 mb-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500 ldot"></span> 4 EN DIRECTO</span>
-        <h2 class="text-base sm:text-lg font-black text-white">Modelos IA <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300">Ultra-Realistas</span></h2>
-        <p class="text-[10px] text-zinc-300">Streaming HD, chat y shows privados.</p>
+        <span class="inline-flex items-center gap-1 bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full text-[8px] font-bold border border-pink-500/40 mb-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500 ldot"></span> SALAS EN DIRECTO 24/7</span>
+        <h2 class="text-base sm:text-lg font-black text-white">Streaming <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300">VIP & Sensual</span></h2>
+        <p class="text-[10px] text-zinc-300">Modelos reales y modelos IA con shows interactivos.</p>
       </div>
       <button onclick="recargarBonoGratis()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-3 py-1.5 rounded-xl text-xs shadow shrink-0">🪙 +50 Bono</button>
     </div>
@@ -92,30 +103,60 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
   <div class="bg-[#0e101a] border border-pink-500/40 rounded-2xl max-w-4xl w-full h-[88vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
     <button onclick="document.getElementById('modal-showroom').classList.add('hidden')" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
     <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-      <img id="stream-img" src="" alt="Stream" class="w-full h-full object-cover">
+      <img id="stream-img" src="" alt="Stream" class="w-full h-full object-cover live-motion">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
-      <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 text-xs"><span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white ldot"></span> EN VIVO</span><span class="bg-black/60 text-zinc-200 text-[9px] px-2 py-0.5 rounded-full">1080p</span></div>
+      <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 text-xs"><span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white ldot"></span> EN VIVO</span><span class="bg-black/60 text-zinc-200 text-[9px] px-2 py-0.5 rounded-full">1080p • 60 FPS</span></div>
       <div id="floating-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
       <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between">
-        <div><h4 id="stream-model-name" class="text-sm font-black text-white"></h4><p class="text-[9px] text-pink-300">Sala Privada</p></div>
+        <div><h4 id="stream-model-name" class="text-sm font-black text-white"></h4><p id="stream-model-tag" class="text-[9px] text-pink-300 font-bold">Lencería VIP</p></div>
         <div class="flex gap-1">
-          <button onclick="enviarPropina(10,'💖 Corazón')" class="bg-pink-600 text-white px-2 py-1 rounded-lg text-xs font-bold">💖 10</button>
-          <button onclick="enviarPropina(50,'🍸 VIP')" class="bg-amber-500 text-zinc-950 px-2 py-1 rounded-lg text-xs font-black">🪙 50</button>
+          <button onclick="enviarPropina(10,'💖 Corazón')" class="bg-pink-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow">💖 10</button>
+          <button onclick="enviarPropina(50,'🍸 Trago VIP')" class="bg-amber-500 text-zinc-950 px-2 py-1 rounded-lg text-xs font-black shadow">🪙 50</button>
         </div>
       </div>
     </div>
     <div class="w-full md:w-72 h-52 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
-      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat</span><span class="text-[9px] text-emerald-400 font-mono">Conectado</span></div>
+      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat en Vivo</span><span class="text-[9px] text-emerald-400 font-mono">Conectado</span></div>
       <div id="stream-chat-messages" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"></div>
       <div class="p-1 bg-zinc-900 border-t border-zinc-800 flex gap-1 text-[10px] font-bold">
         <button onclick="enviarPropina(25,'✨ Saludo')" class="flex-1 py-1 bg-zinc-800 text-amber-300 rounded">🪙 25</button>
         <button onclick="enviarPropina(50,'💋 Beso')" class="flex-1 py-1 bg-pink-900/60 text-pink-200 rounded">🪙 50</button>
-        <button onclick="enviarPropina(100,'👑 VIP')" class="flex-1 py-1 bg-amber-500 text-zinc-950 rounded">🪙 100</button>
+        <button onclick="enviarPropina(100,'👑 Corona VIP')" class="flex-1 py-1 bg-amber-500 text-zinc-950 rounded">🪙 100</button>
       </div>
       <form onsubmit="enviarMensajeChat(event)" class="p-2 bg-[#0a0c14] border-t border-zinc-800 flex gap-1.5">
-        <input type="text" id="stream-chat-input" placeholder="Escribe aquí..." class="inpt">
+        <input type="text" id="stream-chat-input" placeholder="Escribe a la modelo..." class="inpt">
         <button type="submit" class="bg-pink-600 text-white w-7 h-7 rounded-lg shrink-0 flex items-center justify-center text-xs"><i class="fa-solid fa-paper-plane"></i></button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- STUDIO WEBCAM MODELO STREAMER -->
+<div id="modal-streamer-studio" class="fixed inset-0 z-50 bg-black/95 backdrop-blur hidden items-center justify-center p-2">
+  <div class="bg-[#0e101a] border border-rose-500/50 rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
+    <button onclick="cerrarStudioModelo()" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
+    <div class="relative flex-1 bg-zinc-950 flex items-center justify-center overflow-hidden">
+      <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      <div id="webcam-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 p-4 text-center">
+        <i class="fa-solid fa-camera text-4xl text-pink-500 mb-2"></i>
+        <h3 class="text-base font-black text-white">Estudio de Transmisión en Vivo</h3>
+        <p class="text-xs text-zinc-400 mt-1 max-w-xs">Enciende tu cámara para salir en la pantalla principal de CamChat y ganar tokens.</p>
+        <button onclick="iniciarCamaraWeb()" class="mt-4 bg-gradient-to-r from-red-600 to-pink-600 text-white font-black px-4 py-2 rounded-xl text-xs shadow flex items-center gap-2"><i class="fa-solid fa-circle text-xs text-white ldot"></i> ACTIVAR MI CÁMARA</button>
+      </div>
+      <div id="studio-live-hud" class="hidden absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between text-xs">
+        <span class="bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow"><span class="w-2 h-2 rounded-full bg-white ldot"></span> TRANSMITIENDO EN VIVO</span>
+        <div class="flex gap-1.5">
+          <span class="bg-black/70 text-zinc-200 text-[10px] px-2 py-0.5 rounded-full border border-white/10">👁️ <span id="studio-viewers-count">1</span></span>
+          <span class="bg-amber-500 text-zinc-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">🪙 <span id="studio-tokens-earned">0</span> Ganados</span>
+        </div>
+      </div>
+      <div id="studio-controls" class="hidden absolute bottom-3 left-3 right-3 flex justify-center gap-2">
+        <button onclick="detenerCamaraWeb()" class="bg-zinc-900/90 text-red-400 border border-red-500/50 px-3 py-1.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-stop mr-1"></i> Finalizar En Vivo</button>
+      </div>
+    </div>
+    <div class="w-full md:w-72 h-52 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
+      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-heart text-pink-500 mr-1"></i> Propinas de tu Sala</span><span class="text-[9px] text-amber-400 font-mono">Billetera Activa</span></div>
+      <div id="studio-tips-list" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"><div class="text-center text-zinc-500 text-[11px] py-4">Tus propinas recibidas aparecerán aquí en vivo.</div></div>
     </div>
   </div>
 </div>
@@ -136,8 +177,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
       <button type="button" onclick="loginRapido()" class="w-full bg-zinc-900 text-amber-300 border border-amber-500/40 rounded-xl py-1.5 text-xs font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Entrar con 1 Clic (Directo)</button>
     </form>
     <form id="f-reg" onsubmit="procesarReg(event)" class="space-y-2 hidden">
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Nombre</label><input type="text" id="reg-nom" required placeholder="Ej. José margarita" class="inpt"></div>
+      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Nombre o Alias Artístico</label><input type="text" id="reg-nom" required placeholder="Ej. Camila Star" class="inpt"></div>
       <div><label class="block text-[10px] text-zinc-300 mb-0.5">Correo</label><input type="email" id="reg-mail" required placeholder="tu@correo.com" class="inpt"></div>
+      <div>
+        <label class="block text-[10px] text-zinc-300 mb-0.5">Tipo de Cuenta</label>
+        <select id="reg-rol" class="inpt cursor-pointer">
+          <option value="Usuario">👤 Espectador VIP (Ver Shows)</option>
+          <option value="Modelo">💄 Modelo Streamer (Transmitir en Vivo)</option>
+        </select>
+      </div>
       <div><label class="block text-[10px] text-zinc-300 mb-0.5">Contraseña</label><input type="password" id="reg-pw" placeholder="••••••••" class="inpt"></div>
       <button type="submit" class="w-full btn-p py-2 text-xs shadow">Crear Mi Cuenta</button>
     </form>
@@ -146,4 +194,4 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
 
 <script src="app.js"></script>
 </body>
-                                                                                     </html>
+</html>
