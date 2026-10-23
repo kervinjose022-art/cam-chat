@@ -1,8 +1,8 @@
 const M=[
-  {n:"Vanessa Vane",c:50,tag:"RED LACE 💋",v:"2.4k",s:4.9,img:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85",alt:"models/vanessa.jpg",msg:"¡Hola mi amor! Puse música suave para los dos... ¿bailamos juntos? 💕",d:"Latina sensual en baby doll y lencería roja pasión."},
-  {n:"Camila Sweet",c:50,tag:"PINK SILK 🌸",v:"1.9k",s:4.8,img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85",alt:"models/camila.jpg",msg:"¡Hola cielo! Me estaba perfumando... qué rico que viniste a verme 🥰",d:"Dulzura en pijama de seda rosada y charlas íntimas."},
-  {n:"Nicole Ross",c:75,tag:"BLACK CORSET 🔥",v:"3.2k",s:5.0,img:"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=700&q=85",alt:"models/nicole.jpg",msg:"Buenas noches querido. La noche recién empieza en mi suite VIP 🍸",d:"Elegancia pura en corset de encaje negro y miradas seductoras."},
-  {n:"Scarlet Diamond",c:100,tag:"GOLD SATIN 👑",v:"4.5k",s:5.0,img:"https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=700&q=85",alt:"models/scarlet.jpg",msg:"Bienvenido a mi sala privada. Esta noche las reglas las pones tú 🔥",d:"Bata de satén dorado, curvas y exclusividad total."}
+  {n:"Vanessa Vane",c:50,tag:"RED LACE 💋",v:"2.4k",s:4.9,img:"https://images.unsplash.com/photo-1525672716948-1f0bb9c49883?auto=format&fit=crop&w=700&q=85",alt:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85",msg:"¡Hola mi amor! Puse música sensual para los dos... ¿bailamos juntos? 💕",d:"Latina sensual en baby doll y lencería roja pasión."},
+  {n:"Camila Sweet",c:50,tag:"PINK SILK 🌸",v:"1.9k",s:4.8,img:"https://images.unsplash.com/photo-1574539602047-548bf9557352?auto=format&fit=crop&w=700&q=85",alt:"https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85",msg:"¡Hola cielo! Me estaba cambiando con mi bata de seda... qué rico que llegaste 🥰",d:"Dulzura en babydoll de seda rosada y charlas íntimas."},
+  {n:"Nicole Ross",c:75,tag:"BLACK CORSET 🔥",v:"3.2k",s:5.0,img:"https://images.unsplash.com/photo-1568663521381-33b7c467fda0?auto=format&fit=crop&w=700&q=85",alt:"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=700&q=85",msg:"Buenas noches querido. La suite VIP está lista para nuestro show privado 🍸",d:"Elegancia pura en corset de encaje negro y miradas seductoras."},
+  {n:"Scarlet Diamond",c:100,tag:"GOLD SATIN 👑",v:"4.5k",s:5.0,img:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=85",alt:"https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=700&q=85",msg:"Bienvenido a mi sala VIP. Esta noche las reglas las pones tú 🔥",d:"Bata de satén dorado, curvas y exclusividad total."}
 ];
 
 const $=(id)=>document.getElementById(id);
@@ -34,8 +34,9 @@ function updateUI(u){
   const mBanner=$("model-top-banner");
   const aBanner=$("admin-top-banner");
   if(u){
+    if((u.tokens_balance||0)<=0){u.tokens_balance=100;localStorage.setItem("cam_u",JSON.stringify(u));if(db)db.collection("Usuarios").doc(u.uid).set({tokens_balance:100},{merge:true}).catch(()=>{});}
     pill.classList.add("flex");
-    $("header-tokens-val").textContent=u.tokens_balance||0;
+    $("header-tokens-val").textContent=u.tokens_balance;
     const isAdm=isAdmin(u.email,u.rol);
     const isM=isModel(u.rol);
     const badge=$("active-user-badge");
@@ -187,9 +188,6 @@ function entrarShowReal(id,nom,costo){
 
 function abrirShow(i){
   const m=M[i];if(!user){mostrarModalAuth("login");return;}
-  const isAdm=isAdmin(user.email,user.rol);
-  if(!isAdm&&(user.tokens_balance||0)<m.c){alertar("Tokens insuficientes. Pulsa + Recargar.");return;}
-  if(!isAdm&&db){user.tokens_balance-=m.c;updateUI(user);db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});}
   curShow=m;
   const simg=$("stream-img");simg.onerror=()=>{simg.src=m.alt;};simg.src=m.img;
   $("stream-model-name").textContent=m.n;
@@ -211,9 +209,9 @@ function enviarMensajeChat(e){
 }
 
 function enviarPropina(cant,desc){
-  if(!user)return;
+  if(!user){mostrarModalAuth("login");return;}
   const isAdm=isAdmin(user.email,user.rol);
-  if(!isAdm&&(user.tokens_balance||0)<cant){alertar("Tokens insuficientes.");return;}
+  if(!isAdm&&(user.tokens_balance||0)<cant){alertar("Tokens insuficientes. Pulsa + Recargar.");return;}
   if(!isAdm&&db){user.tokens_balance-=cant;updateUI(user);db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});}
   if(curShow&&curShow.isReal&&curShow.modelId&&db){
     db.collection("Usuarios").doc(curShow.modelId).get().then(snap=>{
@@ -237,9 +235,9 @@ function enviarPropina(cant,desc){
 
 function recargarBonoGratis(){
   if(!user){mostrarModalAuth("login");return;}
-  user.tokens_balance=(user.tokens_balance||0)+50;updateUI(user);
+  user.tokens_balance=(user.tokens_balance||0)+100;updateUI(user);
   if(db)db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});
-  alertar("+50 Tokens Bono sumados a tu cuenta.");
+  alertar("🎁 +100 Tokens Bono sumados a tu cuenta.");
 }
 
 function iniciarEscuchaUsuariosAdmin(){
