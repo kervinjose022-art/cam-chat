@@ -7,7 +7,8 @@ const M=[
 
 const $=(id)=>document.getElementById(id);
 const fConfig={apiKey:"AIzaSyDLVDVzc6w9S68BvL7H_b_95vF9yvIsGgo",authDomain:"camchat-900d6.firebaseapp.com",projectId:"camchat-900d6"};
-let auth,db,user=null,curShow=null,mediaStream=null,studioInterval=null,liveRealModels=[];
+let auth,db,user=null,curShow=null,mediaStream=null,studioInterval=null,liveRealModels=[],streamTimerSecs=600,streamTimerInterval=null;
+const BEP20="0x29f0f1edd5258ee3b7553bff665df4d1dd811af0";
 try{if(!firebase.apps.length)firebase.initializeApp(fConfig);auth=firebase.auth();db=firebase.firestore();}catch(e){}
 
 const ADMIN="kervinjose022@gmail.com";
@@ -174,33 +175,84 @@ function escucharModelosEnVivo(){
   },()=>{});
 }
 
-/* SHOWROOM */
-function entrarShowReal(id,nom,costo){
-  if(!user){mostrarModalAuth("login");return;}
-  curShow={n:nom,c:costo,tag:"🔴 STREAM REAL",isReal:true,modelId:id};
-  const simg=$("stream-img");
-  simg.src="models/vanessa.jpg";
-  $("stream-model-name").textContent=nom;
-  $("stream-model-tag").textContent="🔴 Modelo Real en Directo";
-  $("stream-chat-messages").innerHTML='<div class="bg-rose-950/80 border border-rose-500/50 p-2 rounded-xl text-rose-100"><div class="font-black text-rose-400 text-[10px]">🔴 '+nom+' (STREAMER EN VIVO)</div><div>¡Hola a todos! Qué alegría tenerlos en mi sala privada. Mándame un corazoncito 💕</div></div>';
-  $("modal-showroom").classList.remove("hidden");$("modal-showroom").classList.add("flex");
-}
-
+/* SHOWROOM & TEMPORIZADOR 10 MINUTOS */
 function abrirShow(i){
   const m=M[i];if(!user){mostrarModalAuth("login");return;}
   curShow=m;
   const simg=$("stream-img");simg.onerror=()=>{simg.src=m.alt;};simg.src=m.img;
   $("stream-model-name").textContent=m.n;
   $("stream-model-tag").textContent=m.tag;
+  $("chat-tokens-val").textContent=user.tokens_balance||0;
   $("stream-chat-messages").innerHTML='<div class="bg-pink-950/70 border border-pink-500/40 p-2 rounded-xl text-pink-100"><div class="font-bold text-pink-400 text-[10px]">💖 '+m.n+'</div><div>'+m.msg+'</div></div>';
+  $("stream-time-expired").classList.add("hidden");
   $("modal-showroom").classList.remove("hidden");$("modal-showroom").classList.add("flex");
+  iniciarTemporizadorShow();
+}
+
+function cerrarShow(){
+  if(streamTimerInterval)clearInterval(streamTimerInterval);
+  $("modal-showroom").classList.add("hidden");
+}
+
+function iniciarTemporizadorShow(){
+  if(streamTimerInterval)clearInterval(streamTimerInterval);
+  const isAdm=user&&isAdmin(user.email,user.rol);
+  if(isAdm){$("stream-timer-val").textContent="VIP ∞";return;}
+  streamTimerInterval=setInterval(()=>{
+    if(streamTimerSecs>0){
+      streamTimerSecs--;
+      const min=Math.floor(streamTimerSecs/60),sec=streamTimerSecs%60;
+      $("stream-timer-val").textContent=(min<10?"0":"")+min+":"+(sec<10?"0":"")+sec;
+      if(streamTimerSecs===60)alertar("⚠️ Te queda 1 minuto de transmisión gratis. Recarga con BEP-20.");
+    }else{
+      clearInterval(streamTimerInterval);
+      $("stream-time-expired").classList.remove("hidden");
+    }
+  },1000);
+}
+
+/* MODAL BEP-20 */
+function mostrarModalBEP20(){
+  $("modal-bep20").classList.remove("hidden");
+  $("modal-bep20").classList.add("flex");
+}
+function cerrarModalBEP20(){
+  $("modal-bep20").classList.add("hidden");
+  $("modal-bep20").classList.remove("flex");
+}
+function copiarBilleteraBEP20(){
+  navigator.clipboard.writeText(BEP20).then(()=>{
+    alertar("✅ Dirección BEP-20 copiada: "+BEP20);
+  }).catch(()=>{
+    alertar("Dirección: "+BEP20);
+  });
+}
+function confirmarRecargaBEP20(){
+  if(!user){mostrarModalAuth("login");return;}
+  streamTimerSecs+=600;
+  user.tokens_balance=(user.tokens_balance||0)+100;
+  updateUI(user);
+  if(db)db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});
+  $("stream-time-expired").classList.add("hidden");
+  cerrarModalBEP20();
+  alertar("🎉 ¡Pago reportado! Se añadieron +10 Minutos y +100 Tokens a tu cuenta.");
+  iniciarTemporizadorShow();
+}
+
+/* TAB REGALOS */
+function tabRegalos(tipo){
+  const isT=(tipo==="tiernos");
+  $("grid-regalos-tiernos").classList.toggle("hidden",!isT);
+  $("grid-regalos-sexual").classList.toggle("hidden",isT);
+  $("tab-reg-tiernos").className=isT?"flex-1 py-0.5 rounded text-[9px] font-bold bg-pink-900/60 text-pink-200":"flex-1 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400";
+  $("tab-reg-sexual").className=!isT?"flex-1 py-0.5 rounded text-[9px] font-bold bg-purple-950 text-purple-200 border border-purple-500/40":"flex-1 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400";
 }
 
 /* GESTOS Y MOVIMIENTOS EN VIVO */
 function animarGesto(t){
   const img=$("stream-img"),badge=$("model-gesture-badge"),layer=$("floating-layer");
   if(!img)return;
-  img.classList.remove("kiss-anim","wink-anim","dance-anim","zoom-anim");
+  img.classList.remove("kiss-anim","wink-anim","dance-anim","zoom-anim","vibe-anim");
   void img.offsetWidth;
   let txt="",anim="",sym="";
   const mN=(curShow?curShow.n:"La modelo");
@@ -208,15 +260,18 @@ function animarGesto(t){
   else if(t==="guiño"){anim="wink-anim";txt="😉 "+mN+" te guiña el ojo con picardía...";sym="😉";}
   else if(t==="baile"){anim="dance-anim";txt="💃 "+mN+" baila sensualmente para ti...";sym="✨";}
   else if(t==="acercar"){anim="zoom-anim";txt="🔥 "+mN+" se acerca a tu pantalla...";sym="🔥";}
+  else if(t==="vibrador"){anim="vibe-anim";txt="⚡ "+mN+" enciende el vibrador VIP en vivo...";sym="⚡";}
+  else if(t==="babydoll"){anim="zoom-anim";txt="👗 "+mN+" modela su baby doll sensual...";sym="👗";}
+  else if(t==="latigo"){anim="kiss-anim";txt="🖤 "+mN+" juega con el látigo traviesa...";sym="🖤";}
   img.classList.add(anim);
   if(badge){badge.textContent=txt;badge.classList.remove("hidden");setTimeout(()=>badge.classList.add("hidden"),2500);}
   if(layer&&sym){
-    for(let k=0;k<3;k++){
+    for(let k=0;k<4;k++){
       setTimeout(()=>{
         const f=document.createElement("div");f.className="fheart absolute text-2xl font-bold drop-shadow";
-        f.style.left=(25+Math.random()*50)+"%";f.style.bottom=(30+Math.random()*25)+"%";f.textContent=sym;
+        f.style.left=(20+Math.random()*60)+"%";f.style.bottom=(25+Math.random()*30)+"%";f.textContent=sym;
         layer.appendChild(f);setTimeout(()=>f.remove(),1200);
-      },k*180);
+      },k*160);
     }
   }
 }
@@ -238,28 +293,23 @@ function pedirGesto(t){
   },800);
 }
 
-function responderChatInteligente(raw){
-  const t=raw.toLowerCase(),nom=(user?(user.nombre||"mi rey"):"mi amor"),mN=(curShow?curShow.n:"Vanessa");
-  const has=(k)=>t.includes(k);
-  if(has("beso")||has("besito")||has("muak")||has("pico")){animarGesto("beso");return "¡Muakkk! 💋 Te mandé un beso apasionado a tus labios "+nom+"... ¿lo sentiste rico? 🥰";}
-  if(has("guiñ")||has("ojo")||has("ojito")){animarGesto("guiño");return "[Te mira con picardía y te guiña el ojo] 😉 Ese guiño fue exclusivo para ti mi cielo...";}
-  if(has("baila")||has("baile")||has("mueve")||has("vuelta")||has("cuerpo")){animarGesto("baile");return "Mmm me encanta bailar para ti... [gira sensualmente al ritmo] 🔥 ¿Te gusta cómo me muevo?";}
-  if(has("cerca")||has("acerca")||has("ven")||has("mira")){animarGesto("acercar");return "[Se acerca a la cámara susurrándote] Aquí estoy bien cerquita de ti "+nom+"... 😏";}
-  if(has("hola")||has("buenas")||has("hey")||has("saludos")){return "¡Hola "+nom+"! Qué delicia tenerte en mi sala hoy. ¿Cómo te trata la noche? Estoy lista para ti 💕";}
-  if(has("hermosa")||has("linda")||has("bella")||has("rica")||has("guapa")||has("preciosa")||has("mamacita")||has("diosa")){animarGesto("guiño");return "Ayyy qué lindo eres "+nom+"... me haces sonrojar 🙈 Me fascinan tus piropos, quédate conmigo a solas 💋";}
-  if(has("ropa")||has("lencer")||has("quitate")||has("desnud")||has("show")||has("sexy")){return "Mmm qué travieso... 🔥 Mándame una propina o una coronita VIP 👑 y te doy un show privado ardiente.";}
-  if(has("te amo")||has("te quiero")||has("amor")||has("bebe")||has("bb")||has("cariño")||has("gracias")){return "¡Tan tierno mi amor! Me encanta cuando me hablas así de dulce... me tienes fascinada 💕✨";}
-  if(has("si")||has("sí")||has("claro")||has("dale")||has("ok")||has("vamos")||has("quiero")){animarGesto("beso");return "¡Esooo! Me fascinan los hombres decididos 😏 Pídeme un baile, un besito o un guiño mi cielo.";}
-  if(has("donde")||has("edad")||has("haces")||has("nombre")){return "Soy "+mN+" y transmito en vivo para ti mi rey 🔥 ¿Desde qué ciudad me estás viendo hoy?";}
-  const v=["¡Qué rico mensaje "+nom+"! Me fascina tu compañía en mi sala ❤️","¡Disfrutemos este show privado juntos mi amor! ✨","¡Gracias por estar aquí "+nom+"! Mándame un guiño o corazoncito para seguir jugando juntos 💋","¡Aquí estoy toda tuya cielo! Dime qué más quieres ver de mí... 😏"];
-  return v[Math.floor(Math.random()*v.length)];
-}
-
-function enviarMensajeChat(e){
-  e.preventDefault();const inp=$("stream-chat-input");const txt=inp.value.trim();if(!txt)return;
-  const chat=$("stream-chat-messages");
-  chat.innerHTML+='<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-zinc-200"><div class="font-bold text-zinc-400 text-[10px]">'+(user?user.nombre:"Tú")+'</div><div>'+txt+'</div></div>';
-  inp.value="";chat.scrollTop=chat.scrollHeight;
-  setTimeout(()=>{
-    const rep=responderChatInteligente(txt);
-    chat.innerHTML+='<div class="bg-pink
+/* ENVIAR REGALOS TIERNOS & KIT SEXUAL */
+function enviarRegaloEspecial(tipo,precioUsd,nombreRegalo){
+  if(!user){mostrarModalAuth("login");return;}
+  const tokensCosto=precioUsd*10;
+  const isAdm=isAdmin(user.email,user.rol);
+  if(!isAdm&&(user.tokens_balance||0)<tokensCosto){
+    alertar("Saldo insuficiente para "+nombreRegalo+" ($"+precioUsd+"). Recarga con BEP-20.");
+    mostrarModalBEP20();
+    return;
+  }
+  if(!isAdm&&db){
+    user.tokens_balance-=tokensCosto;
+    updateUI(user);
+    db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});
+  }
+  $("chat-tokens-val").textContent=user.tokens_balance||0;
+  
+  if(tipo==="vibrador")animarGesto("vibrador");
+  else if(tipo==="latigo")animarGesto("latigo");
+  else if(tip
