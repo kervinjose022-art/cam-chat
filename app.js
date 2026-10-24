@@ -101,7 +101,7 @@ async function ejecutarLogin(em,pw){
   }
   const isAdm=(em===ADMIN.toLowerCase());
   if(isAdm||uData){
-    const s={uid:docId,email:em,nombre:(uData&&(uData.nombre||uData.name))||(isAdm?"Kervin Admin":em.split("@")[0]),rol:isAdm?"Administrador":((uData&&uData.rol)||"Usuario"),tokens_balance:isAdm?99999:((uData&&(uData.tokens_balance??50))??50),tokens_ganados:uData&&uData.tokens_ganados?uData.tokens_ganados:0};
+    const s={uid:docId,email:em,nombre:(uData&&(uData.nombre||uData.name))||(isAdm?"Kervin Admin":em.split("@")[0]),rol:isAdm?"Administrador":((uData&&uData.rol)||"Usuario"),tokens_balance:isAdm?99999:((uData&&(uData.tokens_balance??100))??100),tokens_ganados:uData&&uData.tokens_ganados?uData.tokens_ganados:0};
     if(isAdm&&db)db.collection("Usuarios").doc(docId).set({nombre:s.nombre,correo:em,rol:"Administrador",tokens_balance:99999},{merge:true}).catch(()=>{});
     localStorage.setItem("cam_u",JSON.stringify(s));updateUI(s);$("modal-auth").classList.add("hidden");alertar("¡Bienvenido "+s.nombre+"!");
   }else{
@@ -196,88 +196,70 @@ function abrirShow(i){
   $("modal-showroom").classList.remove("hidden");$("modal-showroom").classList.add("flex");
 }
 
+/* GESTOS Y MOVIMIENTOS EN VIVO */
+function animarGesto(t){
+  const img=$("stream-img"),badge=$("model-gesture-badge"),layer=$("floating-layer");
+  if(!img)return;
+  img.classList.remove("kiss-anim","wink-anim","dance-anim","zoom-anim");
+  void img.offsetWidth;
+  let txt="",anim="",sym="";
+  const mN=(curShow?curShow.n:"La modelo");
+  if(t==="beso"){anim="kiss-anim";txt="💋 "+mN+" te lanza un beso ardiente...";sym="💋";}
+  else if(t==="guiño"){anim="wink-anim";txt="😉 "+mN+" te guiña el ojo con picardía...";sym="😉";}
+  else if(t==="baile"){anim="dance-anim";txt="💃 "+mN+" baila sensualmente para ti...";sym="✨";}
+  else if(t==="acercar"){anim="zoom-anim";txt="🔥 "+mN+" se acerca a tu pantalla...";sym="🔥";}
+  img.classList.add(anim);
+  if(badge){badge.textContent=txt;badge.classList.remove("hidden");setTimeout(()=>badge.classList.add("hidden"),2500);}
+  if(layer&&sym){
+    for(let k=0;k<3;k++){
+      setTimeout(()=>{
+        const f=document.createElement("div");f.className="fheart absolute text-2xl font-bold drop-shadow";
+        f.style.left=(25+Math.random()*50)+"%";f.style.bottom=(30+Math.random()*25)+"%";f.textContent=sym;
+        layer.appendChild(f);setTimeout(()=>f.remove(),1200);
+      },k*180);
+    }
+  }
+}
+
+function pedirGesto(t){
+  if(!curShow)return;
+  const nom=(user?user.nombre:"Mi rey");animarGesto(t);
+  const chat=$("stream-chat-messages");
+  let uReq="",rep="";
+  if(t==="beso"){uReq="💋 ¡Lánzame un beso mi amor!";rep="¡Muakkk para ti sólito "+nom+"! 💋 Te mando un beso bien apasionado...";}
+  else if(t==="guiño"){uReq="😉 ¡Dame un guiño picarón!";rep="[Te mira fijamente, sonríe coqueta y te guiña el ojo] 😉 ¿Te gustó mi guiño mi rey?";}
+  else if(t==="baile"){uReq="💃 ¡Baila sensual para mí!";rep="Mmm me encanta cómo me lo pides... [da una vuelta suave moviendo sus curvas] 🔥";}
+  else if(t==="acercar"){uReq="🔥 ¡Acércate más a la pantalla!";rep="[Se acerca a la cámara mirándote fijamente a los ojos] Aquí estoy bien cerquita de ti "+nom+" 😏";}
+  chat.innerHTML+='<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-zinc-200"><div class="font-bold text-zinc-400 text-[10px]">'+nom+'</div><div>'+uReq+'</div></div>';
+  chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{
+    chat.innerHTML+='<div class="bg-pink-950/70 border border-pink-500/40 p-2 rounded-xl text-pink-100"><div class="font-bold text-pink-400 text-[10px]">💖 '+curShow.n+'</div><div>'+rep+'</div></div>';
+    chat.scrollTop=chat.scrollHeight;
+  },800);
+}
+
+function responderChatInteligente(raw){
+  const t=raw.toLowerCase(),nom=(user?(user.nombre||"mi rey"):"mi amor"),mN=(curShow?curShow.n:"Vanessa");
+  const has=(k)=>t.includes(k);
+  if(has("beso")||has("besito")||has("muak")||has("pico")){animarGesto("beso");return "¡Muakkk! 💋 Te mandé un beso apasionado a tus labios "+nom+"... ¿lo sentiste rico? 🥰";}
+  if(has("guiñ")||has("ojo")||has("ojito")){animarGesto("guiño");return "[Te mira con picardía y te guiña el ojo] 😉 Ese guiño fue exclusivo para ti mi cielo...";}
+  if(has("baila")||has("baile")||has("mueve")||has("vuelta")||has("cuerpo")){animarGesto("baile");return "Mmm me encanta bailar para ti... [gira sensualmente al ritmo] 🔥 ¿Te gusta cómo me muevo?";}
+  if(has("cerca")||has("acerca")||has("ven")||has("mira")){animarGesto("acercar");return "[Se acerca a la cámara susurrándote] Aquí estoy bien cerquita de ti "+nom+"... 😏";}
+  if(has("hola")||has("buenas")||has("hey")||has("saludos")){return "¡Hola "+nom+"! Qué delicia tenerte en mi sala hoy. ¿Cómo te trata la noche? Estoy lista para ti 💕";}
+  if(has("hermosa")||has("linda")||has("bella")||has("rica")||has("guapa")||has("preciosa")||has("mamacita")||has("diosa")){animarGesto("guiño");return "Ayyy qué lindo eres "+nom+"... me haces sonrojar 🙈 Me fascinan tus piropos, quédate conmigo a solas 💋";}
+  if(has("ropa")||has("lencer")||has("quitate")||has("desnud")||has("show")||has("sexy")){return "Mmm qué travieso... 🔥 Mándame una propina o una coronita VIP 👑 y te doy un show privado ardiente.";}
+  if(has("te amo")||has("te quiero")||has("amor")||has("bebe")||has("bb")||has("cariño")||has("gracias")){return "¡Tan tierno mi amor! Me encanta cuando me hablas así de dulce... me tienes fascinada 💕✨";}
+  if(has("si")||has("sí")||has("claro")||has("dale")||has("ok")||has("vamos")||has("quiero")){animarGesto("beso");return "¡Esooo! Me fascinan los hombres decididos 😏 Pídeme un baile, un besito o un guiño mi cielo.";}
+  if(has("donde")||has("edad")||has("haces")||has("nombre")){return "Soy "+mN+" y transmito en vivo para ti mi rey 🔥 ¿Desde qué ciudad me estás viendo hoy?";}
+  const v=["¡Qué rico mensaje "+nom+"! Me fascina tu compañía en mi sala ❤️","¡Disfrutemos este show privado juntos mi amor! ✨","¡Gracias por estar aquí "+nom+"! Mándame un guiño o corazoncito para seguir jugando juntos 💋","¡Aquí estoy toda tuya cielo! Dime qué más quieres ver de mí... 😏"];
+  return v[Math.floor(Math.random()*v.length)];
+}
+
 function enviarMensajeChat(e){
   e.preventDefault();const inp=$("stream-chat-input");const txt=inp.value.trim();if(!txt)return;
   const chat=$("stream-chat-messages");
-  chat.innerHTML+='<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-zinc-200"><div class="font-bold text-zinc-400 text-[10px]">'+(user.nombre||"Tú")+'</div><div>'+txt+'</div></div>';
+  chat.innerHTML+='<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-zinc-200"><div class="font-bold text-zinc-400 text-[10px]">'+(user?user.nombre:"Tú")+'</div><div>'+txt+'</div></div>';
   inp.value="";chat.scrollTop=chat.scrollHeight;
   setTimeout(()=>{
-    const rep=["¡Qué lindo mensaje cariño! Me encanta tenerte aquí ❤️","¡Disfrutemos este show privado juntos! ✨","¡Gracias mi amor! ¿Quieres una sorpresa especial? 💋"];
-    chat.innerHTML+='<div class="bg-pink-950/70 border border-pink-500/40 p-2 rounded-xl text-pink-100"><div class="font-bold text-pink-400 text-[10px]">💖 '+(curShow?curShow.n:"Host")+'</div><div>'+rep[Math.floor(Math.random()*rep.length)]+'</div></div>';
-    chat.scrollTop=chat.scrollHeight;
-  },1000);
-}
-
-function enviarPropina(cant,desc){
-  if(!user){mostrarModalAuth("login");return;}
-  const isAdm=isAdmin(user.email,user.rol);
-  if(!isAdm&&(user.tokens_balance||0)<cant){alertar("Tokens insuficientes. Pulsa + Recargar.");return;}
-  if(!isAdm&&db){user.tokens_balance-=cant;updateUI(user);db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});}
-  if(curShow&&curShow.isReal&&curShow.modelId&&db){
-    db.collection("Usuarios").doc(curShow.modelId).get().then(snap=>{
-      const g=(snap.exists&&snap.data().tokens_ganados)||0;
-      db.collection("Usuarios").doc(curShow.modelId).set({tokens_ganados:g+cant},{merge:true}).catch(()=>{});
-    }).catch(()=>{});
-  }
-  const l=$("floating-layer");
-  const f=document.createElement("div");f.className="fheart absolute text-xl font-bold text-pink-400 drop-shadow";f.style.left=(35+Math.random()*30)+"%";f.style.bottom="20%";f.textContent=desc;l.appendChild(f);setTimeout(()=>f.remove(),1200);
-  const chat=$("stream-chat-messages");
-  chat.innerHTML+='<div class="bg-amber-950/70 border border-amber-500/40 p-2 rounded-xl text-amber-200 text-[11px]"><div class="font-bold text-amber-400 text-[10px]">🪙 Propina VIP</div>'+cant+' Tokens • '+desc+'</div>';
-  chat.scrollTop=chat.scrollHeight;
-  setTimeout(()=>{
-    let sensualResponse="¡Gracias por tu regalo mi rey! Me fascinas 🔥";
-    if(cant>=100)sensualResponse="¡Waooo corona VIP! Esta noche soy completamente tuya mi amor 👑💋";
-    else if(cant>=50)sensualResponse="¡Mmm qué rico beso! Te mando uno apasionado directo a la boca mi cielo 💋✨";
-    chat.innerHTML+='<div class="bg-pink-950/70 border border-pink-500/40 p-2 rounded-xl text-pink-100"><div class="font-bold text-pink-400 text-[10px]">💖 '+(curShow?curShow.n:"Host")+'</div><div>'+sensualResponse+'</div></div>';
-    chat.scrollTop=chat.scrollHeight;
-  },1200);
-}
-
-function recargarBonoGratis(){
-  if(!user){mostrarModalAuth("login");return;}
-  user.tokens_balance=(user.tokens_balance||0)+100;updateUI(user);
-  if(db)db.collection("Usuarios").doc(user.uid).update({tokens_balance:user.tokens_balance}).catch(()=>{});
-  alertar("🎁 +100 Tokens Bono sumados a tu cuenta.");
-}
-
-function iniciarEscuchaUsuariosAdmin(){
-  if(!db)return;
-  db.collection("Usuarios").onSnapshot(snap=>{
-    let docs=[];snap.forEach(d=>docs.push({id:d.id,...d.data()}));
-    let tok=0,uC=0,mC=0;
-    docs.forEach(u=>{tok+=parseInt(u.tokens_balance||0,10);if((u.rol||"").toLowerCase().includes("modelo"))mC++;else uC++;});
-    $("stat-total-usuarios").textContent=docs.length;
-    $("stat-usuarios-reg").textContent=uC;
-    $("stat-modelos-reg").textContent=mC;
-    $("stat-total-tokens").textContent=tok.toLocaleString();
-    const tbody=$("admin-usuarios-tbody");
-    tbody.innerHTML=docs.map(u=>{
-      const isK=(u.correo||"").toLowerCase()===ADMIN.toLowerCase();
-      const isMod=isModel(u.rol);
-      return '<tr class="hover:bg-zinc-800/40"><td class="py-2 px-2.5 font-bold text-white">'+(u.nombre||u.correo||"Anon")+'</td><td class="py-2 px-2 text-[10px] text-zinc-400 font-mono">'+(u.correo||"-")+'</td><td class="py-2 px-2 text-[10px] font-bold '+(isK?"text-amber-400":(isMod?"text-rose-400":"text-zinc-300"))+'">'+(isK?"👑 Admin":(isMod?"💄 Modelo":u.rol||"Usuario"))+'</td><td class="py-2 px-2 text-amber-400 font-mono font-bold text-xs">🪙 '+(u.tokens_balance||0)+'</td><td class="py-2 px-2"><button onclick="sumarTokensUsuario(\''+u.id+'\',50)" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded text-[10px] font-bold">+50</button></td></tr>';
-    }).join("");
-  },()=>{});
-}
-
-async function sumarTokensUsuario(uid,c){
-  if(!db)return;
-  try{
-    const r=db.collection("Usuarios").doc(uid);const s=await r.get();
-    const cur=(s.exists&&s.data().tokens_balance)||0;
-    await r.update({tokens_balance:cur+c});alertar("+"+c+" tokens asignados.");
-  }catch(e){}
-}
-
-function alertar(m){
-  const al=$("global-alert");
-  $("global-alert-text").textContent=m;
-  al.className="mb-3 p-2 rounded-xl border bg-pink-950 border-pink-500/60 text-pink-200 text-xs flex justify-between";
-  al.classList.remove("hidden");setTimeout(()=>al.classList.add("hidden"),3500);
-}
-
-window.addEventListener("DOMContentLoaded",()=>{
-  renderModelos();
-  escucharModelosEnVivo();
-  const s=localStorage.getItem("cam_u");
-  if(s){try{const p=JSON.parse(s);if(p&&p.email)updateUI(p);}catch(e){}}
-});
+    const rep=responderChatInteligente(txt);
+    chat.innerHTML+='<div class="bg-pink
