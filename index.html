@@ -25,6 +25,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
 .dance-anim{animation:danceFx 2.2s ease-in-out}
 @keyframes zoomFx{0%{transform:scale(1)}50%{transform:scale(1.2) translateY(-10px)}100%{transform:scale(1)}}
 .zoom-anim{animation:zoomFx 2s ease-in-out}
+@keyframes vibeFx{0%,100%{transform:translate(0,0) scale(1.06)}25%{transform:translate(-3px,3px) scale(1.1)}50%{transform:translate(3px,-2px) scale(1.1)}75%{transform:translate(-3px,-2px) scale(1.1)}}
+.vibe-anim{animation:vibeFx .12s infinite;filter:drop-shadow(0 0 20px rgba(236,72,153,.9))}
 .inpt{width:100%;background:#090a12;border:1px solid #3f3f46;border-radius:10px;padding:7px 10px;font-size:12px;color:#fff;outline:none}
 .btn-p{background:linear-gradient(to right,#db2777,#e11d48);color:#fff;font-weight:800;border-radius:10px}
 .mcard{background:#111320;border:1px solid rgba(244,63,94,0.3);border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
@@ -41,18 +43,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button onclick="abrirStudioModelo()" class="bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white font-black px-2.5 py-1.5 rounded-lg text-xs shadow flex items-center gap-1.5 active:scale-95 transition-all"><span class="w-2 h-2 rounded-full bg-white ldot"></span><span>Transmitir</span></button>
+      <button onclick="abrirStudioModelo()" class="bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white font-black px-2 py-1 rounded-lg text-xs shadow flex items-center gap-1 active:scale-95"><span class="w-2 h-2 rounded-full bg-white ldot"></span><span>Transmitir</span></button>
+      <button onclick="mostrarModalBEP20()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-2 py-1 rounded-lg text-xs shadow flex items-center gap-1 active:scale-95"><i class="fa-brands fa-bitcoin"></i><span>BEP-20</span></button>
       <div id="user-token-pill" class="hidden items-center gap-1 bg-zinc-900 border border-amber-500/50 px-2 py-0.5 rounded-full text-xs font-bold text-amber-300 cursor-pointer" onclick="recargarBonoGratis()">
-        <span>🪙</span><span id="header-tokens-val" class="font-mono">0</span><span class="text-[9px] bg-amber-500 text-zinc-950 px-1 rounded-full font-black hidden sm:inline">+ Recargar</span>
+        <span>🪙</span><span id="header-tokens-val" class="font-mono">0</span>
       </div>
       <div id="auth-buttons" class="flex items-center gap-1">
         <button onclick="mostrarModalAuth('login')" class="text-xs bg-zinc-800 text-zinc-200 px-2.5 py-1.5 rounded-lg font-semibold border border-zinc-700">Ingresar</button>
-        <button onclick="mostrarModalAuth('registro')" class="text-xs btn-p px-2.5 py-1.5 shadow">Registrarme</button>
       </div>
       <button id="btn-logout" onclick="cerrarSesion()" class="hidden text-xs bg-zinc-900 text-zinc-400 px-2 py-1.5 rounded-lg border border-zinc-800"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
     </div>
   </div>
 </header>
+
 <div id="model-top-banner" class="hidden bg-gradient-to-r from-rose-950 via-zinc-900 to-pink-950 border-b border-pink-500/60 px-3 py-1.5 text-xs">
   <div class="max-w-5xl mx-auto flex items-center justify-between">
     <div class="text-pink-300 font-bold text-[11px] flex items-center gap-1.5"><span>💄</span><span>STUDIO MODELO (<span id="model-badge-name" class="text-white font-bold"></span>)</span><span class="text-amber-300 font-mono text-[10px]">🪙 Ganados: <b id="model-badge-tokens">0</b></span></div>
@@ -68,6 +71,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
     </div>
   </div>
 </div>
+
 <main class="max-w-5xl mx-auto px-3 mt-3">
   <div id="global-alert" class="hidden mb-3 p-2 rounded-xl border bg-pink-950 border-pink-500/60 text-pink-200 text-xs flex justify-between"><span id="global-alert-text"></span><button onclick="this.parentElement.classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
   <section id="vista-admin" class="hidden space-y-3">
@@ -90,44 +94,84 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
       <div>
         <span class="inline-flex items-center gap-1 bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full text-[8px] font-bold border border-pink-500/40 mb-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500 ldot"></span> SALAS EN DIRECTO 24/7</span>
         <h2 class="text-base sm:text-lg font-black text-white">Streaming <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300">VIP & Sensual</span></h2>
-        <p class="text-[10px] text-zinc-300">Modelos reales y modelos IA con shows interactivos.</p>
+        <p class="text-[10px] text-zinc-300">10 minutos libres para espectadores • Regalos VIP & BEP-20.</p>
       </div>
-      <button onclick="recargarBonoGratis()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-3 py-1.5 rounded-xl text-xs shadow shrink-0">🪙 +100 Bono</button>
+      <button onclick="mostrarModalBEP20()" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-3 py-1.5 rounded-xl text-xs shadow shrink-0 flex items-center gap-1"><i class="fa-brands fa-bitcoin"></i> Recargar</button>
     </div>
     <div id="grid-modelos" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
   </section>
 </main>
+
+<!-- SHOWROOM -->
 <div id="modal-showroom" class="fixed inset-0 z-50 bg-black/90 backdrop-blur hidden items-center justify-center p-2">
   <div class="bg-[#0e101a] border border-pink-500/40 rounded-2xl max-w-4xl w-full h-[88vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
-    <button onclick="document.getElementById('modal-showroom').classList.add('hidden')" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
+    <button onclick="cerrarShow()" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
     <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
       <img id="stream-img" src="" alt="Stream" class="w-full h-full object-cover live-motion">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
-      <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 text-xs"><span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white ldot"></span> EN VIVO</span><span class="bg-black/60 text-zinc-200 text-[9px] px-2 py-0.5 rounded-full">1080p • 60 FPS</span></div>
+      
+      <!-- CONTADOR 10 MINUTOS -->
+      <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 text-xs z-20">
+        <span class="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white ldot"></span> EN VIVO</span>
+        <div onclick="mostrarModalBEP20()" class="bg-black/75 border border-amber-500/60 text-amber-300 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold flex items-center gap-1 cursor-pointer shadow">
+          <i class="fa-solid fa-clock text-amber-400"></i> <span id="stream-timer-val">10:00</span>
+          <span class="text-[7px] bg-amber-500 text-black px-1 rounded font-black">+ Recargar</span>
+        </div>
+      </div>
+
       <div id="floating-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
       <div id="model-gesture-badge" class="hidden absolute top-10 left-2.5 z-30 bg-pink-950/90 border border-pink-400 text-pink-200 text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur shadow-xl transition-all"></div>
+      
+      <!-- GESTOS DIRECTOS -->
       <div class="absolute bottom-11 left-2.5 right-2.5 flex gap-1 z-20 overflow-x-auto pb-0.5">
         <button type="button" onclick="pedirGesto('beso')" class="bg-black/75 hover:bg-pink-900 border border-pink-500/50 text-white text-[9px] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 active:scale-95 shadow font-bold">💋 Beso</button>
         <button type="button" onclick="pedirGesto('guiño')" class="bg-black/75 hover:bg-pink-900 border border-pink-500/50 text-white text-[9px] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 active:scale-95 shadow font-bold">😉 Guiño</button>
         <button type="button" onclick="pedirGesto('baile')" class="bg-black/75 hover:bg-pink-900 border border-pink-500/50 text-white text-[9px] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 active:scale-95 shadow font-bold">💃 Baile</button>
         <button type="button" onclick="pedirGesto('acercar')" class="bg-black/75 hover:bg-pink-900 border border-pink-500/50 text-white text-[9px] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 active:scale-95 shadow font-bold">🔥 Acercar</button>
       </div>
+
       <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between">
         <div><h4 id="stream-model-name" class="text-sm font-black text-white"></h4><p id="stream-model-tag" class="text-[9px] text-pink-300 font-bold">Lencería VIP</p></div>
-        <div class="flex gap-1">
-          <button onclick="enviarPropina(10,'💖 Corazón')" class="bg-pink-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow">💖 10</button>
-          <button onclick="enviarPropina(50,'🍸 Trago VIP')" class="bg-amber-500 text-zinc-950 px-2 py-1 rounded-lg text-xs font-black shadow">🪙 50</button>
-        </div>
+        <button onclick="mostrarModalBEP20()" class="bg-amber-500 text-zinc-950 font-black px-2 py-1 rounded-lg text-xs shadow flex items-center gap-1"><i class="fa-brands fa-bitcoin"></i> BEP-20</button>
+      </div>
+
+      <!-- OVERLAY 10 MINUTOS EXPIRADOS -->
+      <div id="stream-time-expired" class="hidden absolute inset-0 z-40 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-2 border border-amber-500/40 animate-pulse"><i class="fa-solid fa-hourglass-end"></i></div>
+        <h3 class="text-base font-black text-white">¡Tus 10 Minutos Han Finalizado!</h3>
+        <p class="text-xs text-zinc-300 max-w-xs mt-1">Para seguir viendo la transmisión en directo y desbloquear regalos íntimos, recarga a la dirección BEP-20.</p>
+        <button onclick="mostrarModalBEP20()" class="mt-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-zinc-950 font-black px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 active:scale-95"><i class="fa-solid fa-bolt"></i> Recargar Billetera BEP-20</button>
       </div>
     </div>
-    <div class="w-full md:w-72 h-52 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
-      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat en Vivo</span><span class="text-[9px] text-emerald-400 font-mono">Conectado</span></div>
-      <div id="stream-chat-messages" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"></div>
-      <div class="p-1 bg-zinc-900 border-t border-zinc-800 flex gap-1 text-[10px] font-bold">
-        <button onclick="enviarPropina(25,'✨ Saludo')" class="flex-1 py-1 bg-zinc-800 text-amber-300 rounded">🪙 25</button>
-        <button onclick="enviarPropina(50,'💋 Beso')" class="flex-1 py-1 bg-pink-900/60 text-pink-200 rounded">🪙 50</button>
-        <button onclick="enviarPropina(100,'👑 Corona VIP')" class="flex-1 py-1 bg-amber-500 text-zinc-950 rounded">🪙 100</button>
+
+    <!-- PANEL DERECHO: CHAT + REGALOS (TIERNOS Y KIT SEXUAL) -->
+    <div class="w-full md:w-80 h-64 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
+      <div class="p-2 border-b border-zinc-800 flex justify-between items-center text-xs font-bold text-zinc-300">
+        <span><i class="fa-solid fa-comments text-pink-500 mr-1"></i> Chat VIP</span>
+        <button onclick="mostrarModalBEP20()" class="text-[9px] text-amber-400 font-mono flex items-center gap-1 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/30">🪙 <span id="chat-tokens-val">0</span> +</button>
       </div>
+      <div id="stream-chat-messages" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"></div>
+      
+      <!-- MENU DE REGALOS -->
+      <div class="p-1.5 bg-zinc-950 border-t border-zinc-800">
+        <div class="flex gap-1 mb-1">
+          <button type="button" onclick="tabRegalos('tiernos')" id="tab-reg-tiernos" class="flex-1 py-0.5 rounded text-[9px] font-bold bg-pink-900/60 text-pink-200">🎁 Regalos Tiernos</button>
+          <button type="button" onclick="tabRegalos('sexual')" id="tab-reg-sexual" class="flex-1 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400">🔥 Kit Sexual VIP</button>
+        </div>
+        <div id="grid-regalos-tiernos" class="grid grid-cols-2 gap-1 text-[10px] font-bold">
+          <button onclick="enviarRegaloEspecial('flores_amarillas',3,'🌻 Flores Amarillas')" class="py-1 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-300 rounded flex items-center justify-between px-1.5"><span>🌻 Flores Amarillas</span><span class="text-zinc-400 font-mono">$3</span></button>
+          <button onclick="enviarRegaloEspecial('tulipanes',3,'🌷 Tulipanes')" class="py-1 bg-zinc-900 hover:bg-zinc-800 border border-rose-500/30 text-rose-300 rounded flex items-center justify-between px-1.5"><span>🌷 Tulipanes</span><span class="text-zinc-400 font-mono">$3</span></button>
+          <button onclick="enviarRegaloEspecial('stitch',5,'💙 Stitch')" class="py-1 bg-zinc-900 hover:bg-zinc-800 border border-sky-500/30 text-sky-300 rounded flex items-center justify-between px-1.5"><span>💙 Stitch</span><span class="text-zinc-400 font-mono">$5</span></button>
+          <button onclick="enviarRegaloEspecial('hello_kitty',7,'🎀 Hello Kitty')" class="py-1 bg-zinc-900 hover:bg-zinc-800 border border-pink-500/30 text-pink-300 rounded flex items-center justify-between px-1.5"><span>🎀 Hello Kitty</span><span class="text-zinc-400 font-mono">$7</span></button>
+        </div>
+        <div id="grid-regalos-sexual" class="hidden grid grid-cols-2 gap-1 text-[10px] font-bold">
+          <button onclick="enviarRegaloEspecial('mascara',10,'🎭 Máscara')" class="py-1 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 rounded flex items-center justify-between px-1.5"><span>🎭 Máscara</span><span class="text-purple-300 font-mono">$10</span></button>
+          <button onclick="enviarRegaloEspecial('latigo',10,'🖤 Látigo')" class="py-1 bg-zinc-950 hover:bg-zinc-900 border border-red-500/50 text-red-300 rounded flex items-center justify-between px-1.5"><span>🖤 Látigo</span><span class="text-red-400 font-mono">$10</span></button>
+          <button onclick="enviarRegaloEspecial('babydoll',15,'👗 Baby Doll')" class="py-1 bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-200 rounded flex items-center justify-between px-1.5"><span>👗 Baby Doll</span><span class="text-rose-300 font-mono">$15</span></button>
+          <button onclick="enviarRegaloEspecial('vibrador',20,'⚡ Vibrador VIP')" class="py-1 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded flex items-center justify-between px-1.5 shadow"><span>⚡ Vibrador</span><span class="text-amber-300 font-mono font-black">$20</span></button>
+        </div>
+      </div>
+
       <form onsubmit="enviarMensajeChat(event)" class="p-2 bg-[#0a0c14] border-t border-zinc-800 flex gap-1.5">
         <input type="text" id="stream-chat-input" placeholder="Escribe a la modelo..." class="inpt">
         <button type="submit" class="bg-pink-600 text-white w-7 h-7 rounded-lg shrink-0 flex items-center justify-center text-xs"><i class="fa-solid fa-paper-plane"></i></button>
@@ -135,56 +179,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#08090f;color:#f1f5f9
     </div>
   </div>
 </div>
-<div id="modal-streamer-studio" class="fixed inset-0 z-50 bg-black/95 backdrop-blur hidden items-center justify-center p-2">
-  <div class="bg-[#0e101a] border border-rose-500/50 rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl">
-    <button onclick="cerrarStudioModelo()" class="absolute top-2.5 right-2.5 z-30 bg-black/70 text-white w-7 h-7 rounded-full flex items-center justify-center border border-white/20 text-xs"><i class="fa-solid fa-xmark"></i></button>
-    <div class="relative flex-1 bg-zinc-950 flex items-center justify-center overflow-hidden">
-      <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-      <div id="webcam-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 p-4 text-center">
-        <i class="fa-solid fa-camera text-4xl text-pink-500 mb-2"></i>
-        <h3 class="text-base font-black text-white">Estudio de Transmisión en Vivo</h3>
-        <p class="text-xs text-zinc-400 mt-1 max-w-xs">Enciende tu cámara para salir en la pantalla principal de CamChat y ganar tokens.</p>
-        <button onclick="iniciarCamaraWeb()" class="mt-4 bg-gradient-to-r from-red-600 to-pink-600 text-white font-black px-4 py-2 rounded-xl text-xs shadow flex items-center gap-2"><i class="fa-solid fa-circle text-xs text-white ldot"></i> ACTIVAR MI CÁMARA</button>
-      </div>
-      <div id="studio-live-hud" class="hidden absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between text-xs">
-        <span class="bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow"><span class="w-2 h-2 rounded-full bg-white ldot"></span> TRANSMITIENDO EN VIVO</span>
-        <div class="flex gap-1.5">
-          <span class="bg-black/70 text-zinc-200 text-[10px] px-2 py-0.5 rounded-full border border-white/10">👁️ <span id="studio-viewers-count">1</span></span>
-          <span class="bg-amber-500 text-zinc-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">🪙 <span id="studio-tokens-earned">0</span> Ganados</span>
-        </div>
-      </div>
-      <div id="studio-controls" class="hidden absolute bottom-3 left-3 right-3 flex justify-center gap-2">
-        <button onclick="detenerCamaraWeb()" class="bg-zinc-900/90 text-red-400 border border-red-500/50 px-3 py-1.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-stop mr-1"></i> Finalizar En Vivo</button>
-      </div>
-    </div>
-    <div class="w-full md:w-72 h-52 md:h-full bg-[#10121d] border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col justify-between">
-      <div class="p-2 border-b border-zinc-800 flex justify-between text-xs font-bold text-zinc-300"><span><i class="fa-solid fa-heart text-pink-500 mr-1"></i> Propinas de tu Sala</span><span class="text-[9px] text-amber-400 font-mono">Billetera Activa</span></div>
-      <div id="studio-tips-list" class="flex-1 p-2 overflow-y-auto space-y-1.5 text-xs"><div class="text-center text-zinc-500 text-[11px] py-4">Tus propinas recibidas aparecerán aquí en vivo.</div></div>
-    </div>
-  </div>
-</div>
-<div id="modal-auth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3">
-  <div class="bg-[#121422] border border-pink-500/40 rounded-2xl max-w-xs w-full p-4 shadow-2xl relative">
-    <button onclick="document.getElementById('modal-auth').classList.add('hidden')" class="absolute top-3 right-3 text-zinc-400"><i class="fa-solid fa-xmark"></i></button>
-    <div class="flex border-b border-zinc-800 mb-3">
-      <button id="tab-login" onclick="tabAuth('login')" class="flex-1 pb-1.5 text-xs font-bold text-pink-400 border-b-2 border-pink-500">Ingresar</button>
-      <button id="tab-registro" onclick="tabAuth('reg')" class="flex-1 pb-1.5 text-xs font-bold text-zinc-400">Crear Cuenta</button>
-    </div>
-    <div id="auth-err" class="hidden mb-2 p-1.5 rounded text-xs bg-red-950 border border-red-500 text-red-200"></div>
-    <form id="f-login" onsubmit="procesarLogin(event)" class="space-y-2">
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Correo</label><input type="email" id="login-email" required placeholder="tu@correo.com" class="inpt"></div>
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Contraseña (Opcional)</label><input type="password" id="login-pass" placeholder="••••••••" class="inpt"></div>
-      <button type="submit" class="w-full btn-p py-2 text-xs shadow">Ingresar</button>
-      <button type="button" onclick="loginRapido()" class="w-full bg-zinc-900 text-amber-300 border border-amber-500/40 rounded-xl py-1.5 text-xs font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Entrar con 1 Clic (Directo)</button>
-    </form>
-    <form id="f-reg" onsubmit="procesarReg(event)" class="space-y-2 hidden">
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Nombre o Alias Artístico</label><input type="text" id="reg-nom" required placeholder="Ej. Camila Star" class="inpt"></div>
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Correo</label><input type="email" id="reg-mail" required placeholder="tu@correo.com" class="inpt"></div>
-      <div>
-        <label class="block text-[10px] text-zinc-300 mb-0.5">Tipo de Cuenta</label>
-        <select id="reg-rol" class="inpt cursor-pointer">
-          <option value="Usuario">👤 Espectador VIP (Ver Shows)</option>
-          <option value="Modelo">💄 Modelo Streamer (Transmitir en Vivo)</option>
-        </select>
-      </div>
-      <div><label class="block text-[10px] text-zinc-300 mb-0.5">Contraseña</label><input type="password" id="reg-pw" placeholder="••••••••"
+
+<!-- MODAL BILLETERA BEP-20 -->
+<div id="modal-bep20" class="fixed inset-0 z-50 bg-black/90 backdrop-blur hidden items-center justify-center p-3">
+  <div class="bg-[#121422] border border-amber-500/50 rounded-2xl max-w-sm w-full p-4 shadow-2xl relative text-center">
+    <button onclick="cerrarModalBEP20()" class="absolute top-3 right-3 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-lg mb-2 border border-amber-500/40"><i class="fa-brands fa-bitcoin"></i></div>
+    <h3 class="text-sm font-black text-amber-300">Recargar Saldo & Tiempo VIP</h3>
+    <p class="text-[11px] text-zinc-300 mt-0.5">Red: <span class="text-amber-400 font-bold">Binance Smart Chain (BEP-20)</span></p>
+    <p class="text-[10px] text-zinc-400">Acepta USDT, BNB y BUSD para ver transmisiones sin límite y enviar regalos íntimos.</p>
+    
+    <div class="mt-3 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800 text-left">
+      <div class="text-[9px] text-zinc-400 mb-1 flex justify-between"><span>Dirección BEP-20 (BSC):</span><span class="text-emerald-400 font-bold">Oficial Activa</span></div>
+      <div class="font-m
